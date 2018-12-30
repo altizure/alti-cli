@@ -15,7 +15,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "alti-cli",
 	Short: "An Altizure CLI",
-	Long:  `A CLI for interacting with Altizure service.`,
+	Long:  `A CLI tool for interacting with Altizure service.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
