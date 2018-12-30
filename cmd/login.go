@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"syscall"
 
+	"github.com/jackytck/alti-cli/gql"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -27,9 +28,10 @@ var loginCmd = &cobra.Command{
 		password := string(bytePassword)
 		fmt.Println()
 
-		fmt.Printf("Email: '%s'\nPassword: '%s'", email, password)
+		token := gql.GetUserToken(email, password, false)
+		fmt.Printf("Token: %s\n", token)
 
-		// @TODO: get altitoken
+		// @TODO: store token with end-point in ~/.altizure/credentials
 	},
 }
 
