@@ -8,9 +8,9 @@ import (
 )
 
 // GetUserToken gets the self-issued user token.
-func GetUserToken(email, password string, fresh bool) string {
+func GetUserToken(endpoint, email, password string, fresh bool) string {
 	// create a client (safe to share across requests)
-	client := graphql.NewClient("https://api.altizure.com/graphql")
+	client := graphql.NewClient(endpoint)
 
 	// make a request
 	req := graphql.NewRequest(`
