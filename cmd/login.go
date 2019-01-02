@@ -16,14 +16,15 @@ var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Login with email and password.",
 	Long: `Login to Altizure with email and password.
-	Credentials are stored in '~/.altizure/credentials'.`,
+	Credentials are stored in '~/.altizure/config'.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// a. api endpoint
+		dc := config.DefaultConfig()
 		var endpoint string
-		fmt.Printf("Endpoint (%s): ", defaultEndpoint)
+		fmt.Printf("Endpoint (%s): ", dc.Endpoint)
 		fmt.Scanln(&endpoint)
 		if endpoint == "" {
-			endpoint = defaultEndpoint
+			endpoint = dc.Endpoint
 		}
 		u, err := url.ParseRequestURI(endpoint)
 		if err != nil {
@@ -32,11 +33,11 @@ var loginCmd = &cobra.Command{
 
 		// b. api key
 		var appKey string
-		if u.Hostname() != defaultHostName1 && u.Hostname() != defaultHostName2 {
+		if u.Hostname() != config.DefaultHostName1 && u.Hostname() != config.DefaultHostName2 {
 			fmt.Printf("App Key: ")
 			fmt.Scanln(&appKey)
 		} else {
-			appKey = defaultAppKey
+			appKey = dc.Key
 		}
 
 		// c. email
