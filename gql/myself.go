@@ -23,8 +23,9 @@ func MySelf() (*types.User, error) {
 		query {
 		  my {
 		    self {
-		      name
 		      email
+		      name
+					username
 				}
 	    }
 		}
@@ -42,8 +43,9 @@ func MySelf() (*types.User, error) {
 	}
 
 	u := types.User{
-		Name:  res.My.Self.Name,
-		Email: res.My.Self.Email,
+		Email:    res.My.Self.Email,
+		Name:     res.My.Self.Name,
+		Username: res.My.Self.Username,
 	}
 	return &u, nil
 }
@@ -51,8 +53,9 @@ func MySelf() (*types.User, error) {
 type mySelfRes struct {
 	My struct {
 		Self struct {
-			Name  string
-			Email string
+			Email    string
+			Name     string
+			Username string
 		}
 	}
 }
