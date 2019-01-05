@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/spf13/cobra"
 )
@@ -16,9 +17,9 @@ var whoamiCmd = &cobra.Command{
 		user, err := gql.MySelf()
 		if err != nil {
 			switch err {
-			case gql.ErrNoConfig:
+			case errors.ErrNoConfig:
 				fmt.Printf("Config not found.\nLogin with 'alti-cli login'\n")
-			case gql.ErrNotLogin:
+			case errors.ErrNotLogin:
 				fmt.Printf("You are not login in!\nLogin with 'alti-cli login'\n")
 			default:
 				panic(err)

@@ -1,4 +1,4 @@
-package gql
+package errors
 
 const (
 	// ErrNoConfig is returned when config file is not found.

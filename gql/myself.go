@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jackytck/alti-cli/config"
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/types"
 	"github.com/machinebox/graphql"
 )
@@ -12,7 +13,7 @@ import (
 func MySelf() (*types.User, error) {
 	config, err := config.Load()
 	if err != nil {
-		return nil, ErrNoConfig
+		return nil, errors.ErrNoConfig
 	}
 
 	client := graphql.NewClient(config.Endpoint)
@@ -42,7 +43,7 @@ func MySelf() (*types.User, error) {
 	}
 
 	if res.My.Self.Email == "" {
-		return nil, ErrNotLogin
+		return nil, errors.ErrNotLogin
 	}
 
 	u := types.User{

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/jackytck/alti-cli/errors"
 	homedir "github.com/mitchellh/go-homedir"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -52,7 +53,7 @@ func Load() (Config, error) {
 	config := fmt.Sprintf("%s/.altizure/config", home)
 	data, err := ioutil.ReadFile(config)
 	if err != nil {
-		return dc, err
+		return dc, errors.ErrNoConfig
 	}
 	var c Config
 	err = yaml.Unmarshal(data, &c)
