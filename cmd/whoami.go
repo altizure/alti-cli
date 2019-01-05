@@ -15,7 +15,15 @@ var whoamiCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		user, err := gql.MySelf()
 		if err != nil {
-			panic(err)
+			switch err {
+			case gql.ErrNoConfig:
+				fmt.Printf("Config not found.\nLogin with 'alti-cli login'\n")
+			case gql.ErrNotLogin:
+				fmt.Printf("You are not login in!\nLogin with 'alti-cli login'\n")
+			default:
+				panic(err)
+			}
+			return
 		}
 		if user.Username == "" {
 			fmt.Printf("You are not login in!\nLogin with 'alti-cli login'\n")
