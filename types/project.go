@@ -1,6 +1,9 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // Project represents the gql project type.
 type Project struct {
@@ -11,6 +14,7 @@ type Project struct {
 	NumImage    int
 	GigaPixel   float64
 	TaskState   string
+	Date        time.Time
 }
 
 func (p Project) String() string {
@@ -28,6 +32,7 @@ func ProjectHeaderString() []string {
 		"Num Image",
 		"Giga-Pixel",
 		"Task State",
+		"Date",
 	}
 }
 
@@ -41,5 +46,6 @@ func (p Project) RowString() []string {
 		fmt.Sprintf("%d", p.NumImage),
 		fmt.Sprintf("%.2f", p.GigaPixel),
 		p.TaskState,
+		p.Date.Format("2006-01-02 15:04:05"),
 	}
 }

@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/errors"
@@ -32,6 +33,7 @@ func MyProjects() ([]types.Project, error) {
 							numImage
 							gigaPixel
 							taskState
+							date
 						}
 					}
 				}
@@ -61,6 +63,7 @@ func MyProjects() ([]types.Project, error) {
 			NumImage:    n.NumImage,
 			GigaPixel:   n.GigaPixel,
 			TaskState:   n.TaskState,
+			Date:        n.Date,
 		}
 		ret = append(ret, p)
 	}
@@ -79,6 +82,7 @@ type myProjsRes struct {
 					NumImage    int
 					GigaPixel   float64
 					TaskState   string
+					Date        time.Time
 				}
 			}
 		}
