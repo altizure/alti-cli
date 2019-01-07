@@ -1,9 +1,11 @@
 package cmd
 
 import (
-	"fmt"
+	"os"
 
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/types"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -17,9 +19,12 @@ var myprojCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader(types.ProjectHeaderString())
 		for _, p := range projs {
-			fmt.Println(p)
+			table.Append(p.RowString())
 		}
+		table.Render()
 	},
 }
 
