@@ -21,6 +21,9 @@ var myprojCmd = &cobra.Command{
 		}
 		table := types.ProjectsToTable(projs, os.Stdout)
 		table.Render()
+		if page.HasNextPage {
+			fmt.Println("More projects by: 'alti-cli myproj more'")
+		}
 	},
 }
 
