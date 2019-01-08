@@ -11,19 +11,23 @@ import (
 )
 
 // MyProjects queries simple info of my first 50 projects.
-func MyProjects() ([]types.Project, error) {
+func MyProjects(before, after string) ([]types.Project, *types.PageInfo, error) {
 	config, err := config.Load()
 	if err != nil {
-		return nil, errors.ErrNoConfig
+		return nil, nil, errors.ErrNoConfig
 	}
 
 	client := graphql.NewClient(config.Endpoint)
 
 	// make a request
 	req := graphql.NewRequest(`
-		query {
+		query ($before: String, $after: String) {
 			my {
-				projects(first: 50) {
+				projects(first: 50, before: $before, after: $after) {
+					pageInfo {
+						hasNextPage
+						endCursor
+					}
 					edges {
 						node {
 							id
@@ -40,6 +44,9 @@ func MyProjects() ([]types.Project, error) {
 			}
 		}
 	`)
+	req.Var("before", before)
+	req.Var("after", after)
+
 	req.Header.Set("key", config.Key)
 	req.Header.Set("altitoken", config.Token)
 
@@ -49,7 +56,7 @@ func MyProjects() ([]types.Project, error) {
 	// run it and capture the response
 	var res myProjsRes
 	if err := client.Run(ctx, req, &res); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var ret []types.Project
@@ -67,12 +74,24 @@ func MyProjects() ([]types.Project, error) {
 		}
 		ret = append(ret, p)
 	}
-	return ret, nil
+	pi := types.PageInfo{
+		HasNextPage:     res.My.Projects.PageInfo.HasNextPage,
+		HasPreviousPage: res.My.Projects.PageInfo.HasPreviousPage,
+		StartCursor:     res.My.Projects.PageInfo.StartCursor,
+		EndCursor:       res.My.Projects.PageInfo.EndCursor,
+	}
+	return ret, &pi, nil
 }
 
 type myProjsRes struct {
 	My struct {
 		Projects struct {
+			PageInfo struct {
+				HasNextPage     bool
+				HasPreviousPage bool
+				StartCursor     string
+				EndCursor       string
+			}
 			Edges []struct {
 				Node struct {
 					ID          string
