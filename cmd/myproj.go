@@ -1,11 +1,11 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/types"
-	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -15,15 +15,11 @@ var myprojCmd = &cobra.Command{
 	Short: "My fist 50 projects",
 	Long:  "A list of my first 50 projects.",
 	Run: func(cmd *cobra.Command, args []string) {
-		projs, err := gql.MyProjects()
+		projs, page, err := gql.MyProjects("", "")
 		if err != nil {
 			panic(err)
 		}
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader(types.ProjectHeaderString())
-		for _, p := range projs {
-			table.Append(p.RowString())
-		}
+		table := types.ProjectsToTable(projs, os.Stdout)
 		table.Render()
 	},
 }

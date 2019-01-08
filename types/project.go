@@ -2,7 +2,10 @@ package types
 
 import (
 	"fmt"
+	"io"
 	"time"
+
+	"github.com/olekukonko/tablewriter"
 )
 
 // Project represents the gql project type.
@@ -48,4 +51,14 @@ func (p Project) RowString() []string {
 		p.TaskState,
 		p.Date.Format("2006-01-02 15:04:05"),
 	}
+}
+
+// ProjectsToTable transforms slice of projects into a table.
+func ProjectsToTable(ps []Project, w io.Writer) *tablewriter.Table {
+	table := tablewriter.NewWriter(w)
+	table.SetHeader(ProjectHeaderString())
+	for _, p := range ps {
+		table.Append(p.RowString())
+	}
+	return table
 }
