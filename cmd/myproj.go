@@ -9,18 +9,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var pageCount int
+
 // myprojCmd represents the myproj command
 var myprojCmd = &cobra.Command{
 	Use:   "myproj",
 	Short: "My fist 50 projects",
 	Long:  "A list of my first 50 projects.",
 	Run: func(cmd *cobra.Command, args []string) {
-		projs, page, err := gql.MyProjects("", "")
+		projs, page, total, err := gql.MyProjects(pageCount, 0, "", "")
 		if err != nil {
 			panic(err)
 		}
 		table := types.ProjectsToTable(projs, os.Stdout)
 		table.Render()
+		fmt.Printf("Total: %d\n", total)
 		if page.HasNextPage {
 			fmt.Println("More projects by: 'alti-cli myproj more'")
 		}
@@ -29,4 +32,5 @@ var myprojCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(myprojCmd)
+	myprojCmd.Flags().IntVarP(&pageCount, "count", "c", pageCount, "number of projects to fetch")
 }
