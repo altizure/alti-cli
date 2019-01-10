@@ -76,7 +76,7 @@ func prev(cur string) (*types.PageInfo, int, *tablewriter.Table, error) {
 }
 
 func get(first, last int, before, after string) (*types.PageInfo, int, *tablewriter.Table, error) {
-	projs, page, total, err := gql.MyProjects(first, last, before, after)
+	projs, page, total, err := gql.MyProjects(first, last, before, after, search)
 	if err != nil {
 		return nil, 0, nil, err
 	}
@@ -87,4 +87,5 @@ func get(first, last int, before, after string) (*types.PageInfo, int, *tablewri
 func init() {
 	myprojCmd.AddCommand(moreCmd)
 	moreCmd.Flags().IntVarP(&pageCount, "count", "c", pageCount, "number of projects per page")
+	moreCmd.Flags().StringVarP(&search, "search", "q", search, "display name to search")
 }

@@ -11,7 +11,7 @@ import (
 )
 
 // MyProjects queries simple info of my first 50 projects.
-func MyProjects(first, last int, before, after string) ([]types.Project, *types.PageInfo, int, error) {
+func MyProjects(first, last int, before, after, search string) ([]types.Project, *types.PageInfo, int, error) {
 	config, err := config.Load()
 	if err != nil {
 		return nil, nil, 0, errors.ErrNoConfig
@@ -21,9 +21,9 @@ func MyProjects(first, last int, before, after string) ([]types.Project, *types.
 
 	// make a request
 	req := graphql.NewRequest(`
-		query ($first: Int, $last: Int, $before: String, $after: String) {
+		query ($first: Int, $last: Int, $before: String, $after: String, $search: String) {
 			my {
-				projects(first: $first, last: $last, before: $before, after: $after) {
+				allProjects(first: $first, last: $last, before: $before, after: $after, search: $search) {
 					totalCount
 					pageInfo {
 						hasPreviousPage
@@ -55,6 +55,7 @@ func MyProjects(first, last int, before, after string) ([]types.Project, *types.
 	}
 	req.Var("before", before)
 	req.Var("after", after)
+	req.Var("search", search)
 
 	req.Header.Set("key", config.Key)
 	req.Header.Set("altitoken", config.Token)
@@ -69,7 +70,7 @@ func MyProjects(first, last int, before, after string) ([]types.Project, *types.
 	}
 
 	var ret []types.Project
-	for _, e := range res.My.Projects.Edges {
+	for _, e := range res.My.AllProjects.Edges {
 		n := e.Node
 		p := types.Project{
 			ID:          n.ID,
@@ -84,17 +85,17 @@ func MyProjects(first, last int, before, after string) ([]types.Project, *types.
 		ret = append(ret, p)
 	}
 	pi := types.PageInfo{
-		HasNextPage:     res.My.Projects.PageInfo.HasNextPage,
-		HasPreviousPage: res.My.Projects.PageInfo.HasPreviousPage,
-		StartCursor:     res.My.Projects.PageInfo.StartCursor,
-		EndCursor:       res.My.Projects.PageInfo.EndCursor,
+		HasNextPage:     res.My.AllProjects.PageInfo.HasNextPage,
+		HasPreviousPage: res.My.AllProjects.PageInfo.HasPreviousPage,
+		StartCursor:     res.My.AllProjects.PageInfo.StartCursor,
+		EndCursor:       res.My.AllProjects.PageInfo.EndCursor,
 	}
-	return ret, &pi, res.My.Projects.TotalCount, nil
+	return ret, &pi, res.My.AllProjects.TotalCount, nil
 }
 
 type myProjsRes struct {
 	My struct {
-		Projects struct {
+		AllProjects struct {
 			TotalCount int
 			PageInfo   struct {
 				HasNextPage     bool

@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var search string
 var pageCount int
 
 // myprojCmd represents the myproj command
@@ -17,7 +18,7 @@ var myprojCmd = &cobra.Command{
 	Short: "My fist 50 projects",
 	Long:  "A list of my first 50 projects.",
 	Run: func(cmd *cobra.Command, args []string) {
-		projs, page, total, err := gql.MyProjects(pageCount, 0, "", "")
+		projs, page, total, err := gql.MyProjects(pageCount, 0, "", "", search)
 		if err != nil {
 			panic(err)
 		}
@@ -33,4 +34,5 @@ var myprojCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(myprojCmd)
 	myprojCmd.Flags().IntVarP(&pageCount, "count", "c", pageCount, "number of projects to fetch")
+	myprojCmd.Flags().StringVarP(&search, "search", "q", search, "display name to search")
 }
