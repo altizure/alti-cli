@@ -5,18 +5,13 @@ import (
 	"time"
 
 	"github.com/jackytck/alti-cli/config"
-	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/types"
 	"github.com/machinebox/graphql"
 )
 
 // MyProjects queries simple info of my first 50 projects.
 func MyProjects(first, last int, before, after, search string) ([]types.Project, *types.PageInfo, int, error) {
-	config, err := config.Load()
-	if err != nil {
-		return nil, nil, 0, errors.ErrNoConfig
-	}
-
+	config := config.Load()
 	client := graphql.NewClient(config.Endpoint)
 
 	// make a request

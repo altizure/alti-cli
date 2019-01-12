@@ -11,11 +11,7 @@ import (
 
 // MySelf queries simple info of current user.
 func MySelf() (*types.User, error) {
-	config, err := config.Load()
-	if err != nil {
-		return nil, errors.ErrNoConfig
-	}
-
+	config := config.Load()
 	client := graphql.NewClient(config.Endpoint)
 
 	// make a request

@@ -1,13 +1,7 @@
 package config
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
-
-	"github.com/jackytck/alti-cli/errors"
-	homedir "github.com/mitchellh/go-homedir"
-	yaml "gopkg.in/yaml.v2"
+	"github.com/spf13/viper"
 )
 
 // Config stores the config of accessing an api server.
@@ -19,46 +13,26 @@ type Config struct {
 
 // Save saves the config in default path: '~/.altizure/config'.
 func (c Config) Save() error {
-	data, err := yaml.Marshal(c)
-	if err != nil {
-		return err
-	}
-	home, err := homedir.Dir()
-	if err != nil {
-		return err
-	}
-	dir := fmt.Sprintf("%s/.altizure", home)
-	if _, err2 := os.Stat(dir); os.IsNotExist(err2) {
-		os.Mkdir(dir, 0755)
-	}
-	err = ioutil.WriteFile(dir+"/config", data, 0644)
-	return err
+	viper.Set("endpoint", c.Endpoint)
+	viper.Set("key", c.Key)
+	viper.Set("token", c.Token)
+	return viper.WriteConfig()
 }
 
 // DefaultConfig returns the default endpoint and api key.
 func DefaultConfig() Config {
 	return Config{
-		Endpoint: DefaultEndpoint,
-		Key:      DefaultAppKey,
+		Endpoint: viper.GetString("endpoint"),
+		Key:      viper.GetString("key"),
 	}
 }
 
 // Load loads config from default path.
-func Load() (Config, error) {
-	dc := DefaultConfig()
-	home, err := homedir.Dir()
-	if err != nil {
-		return dc, err
+func Load() Config {
+	c := Config{
+		Endpoint: viper.GetString("endpoint"),
+		Key:      viper.GetString("key"),
+		Token:    viper.GetString("token"),
 	}
-	config := fmt.Sprintf("%s/.altizure/config", home)
-	data, err := ioutil.ReadFile(config)
-	if err != nil {
-		return dc, errors.ErrNoConfig
-	}
-	var c Config
-	err = yaml.Unmarshal(data, &c)
-	if err != nil {
-		return dc, err
-	}
-	return c, nil
+	return c
 }
