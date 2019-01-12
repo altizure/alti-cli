@@ -10,7 +10,7 @@ import (
 )
 
 var search string
-var pageCount int
+var pageCount = 12
 
 // myprojCmd represents the myproj command
 var myprojCmd = &cobra.Command{
