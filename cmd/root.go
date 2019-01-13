@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/errors"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -60,9 +59,12 @@ func initConfig() {
 		}
 
 		altiDir := filepath.Join(home, ".altizure")
+		confPath := filepath.Join(altiDir, "config.yaml")
 		if _, err := os.Stat(altiDir); os.IsNotExist(err) {
 			err := os.Mkdir(altiDir, 0755)
 			errors.Must(err)
+		}
+		if _, err := os.Stat(confPath); os.IsNotExist(err) {
 			_, err = os.Create(filepath.Join(altiDir, "config.yaml"))
 			errors.Must(err)
 		}
@@ -71,10 +73,6 @@ func initConfig() {
 		viper.SetConfigType("yaml")
 		viper.AddConfigPath(altiDir)
 		viper.SetConfigName("config")
-
-		// defaults
-		viper.SetDefault("endpoint", config.DefaultEndpoint)
-		viper.SetDefault("key", config.DefaultAppKey)
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
