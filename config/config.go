@@ -1,6 +1,10 @@
 package config
 
 import (
+	"fmt"
+	"net/url"
+	"strings"
+
 	"github.com/spf13/viper"
 )
 
@@ -9,6 +13,20 @@ type Config struct {
 	Endpoint string `yaml:"endpoint"`
 	Key      string `yaml:"key"`
 	Token    string `yaml:"token"`
+}
+
+// Scope returns the same key if two configs belong to the same scope.
+// A scope is defined by the scheme and host of endpoint.
+func (c Config) Scope() string {
+	u, err := url.ParseRequestURI(c.Endpoint)
+	if err != nil {
+		return strings.Replace(DefaultScope, ".", "*", -1)
+	}
+	s := fmt.Sprintf("%s://%s", u.Scheme, u.Hostname())
+	if u.Port() != "" {
+		s += ":" + u.Port()
+	}
+	return strings.Replace(s, ".", "*", -1)
 }
 
 // Save saves the config in default path: '~/.altizure/config'.
