@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestConfig_Scope(t *testing.T) {
+func TestEndpointToKey(t *testing.T) {
 	type fields struct {
 		Endpoint string
 	}
@@ -22,11 +22,8 @@ func TestConfig_Scope(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := Config{
-				Endpoint: tt.fields.Endpoint,
-			}
-			if got := c.Scope(); got != tt.want {
-				t.Errorf("Config.Scope() = %v, want %v", got, tt.want)
+			if got := endpointToKey(tt.fields.Endpoint); got != tt.want {
+				t.Errorf("Scope.Key() = %v, want %v", got, tt.want)
 			}
 		})
 	}
