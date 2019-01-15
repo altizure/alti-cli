@@ -20,11 +20,13 @@ var loginCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// a. api endpoint
 		dc := config.DefaultConfig()
+		dap := dc.GetActive()
+		conf := config.Load()
 		var endpoint string
-		fmt.Printf("Endpoint (%s): ", dc.Endpoint)
+		fmt.Printf("Endpoint (%s): ", dap.Endpoint)
 		fmt.Scanln(&endpoint)
 		if endpoint == "" {
-			endpoint = dc.Endpoint
+			endpoint = dap.Endpoint
 		}
 		u, err := url.ParseRequestURI(endpoint)
 		if err != nil {
@@ -37,7 +39,7 @@ var loginCmd = &cobra.Command{
 			fmt.Printf("App Key: ")
 			fmt.Scanln(&appKey)
 		} else {
-			appKey = dc.Key
+			appKey = dap.Key
 		}
 
 		// c. email
@@ -60,12 +62,13 @@ var loginCmd = &cobra.Command{
 			return
 		}
 
-		c := config.Config{
+		p := config.APoint{
 			Endpoint: endpoint,
 			Key:      appKey,
 			Token:    token,
 		}
-		err = c.Save()
+		conf.AddProfile(p)
+		err = conf.Save()
 		if err != nil {
 			panic(err)
 		}

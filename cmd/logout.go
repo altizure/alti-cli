@@ -14,7 +14,7 @@ var logoutCmd = &cobra.Command{
 	Long:  "Logout the current user by emptying the user token if found in config file.",
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.Load()
-		conf.Token = ""
+		conf.ClearActiveToken()
 		err := conf.Save()
 		if err != nil {
 			panic(err)

@@ -10,7 +10,7 @@ import (
 // GetUserToken gets the self-issued user token.
 func GetUserToken(endpoint, email, password string, fresh bool) string {
 	// create a client (safe to share across requests)
-	client := graphql.NewClient(endpoint)
+	client := graphql.NewClient(endpoint + "/graphql")
 
 	// make a request
 	req := graphql.NewRequest(`

@@ -12,7 +12,8 @@ import (
 // MySelf queries simple info of current user.
 func MySelf() (*types.User, error) {
 	config := config.Load()
-	client := graphql.NewClient(config.Endpoint)
+	active := config.GetActive()
+	client := graphql.NewClient(active.Endpoint + "/graphql")
 
 	// make a request
 	req := graphql.NewRequest(`
@@ -26,8 +27,8 @@ func MySelf() (*types.User, error) {
 	    }
 		}
 	`)
-	req.Header.Set("key", config.Key)
-	req.Header.Set("altitoken", config.Token)
+	req.Header.Set("key", active.Key)
+	req.Header.Set("altitoken", active.Token)
 
 	// define a Context for the request
 	ctx := context.Background()

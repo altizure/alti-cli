@@ -12,7 +12,8 @@ import (
 // MyProjects queries simple info of my first 50 projects.
 func MyProjects(first, last int, before, after, search string) ([]types.Project, *types.PageInfo, int, error) {
 	config := config.Load()
-	client := graphql.NewClient(config.Endpoint)
+	active := config.GetActive()
+	client := graphql.NewClient(active.Endpoint + "/graphql")
 
 	// make a request
 	req := graphql.NewRequest(`
@@ -52,8 +53,8 @@ func MyProjects(first, last int, before, after, search string) ([]types.Project,
 	req.Var("after", after)
 	req.Var("search", search)
 
-	req.Header.Set("key", config.Key)
-	req.Header.Set("altitoken", config.Token)
+	req.Header.Set("key", active.Key)
+	req.Header.Set("altitoken", active.Token)
 
 	// define a Context for the request
 	ctx := context.Background()
