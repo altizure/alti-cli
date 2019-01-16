@@ -28,3 +28,39 @@ func TestEndpointToKey(t *testing.T) {
 		})
 	}
 }
+
+func TestUniqueProfile(t *testing.T) {
+	ps := []Profile{
+		{ID: "id1", Key: "k1", Token: "t1"},
+		{ID: "id2", Key: "k2", Token: "t2"},
+		{ID: "id3", Key: "k1", Token: "t1"},
+	}
+	ups := uniqueProfile(ps)
+	want := 2
+	if got := len(ups); got != want {
+		t.Errorf("UniqueProfile size = %v, want %v", got, want)
+	}
+}
+
+func TestConfig_AddProfile(t *testing.T) {
+	c := Load()
+	c.AddProfile(APoint{
+		Endpoint: "http://127.0.0.1:8082",
+		Key:      "nat-key-1",
+		Token:    "nat-token-1",
+	})
+	c.AddProfile(APoint{
+		Endpoint: "http://127.0.0.1:8082",
+		Key:      "nat-key-1",
+	})
+	c.AddProfile(APoint{
+		Endpoint: "http://127.0.0.1:8082",
+		Key:      "nat-key-1",
+		Token:    "nat-token-2",
+	})
+	c.ClearActiveToken()
+	want := 2
+	if got := len(c.Scopes["http://127*0*0*1:8082"].Profiles); got != want {
+		t.Errorf("Profile size = %v, want %v", got, want)
+	}
+}

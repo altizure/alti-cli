@@ -98,12 +98,18 @@ func (c *Config) AddProfile(ap APoint) error {
 
 // ClearActiveToken clears the token of active profile.
 func (c *Config) ClearActiveToken() {
-	for _, v := range c.Scopes {
+	var s string
+	for k, v := range c.Scopes {
 		for i, p := range v.Profiles {
 			if p.ID == c.Active {
+				s = k
 				v.Profiles[i].Token = ""
 			}
 		}
+	}
+	c.Scopes[s] = Scope{
+		Endpoint: c.Scopes[s].Endpoint,
+		Profiles: uniqueProfile(c.Scopes[s].Profiles),
 	}
 }
 
@@ -125,6 +131,11 @@ func (c Config) Save() error {
 	return viper.ReadInConfig()
 }
 
+func (c Config) String() string {
+	data, _ := yaml.Marshal(c)
+	return string(data)
+}
+
 // Scope represents a certain endpint and a list of profiles.
 // An endpoint is the main domain without sub-path, e.g. api.altizure.com or 127.0.0.1:8082
 type Scope struct {
@@ -136,7 +147,7 @@ type Scope struct {
 // Return the newly added or existing profile.
 func (s *Scope) Add(p Profile) Profile {
 	for _, v := range s.Profiles {
-		if v.Key == p.Key && v.Token == p.Token {
+		if v.Equal(p) {
 			// already exists
 			return v
 		}
@@ -150,6 +161,11 @@ type Profile struct {
 	ID    string `yaml:"id"`
 	Key   string `yaml:"key"`
 	Token string `yaml:"token"`
+}
+
+// Equal commpares if two profiles are equal, ignoring id.
+func (p Profile) Equal(o Profile) bool {
+	return p.Key == o.Key && p.Token == o.Token
 }
 
 // APoint represents the active endping and profile.
@@ -171,4 +187,22 @@ func endpointToKey(ep string) string {
 		str += ":" + u.Port()
 	}
 	return strings.Replace(str, ".", "*", -1)
+}
+
+// uniqueProfile returns a new unique set of profiles.
+func uniqueProfile(ps []Profile) []Profile {
+	var ret []Profile
+	for _, x := range ps {
+		found := false
+		for _, y := range ret {
+			if x.Equal(y) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			ret = append(ret, x)
+		}
+	}
+	return ret
 }
