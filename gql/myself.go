@@ -10,7 +10,7 @@ import (
 )
 
 // MySelf queries simple info of current user.
-func MySelf() (*types.User, error) {
+func MySelf() (string, *types.User, error) {
 	config := config.Load()
 	active := config.GetActive()
 	client := graphql.NewClient(active.Endpoint + "/graphql")
@@ -36,11 +36,11 @@ func MySelf() (*types.User, error) {
 	// run it and capture the response
 	var res mySelfRes
 	if err := client.Run(ctx, req, &res); err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	if res.My.Self.Email == "" {
-		return nil, errors.ErrNotLogin
+		return "", nil, errors.ErrNotLogin
 	}
 
 	u := types.User{
@@ -48,7 +48,7 @@ func MySelf() (*types.User, error) {
 		Name:     res.My.Self.Name,
 		Username: res.My.Self.Username,
 	}
-	return &u, nil
+	return active.Endpoint, &u, nil
 }
 
 type mySelfRes struct {

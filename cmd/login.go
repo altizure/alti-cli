@@ -73,11 +73,11 @@ var loginCmd = &cobra.Command{
 			panic(err)
 		}
 
-		user, err := gql.MySelf()
+		endpoint, user, err := gql.MySelf()
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("Welcome %s (%s), you are logined!\n", user.Name, user.Email)
+		fmt.Printf("Welcome %s (%s), you are logined to %s!\n", user.Name, user.Email, endpoint)
 	},
 }
 
