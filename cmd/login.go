@@ -57,7 +57,7 @@ var loginCmd = &cobra.Command{
 		password := string(bytePassword)
 		fmt.Println()
 
-		token := gql.GetUserToken(endpoint, email, password, false)
+		token := gql.GetUserToken(endpoint, appKey, email, password, false)
 		if token == "" {
 			fmt.Println("Incorrect email or password!")
 			return
