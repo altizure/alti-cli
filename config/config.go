@@ -51,12 +51,14 @@ type Config struct {
 // GetActive returns the active endpoint and profile of current config.
 func (c Config) GetActive() APoint {
 	ret := APoint{
+		Name:     "Default",
 		Endpoint: DefaultEndpoint,
 		Key:      DefaultAppKey,
 	}
 	for _, v := range c.Scopes {
 		for _, p := range v.Profiles {
 			if p.ID == c.Active {
+				ret.Name = p.Name
 				ret.Endpoint = v.Endpoint
 				ret.Key = p.Key
 				ret.Token = p.Token
@@ -97,7 +99,7 @@ func (c *Config) AddProfile(ap APoint) error {
 }
 
 // ClearActiveToken clears the token of active profile.
-func (c *Config) ClearActiveToken() {
+func (c *Config) ClearActiveToken(save bool) error {
 	var s string
 	for k, v := range c.Scopes {
 		for i, p := range v.Profiles {
@@ -111,6 +113,25 @@ func (c *Config) ClearActiveToken() {
 		Endpoint: c.Scopes[s].Endpoint,
 		Profiles: uniqueProfile(c.Scopes[s].Profiles),
 	}
+	if save {
+		return c.Save()
+	}
+	return nil
+}
+
+// SetActiveName sets the username of the active profile.
+func (c *Config) SetActiveName(name string, save bool) error {
+	for _, v := range c.Scopes {
+		for i, p := range v.Profiles {
+			if p.ID == c.Active {
+				v.Profiles[i].Name = name
+			}
+		}
+	}
+	if save {
+		return c.Save()
+	}
+	return nil
 }
 
 // Save saves the config in default path: '~/.altizure/config'.
@@ -159,6 +180,7 @@ func (s *Scope) Add(p Profile) Profile {
 // Profile represents the login profile of a user of a certain endpoint.
 type Profile struct {
 	ID    string `yaml:"id"`
+	Name  string `yaml:"name"`
 	Key   string `yaml:"key"`
 	Token string `yaml:"token"`
 }
@@ -171,6 +193,7 @@ func (p Profile) Equal(o Profile) bool {
 // APoint represents the active endping and profile.
 type APoint struct {
 	Endpoint string `yaml:"endpoint"`
+	Name     string `yaml:"name"`
 	Key      string `yaml:"key"`
 	Token    string `yaml:"token"`
 }

@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	"github.com/jackytck/alti-cli/config"
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
@@ -62,6 +63,7 @@ var loginCmd = &cobra.Command{
 			return
 		}
 
+		// store key + token
 		p := config.APoint{
 			Endpoint: endpoint,
 			Key:      appKey,
@@ -69,14 +71,16 @@ var loginCmd = &cobra.Command{
 		}
 		conf.AddProfile(p)
 		err = conf.Save()
-		if err != nil {
-			panic(err)
-		}
+		errors.Must(err)
 
+		// get username
 		endpoint, user, err := gql.MySelf()
-		if err != nil {
-			panic(err)
-		}
+		errors.Must(err)
+
+		// store username
+		err = conf.SetActiveName(user.Username, true)
+		errors.Must(err)
+
 		fmt.Printf("Welcome %s (%s), you are logined to %s!\n", user.Name, user.Email, endpoint)
 	},
 }

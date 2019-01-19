@@ -31,7 +31,7 @@ func TestConfig_GetActive(t *testing.T) {
 		fields fields
 		want   APoint
 	}{
-		{"default active", fields{DefaultConfig().Scopes, DefaultConfig().Active}, APoint{DefaultEndpoint, DefaultAppKey, ""}},
+		{"default active", fields{DefaultConfig().Scopes, DefaultConfig().Active}, APoint{DefaultEndpoint, "", DefaultAppKey, ""}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -62,7 +62,7 @@ func TestConfig_AddProfile(t *testing.T) {
 		Key:      "nat-key-1",
 		Token:    "nat-token-2",
 	})
-	c.ClearActiveToken()
+	c.ClearActiveToken(false)
 	want := 2
 	if got := len(c.Scopes["http://127*0*0*1:8082"].Profiles); got != want {
 		t.Errorf("Profile size = %v, want %v", got, want)
@@ -84,6 +84,7 @@ func TestConfig_String(t *testing.T) {
     endpoint: https://api.altizure.com
     profiles:
     - id: default
+      name: ""
       key: Ah8bOakrkmSl2FA9OCbT8EnFOUrPwOOZ7HQxZm6
       token: ""
 active: default
@@ -116,8 +117,8 @@ func TestScope_Add(t *testing.T) {
 		args   args
 		want   Profile
 	}{
-		{"empty", fields{"nat-endpoint", []Profile{}}, args{Profile{"natid", "nat-key", "nat-token"}}, Profile{"natid", "nat-key", "nat-token"}},
-		{"exists", fields{"nat-endpoint", []Profile{{"aid", "nat-key", "nat-token"}}}, args{Profile{"natid", "nat-key", "nat-token"}}, Profile{"aid", "nat-key", "nat-token"}},
+		{"empty", fields{"nat-endpoint", []Profile{}}, args{Profile{"natid", "Nat", "nat-key", "nat-token"}}, Profile{"natid", "Nat", "nat-key", "nat-token"}},
+		{"exists", fields{"nat-endpoint", []Profile{{"aid", "Nat", "nat-key", "nat-token"}}}, args{Profile{"natid", "Nat", "nat-key", "nat-token"}}, Profile{"aid", "Nat", "nat-key", "nat-token"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -138,6 +139,7 @@ func TestScope_Add(t *testing.T) {
 func TestProfile_Equal(t *testing.T) {
 	type fields struct {
 		ID    string
+		Name  string
 		Key   string
 		Token string
 	}
@@ -150,9 +152,9 @@ func TestProfile_Equal(t *testing.T) {
 		args   args
 		want   bool
 	}{
-		{"equal", fields{"anyid", "nat-key", "nat-token"}, args{Profile{"anoterid", "nat-key", "nat-token"}}, true},
-		{"different key", fields{"anyid", "nat-key", "nat-token"}, args{Profile{"anoterid", "a-key", "nat-token"}}, false},
-		{"different token", fields{"anyid", "nat-key", "nat-token"}, args{Profile{"anyid", "nat-key", "a-token"}}, false},
+		{"equal", fields{"anyid", "Nat1", "nat-key", "nat-token"}, args{Profile{"anoterid", "Nat2", "nat-key", "nat-token"}}, true},
+		{"different key", fields{"anyid", "Nat", "nat-key", "nat-token"}, args{Profile{"anoterid", "Nat", "a-key", "nat-token"}}, false},
+		{"different token", fields{"anyid", "Nat", "nat-key", "nat-token"}, args{Profile{"anyid", "Nat", "nat-key", "a-token"}}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -202,7 +204,7 @@ func Test_uniqueProfile(t *testing.T) {
 		args args
 		want []Profile
 	}{
-		{"simple", args{[]Profile{{"id1", "k1", "t1"}, {"id2", "k2", "t2"}, {"id1", "k1", "t1"}}}, []Profile{{"id1", "k1", "t1"}, {"id2", "k2", "t2"}}},
+		{"simple", args{[]Profile{{"id1", "n1", "k1", "t1"}, {"id2", "n1", "k2", "t2"}, {"id1", "n1", "k1", "t1"}}}, []Profile{{"id1", "n1", "k1", "t1"}, {"id2", "n1", "k2", "t2"}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
