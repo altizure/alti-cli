@@ -113,10 +113,22 @@ func (c *Config) ClearActiveToken(save bool) error {
 		Endpoint: c.Scopes[s].Endpoint,
 		Profiles: uniqueProfile(c.Scopes[s].Profiles),
 	}
+	if c.Size() == 1 {
+		c.Active = "default"
+	}
 	if save {
 		return c.Save()
 	}
 	return nil
+}
+
+// Size counts the number of profiles.
+func (c *Config) Size() int {
+	var ret int
+	for _, s := range c.Scopes {
+		ret += len(s.Profiles)
+	}
+	return ret
 }
 
 // SetActiveName sets the username of the active profile.
