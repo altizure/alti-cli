@@ -3,10 +3,11 @@ package rand
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 )
 
 // RememberTokenBytes specifies the byte size of a remember token.
-const RememberTokenBytes = 16
+const RememberTokenBytes = 8
 
 // Bytes helps generate n random bytes, or will
 // return an error if there was one. This uses the crypto/rand
@@ -38,7 +39,7 @@ func String(nBytes int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return base64.URLEncoding.EncodeToString(b), nil
+	return hex.EncodeToString(b), nil
 }
 
 // RememberToken is a helper function designed to generate
