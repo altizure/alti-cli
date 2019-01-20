@@ -1,11 +1,8 @@
 package config
 
 import (
-	"fmt"
 	"io/ioutil"
-	"net/url"
 	"path"
-	"strings"
 
 	"github.com/jackytck/alti-cli/rand"
 	homedir "github.com/mitchellh/go-homedir"
@@ -208,36 +205,4 @@ type APoint struct {
 	Name     string `yaml:"name"`
 	Key      string `yaml:"key"`
 	Token    string `yaml:"token"`
-}
-
-// endpointToKey returns the unique key of this scope.
-// The scope is defined by the scheme, host and port of endpoint.
-func endpointToKey(ep string) string {
-	u, err := url.ParseRequestURI(ep)
-	if err != nil {
-		return strings.Replace(DefaultScope, ".", "*", -1)
-	}
-	str := fmt.Sprintf("%s://%s", u.Scheme, u.Hostname())
-	if u.Port() != "" {
-		str += ":" + u.Port()
-	}
-	return strings.Replace(str, ".", "*", -1)
-}
-
-// uniqueProfile returns a new unique set of profiles.
-func uniqueProfile(ps []Profile) []Profile {
-	var ret []Profile
-	for _, x := range ps {
-		found := false
-		for _, y := range ret {
-			if x.Equal(y) {
-				found = true
-				break
-			}
-		}
-		if !found {
-			ret = append(ret, x)
-		}
-	}
-	return ret
 }
