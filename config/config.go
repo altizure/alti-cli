@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"path"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/rand"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -64,6 +65,28 @@ func (c Config) GetActive() APoint {
 		}
 	}
 	return ret
+}
+
+// GetProfile finds the closet profile that matches the given id.
+// If no match, return ErrProfileNotFound
+func (c Config) GetProfile(id string) (*Profile, error) {
+	var ret Profile
+	found := false
+	score := 0
+	for _, v := range c.Scopes {
+		for _, p := range v.Profiles {
+			s := compareStrs(id, p.ID)
+			if s > score {
+				found = true
+				score = s
+				ret = p
+			}
+		}
+	}
+	if !found {
+		return nil, errors.ErrProfileNotFound
+	}
+	return &ret, nil
 }
 
 // AddProfile adds a profile under its endpoint and set it as active.

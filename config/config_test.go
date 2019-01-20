@@ -46,6 +46,42 @@ func TestConfig_GetActive(t *testing.T) {
 	}
 }
 
+func TestConfig_GetProfile(t *testing.T) {
+	type fields struct {
+		Scopes map[string]Scope
+		Active string
+	}
+	type args struct {
+		id string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *Profile
+		wantErr bool
+	}{
+		{"partial match", fields{DefaultConfig().Scopes, DefaultConfig().Active}, args{"def"}, &Profile{"default", "", DefaultAppKey, ""}, false},
+		{"not found", fields{DefaultConfig().Scopes, DefaultConfig().Active}, args{"nat"}, nil, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := Config{
+				Scopes: tt.fields.Scopes,
+				Active: tt.fields.Active,
+			}
+			got, err := c.GetProfile(tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Config.GetProfile() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Config.GetProfile() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestConfig_AddProfile(t *testing.T) {
 	c := Load()
 	c.AddProfile(APoint{
