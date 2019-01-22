@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/jackytck/alti-cli/config"
+	"github.com/jackytck/alti-cli/gql"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -16,12 +17,13 @@ var accountCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config := config.Load()
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"ID", "Endpoint", "Username", "Status"})
+		table.SetHeader([]string{"ID", "Endpoint", "Username", "Status", "Select"})
 		for _, v := range config.Scopes {
+			mode := gql.CheckSystemMode(v.Endpoint)
 			for _, p := range v.Profiles {
-				r := []string{p.ID, v.Endpoint, p.Name, ""}
+				r := []string{p.ID, v.Endpoint, p.Name, mode, ""}
 				if config.Active == p.ID {
-					r[3] = "Active"
+					r[4] = "Active"
 				}
 				table.Append(r)
 			}
