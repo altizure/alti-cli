@@ -24,6 +24,9 @@ func CheckSystemMode(endpoint string) string {
 		return "Offline"
 	}
 	mode := res.Support.SystemMode
+	if mode == "" {
+		mode = "Forbidden"
+	}
 	return mode
 }
 
