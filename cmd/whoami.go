@@ -21,6 +21,8 @@ var whoamiCmd = &cobra.Command{
 				fmt.Printf("Config not found.\nLogin with 'alti-cli login'\n")
 			case errors.ErrNotLogin:
 				fmt.Printf("You are not login in!\nLogin with 'alti-cli login'\n")
+			case errors.ErrOffline:
+				fmt.Printf("%s is offline\n", endpoint)
 			default:
 				panic(err)
 			}

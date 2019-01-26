@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/errors"
@@ -36,7 +37,12 @@ func MySelf() (string, *types.User, error) {
 	// run it and capture the response
 	var res mySelfRes
 	if err := client.Run(ctx, req, &res); err != nil {
-		return "", nil, err
+		switch err.(type) {
+		case *url.Error:
+			return active.Endpoint, nil, errors.ErrOffline
+		default:
+			return active.Endpoint, nil, err
+		}
 	}
 
 	if res.My.Self.Email == "" {
