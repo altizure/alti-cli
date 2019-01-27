@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/types"
 	"github.com/spf13/cobra"
@@ -19,8 +20,9 @@ var myprojCmd = &cobra.Command{
 	Long:  "A list of my first 50 projects.",
 	Run: func(cmd *cobra.Command, args []string) {
 		projs, page, total, err := gql.MyProjects(pageCount, 0, "", "", search)
-		if err != nil {
-			panic(err)
+		if msg := errors.MustGQL(err, ""); msg != "" {
+			fmt.Println(msg)
+			return
 		}
 		table := types.ProjectsToTable(projs, os.Stdout)
 		table.Render()

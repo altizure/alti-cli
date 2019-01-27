@@ -15,17 +15,8 @@ var whoamiCmd = &cobra.Command{
 	Long:  `Show the username of the login user if user is loginned.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		endpoint, user, err := gql.MySelf()
-		if err != nil {
-			switch err {
-			case errors.ErrNoConfig:
-				fmt.Printf("Config not found.\nLogin with 'alti-cli login'\n")
-			case errors.ErrNotLogin:
-				fmt.Printf("You are not login in!\nLogin with 'alti-cli login'\n")
-			case errors.ErrOffline:
-				fmt.Printf("%s is offline\n", endpoint)
-			default:
-				panic(err)
-			}
+		if msg := errors.MustGQL(err, endpoint); msg != "" {
+			fmt.Println(msg)
 			return
 		}
 		if user.Username == "" {

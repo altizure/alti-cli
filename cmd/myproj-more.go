@@ -19,10 +19,14 @@ var moreCmd = &cobra.Command{
 	Short: "List of all of my projects paginated.",
 	Long:  "Show all of my projects in pages. Go to the next page by pressing n or Space or Enter. Previous page by p. Exit by q or Esc.",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := tb.Init()
-		errors.Must(err)
 		fmt.Println("Loading...")
 		page, total, table, err := get(pageCount, 0, "", "")
+		if err != nil {
+			// endpoint may be offline, so no need to panic
+			return
+		}
+		err = tb.Init()
+		errors.Must(err)
 		// so that when termbox is quit, the last rendered result could be shown
 		defer func() {
 			tb.Close()
@@ -77,7 +81,8 @@ func prev(cur string) (*types.PageInfo, int, *tablewriter.Table, error) {
 
 func get(first, last int, before, after string) (*types.PageInfo, int, *tablewriter.Table, error) {
 	projs, page, total, err := gql.MyProjects(first, last, before, after, search)
-	if err != nil {
+	if msg := errors.MustGQL(err, ""); msg != "" {
+		fmt.Println(msg)
 		return nil, 0, nil, err
 	}
 	table := types.ProjectsToTable(projs, os.Stdout)

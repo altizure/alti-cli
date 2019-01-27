@@ -2,9 +2,11 @@ package gql
 
 import (
 	"context"
+	"net/url"
 	"time"
 
 	"github.com/jackytck/alti-cli/config"
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/types"
 	"github.com/machinebox/graphql"
 )
@@ -62,7 +64,12 @@ func MyProjects(first, last int, before, after, search string) ([]types.Project,
 	// run it and capture the response
 	var res myProjsRes
 	if err := client.Run(ctx, req, &res); err != nil {
-		return nil, nil, 0, err
+		switch err.(type) {
+		case *url.Error:
+			return nil, nil, 0, errors.ErrOffline
+		default:
+			return nil, nil, 0, err
+		}
 	}
 
 	var ret []types.Project
