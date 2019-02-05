@@ -8,14 +8,14 @@ import (
 
 func ExampleServer_ServeStatic() {
 	s := Server{Directory: "/tmp"}
-	static, _, err := s.ServeStatic(true)
+	staticServer, _, err := s.ServeStatic(true)
 	if err != nil {
 		panic(err)
 	}
 
 	time.Sleep(5 * time.Second)
 
-	if err := static.Shutdown(context.TODO()); err != nil {
+	if err := staticServer.Shutdown(context.TODO()); err != nil {
 		panic(err)
 	}
 
