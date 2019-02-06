@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/web"
 	"github.com/spf13/cobra"
@@ -17,15 +18,16 @@ var networkCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		s := web.Server{Directory: "/tmp"}
 		server, port, err := s.ServeStatic(false)
-		if err != nil {
-			panic(err)
+		errors.Must(err)
+
+		ips, err := web.GetAllIP()
+		errors.Must(err)
+		for _, ip := range ips {
+			url := fmt.Sprintf("http://%v:%v", ip, port)
+			fmt.Printf("Checking %s...", url)
+			res := gql.CheckDirectNetwork(url)
+			fmt.Println(res)
 		}
-
-		ip, _ := web.GetOutboundIP()
-		url := fmt.Sprintf("http://%v:%v", ip, port)
-
-		res := gql.CheckDirectNetwork(url)
-		fmt.Println("Support direct upload?", res)
 
 		if err := server.Shutdown(context.TODO()); err != nil {
 			panic(err)
