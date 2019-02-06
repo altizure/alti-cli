@@ -19,8 +19,8 @@ var accountCmd = &cobra.Command{
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"ID", "Endpoint", "Username", "Status", "Select"})
 		for _, v := range config.Scopes {
-			mode := gql.CheckSystemMode(v.Endpoint)
 			for _, p := range v.Profiles {
+				mode := gql.CheckSystemMode(v.Endpoint, p.Key)
 				r := []string{p.ID, v.Endpoint, p.Name, mode, ""}
 				if config.Active == p.ID {
 					r[4] = "Active"

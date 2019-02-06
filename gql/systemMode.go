@@ -7,7 +7,7 @@ import (
 )
 
 // CheckSystemMode checks if the api server is in Normal, ReadOnly or Offline mode.
-func CheckSystemMode(endpoint string) string {
+func CheckSystemMode(endpoint, key string) string {
 	client := graphql.NewClient(endpoint + "/graphql")
 
 	req := graphql.NewRequest(`
@@ -17,6 +17,7 @@ func CheckSystemMode(endpoint string) string {
 		  }
 		}
 	`)
+	req.Header.Set("key", key)
 
 	ctx := context.Background()
 	var res systemModeRes
