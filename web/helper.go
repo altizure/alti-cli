@@ -3,7 +3,9 @@ package web
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net"
+	"os"
 	"strings"
 
 	"github.com/jackytck/alti-cli/gql"
@@ -56,8 +58,15 @@ func GetAllIP() ([]string, error) {
 func CheckVisibility() (map[string]bool, error) {
 	ret := make(map[string]bool)
 
+	// tmp dir for server
+	tmpDir, err := ioutil.TempDir("", "alti-cli-")
+	if err != nil {
+		return nil, err
+	}
+	defer os.RemoveAll(tmpDir)
+
 	// create local web server
-	s := Server{Directory: "/tmp"}
+	s := Server{Directory: tmpDir}
 	server, port, err := s.ServeStatic(false)
 	if err != nil {
 		return nil, err
