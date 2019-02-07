@@ -1,8 +1,12 @@
 package web
 
 import (
+	"context"
+	"fmt"
 	"net"
 	"strings"
+
+	"github.com/jackytck/alti-cli/gql"
 )
 
 // GetOutboundIP gets the preferred outbound ip of this machine.
@@ -44,5 +48,36 @@ func GetAllIP() ([]string, error) {
 			}
 		}
 	}
+	return ret, nil
+}
+
+// CheckVisibility checks if api server could reach this client machine
+// for each newtwork interface.
+func CheckVisibility() (map[string]bool, error) {
+	ret := make(map[string]bool)
+
+	// create local web server
+	s := Server{Directory: "/tmp"}
+	server, port, err := s.ServeStatic(false)
+	if err != nil {
+		return nil, err
+	}
+
+	// check each ip
+	ips, err := GetAllIP()
+	if err != nil {
+		return nil, err
+	}
+	for _, ip := range ips {
+		url := fmt.Sprintf("http://%v:%v", ip, port)
+		res := gql.CheckDirectNetwork(url)
+		ret[url] = res
+	}
+
+	// close down temp server
+	if err := server.Shutdown(context.TODO()); err != nil {
+		return nil, err
+	}
+
 	return ret, nil
 }
