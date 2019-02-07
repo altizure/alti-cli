@@ -67,7 +67,7 @@ func (c Config) GetActive() APoint {
 	return ret
 }
 
-// GetProfile finds the closet profile that matches the given id.
+// GetProfile finds the closest profile that matches the given id.
 // If no match, return ErrProfileNotFound
 func (c Config) GetProfile(id string) (*Profile, error) {
 	var ret Profile
@@ -116,6 +116,62 @@ func (c *Config) AddProfile(ap APoint) error {
 	}
 	c.Active = p.ID
 	return nil
+}
+
+// RemoveProfile removes the closest profile that matches the given id.
+// If no match, return ErrProfileNotFound
+// If active profile is removed, default profile will be set as active.
+// Default profile could not be removed.
+// Return the removed APoint if succeed.
+func (c Config) RemoveProfile(id string, save bool) (*APoint, error) {
+	var ret APoint
+
+	// a. find closest profile
+	var scope string
+	var profile Profile
+	var pIndex int
+	found := false
+	score := 0
+	for k, v := range c.Scopes {
+		for i, p := range v.Profiles {
+			s := compareStrs(id, p.ID)
+			if s > score {
+				found = true
+				scope = k
+				score = s
+				profile = p
+				pIndex = i
+				ret.Endpoint = v.Endpoint
+				ret.Key = p.Key
+				ret.Name = p.Name
+				ret.Token = p.Token
+			}
+		}
+	}
+	if !found {
+		return nil, errors.ErrProfileNotFound
+	}
+	if profile.ID == DefaultProfileID {
+		return nil, errors.ErrProfileNotRemovable
+	}
+
+	// b. set new scope with removed profile
+	pSlice := c.Scopes[scope].Profiles
+	c.Scopes[scope] = Scope{
+		Endpoint: c.Scopes[scope].Endpoint,
+		Profiles: append(pSlice[:pIndex], pSlice[pIndex+1:]...),
+	}
+
+	// c. set default profile as active if active profile is removed
+	if profile.ID == c.Active {
+		c.Active = DefaultProfileID
+	}
+
+	// d. save
+	if save {
+		c.Save()
+	}
+	return &ret, nil
 }
 
 // ClearActiveToken clears the token of active profile.

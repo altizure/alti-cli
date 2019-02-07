@@ -6,3 +6,5 @@ const DefaultHostName2 = "api.altizure.cn"
 
 const DefaultScope = "https://api*altizure*com"
 const DefaultEndpoint = "https://api.altizure.com"
+
+const DefaultProfileID = "default"

@@ -7,6 +7,8 @@ const (
 	ErrNotLogin AppError = "app: not login"
 	// ErrProfileNotFound is returned when the queried profile is not found.
 	ErrProfileNotFound ConfigError = "config: profile not found"
+	// ErrProfileNotRemovable is returned when the default profile is chosen to be removed.
+	ErrProfileNotRemovable ConfigError = "config: default profile not removable"
 	// ErrOffline is returned when the server is offline.
 	ErrOffline ServerError = "server: offline"
 )
