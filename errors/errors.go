@@ -9,6 +9,8 @@ const (
 	ErrProfileNotFound ConfigError = "config: profile not found"
 	// ErrProfileNotRemovable is returned when the default profile is chosen to be removed.
 	ErrProfileNotRemovable ConfigError = "config: default profile not removable"
+	// ErrClientInvisible is returned when the client is invisible to the api server.
+	ErrClientInvisible ConfigError = "client: invisible"
 	// ErrOffline is returned when the server is offline.
 	ErrOffline ServerError = "server: offline"
 )

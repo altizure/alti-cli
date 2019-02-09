@@ -14,10 +14,11 @@ type Server struct {
 
 // ServeStatic starts a static server on address serving contents of directory.
 func (s *Server) ServeStatic(verbose bool) (*http.Server, int, error) {
-	srv := &http.Server{}
-
 	fs := http.FileServer(http.Dir(s.Directory))
-	http.Handle("/", fs)
+	mux := http.NewServeMux()
+	mux.Handle("/", fs)
+
+	srv := &http.Server{Handler: mux}
 
 	port := ":0"
 	if s.Address != "" {

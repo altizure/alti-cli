@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 )
 
@@ -88,5 +89,31 @@ func CheckVisibility() (map[string]bool, error) {
 		return nil, err
 	}
 
+	return ret, nil
+}
+
+// PreferedLocalURL returns visible url in following preference:
+// non-localhost > localhost url.
+func PreferedLocalURL() (string, error) {
+	checks, err := CheckVisibility()
+	if err != nil {
+		return "", err
+	}
+	var ret string
+	for k, v := range checks {
+		if !v {
+			continue
+		}
+		if ret == "" {
+			ret = k
+		}
+		if !strings.Contains(k, "127.0.0.1") {
+			ret = k
+			break
+		}
+	}
+	if ret == "" {
+		return ret, errors.ErrClientInvisible
+	}
 	return ret, nil
 }

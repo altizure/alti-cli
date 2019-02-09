@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -26,6 +27,13 @@ var networkCmd = &cobra.Command{
 			table.Append(r)
 		}
 		table.Render()
+
+		url, err := web.PreferedLocalURL()
+		if err != nil {
+			fmt.Println("Client is invisible. Direct upload is not supported!")
+			return
+		}
+		fmt.Printf("Prefered %q for direct upload!\n", url)
 	},
 }
 
