@@ -2,15 +2,15 @@ package gql
 
 import (
 	"context"
-	"log"
 
 	"github.com/jackytck/alti-cli/config"
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/machinebox/graphql"
 )
 
 // CreateProject creates a new empty project
 // and returns the pid of the newly created project.
-func CreateProject(name, projType, modelType, visibility string, importedModel bool) string {
+func CreateProject(name, projType, modelType, visibility string, importedModel bool) (string, error) {
 	config := config.Load()
 	active := config.GetActive()
 	client := graphql.NewClient(active.Endpoint + "/graphql")
@@ -18,7 +18,7 @@ func CreateProject(name, projType, modelType, visibility string, importedModel b
 	// make a request
 	req := graphql.NewRequest(`
 		mutation ($name: String!, $type: PROJECT_TYPE, $imported: Boolean, $modelType: IMPORTED_MODEL_TYPE, $visibility: PROJECT_VISIBILITY) {
-			createProject(name: $name, type: $type, imported: $imported, visibility: $visibility) {
+			createProject(name: $name, type: $type, imported: $imported, modelType: $modelType, visibility: $visibility) {
 				id
 			}
 		}
@@ -29,8 +29,10 @@ func CreateProject(name, projType, modelType, visibility string, importedModel b
 	// set create project variables
 	req.Var("name", name)
 	req.Var("type", projType)
-	req.Var("imported", importedModel)
-	req.Var("modelType", modelType)
+	if modelType != "" {
+		req.Var("modelType", modelType)
+		req.Var("imported", importedModel)
+	}
 	req.Var("visibility", visibility)
 
 	// define a Context for the request
@@ -39,9 +41,13 @@ func CreateProject(name, projType, modelType, visibility string, importedModel b
 	// run it and capture the response
 	var res createProjRes
 	if err := client.Run(ctx, req, &res); err != nil {
-		log.Fatal(err)
+		return "", err
 	}
-	return res.CreateProject.ID
+	pid := res.CreateProject.ID
+	if pid == "" {
+		return "", errors.ErrProjCreate
+	}
+	return pid, nil
 }
 
 type createProjRes struct {

@@ -13,6 +13,8 @@ const (
 	ErrClientInvisible ConfigError = "client: invisible"
 	// ErrOffline is returned when the server is offline.
 	ErrOffline ServerError = "server: offline"
+	// ErrProjectCreate is returned when a new project could not be created.
+	ErrProjCreate ProjectError = "project: create"
 )
 
 // AppError is the application specific error.
@@ -33,5 +35,12 @@ func (e ConfigError) Error() string {
 type ServerError string
 
 func (e ServerError) Error() string {
+	return string(e)
+}
+
+// ProjectError is the project related error.
+type ProjectError string
+
+func (e ProjectError) Error() string {
 	return string(e)
 }
