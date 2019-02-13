@@ -13,8 +13,10 @@ const (
 	ErrClientInvisible ConfigError = "client: invisible"
 	// ErrOffline is returned when the server is offline.
 	ErrOffline ServerError = "server: offline"
-	// ErrProjectCreate is returned when a new project could not be created.
+	// ErrProjCreate is returned when a new project could not be created.
 	ErrProjCreate ProjectError = "project: create"
+	// ErrProjRemove is returned when a project could not be removed.
+	ErrProjRemove ProjectError = "project: remove"
 )
 
 // AppError is the application specific error.
