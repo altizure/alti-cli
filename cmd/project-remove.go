@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/types"
 	"github.com/spf13/cobra"
 )
 
@@ -15,13 +17,15 @@ var projRemoveCmd = &cobra.Command{
 	Short: "Remove project by pid",
 	Long:  "Remove a project by its pid.",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := gql.RemoveProject(id)
+		p, err := gql.RemoveProject(id)
 		if err != nil {
-			fmt.Println("Project could not be removed!", err)
+			fmt.Println("Project could not be removed! Error:", err)
 			return
 		}
 
-		fmt.Printf("Successfully removed project with id: %q", id)
+		fmt.Println("Successfully removed project:")
+		table := types.ProjectsToTable([]types.Project{*p}, os.Stdout)
+		table.Render()
 	},
 }
 
