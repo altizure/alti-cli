@@ -17,6 +17,8 @@ const (
 	ErrProjCreate ProjectError = "project: create"
 	// ErrProjRemove is returned when a project could not be removed.
 	ErrProjRemove ProjectError = "project: remove"
+	// ErrProjNotFound is returned when a project is not found.
+	ErrProjNotFound ProjectError = "project: not found"
 )
 
 // AppError is the application specific error.
