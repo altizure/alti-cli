@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 // GuessFileType guesses the type of file.
@@ -32,4 +33,28 @@ func Sha1sum(file string) (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// WalkDir walks the given directory and
+// return each path through the returned channel.
+func WalkDir(root string) <-chan string {
+	paths := make(chan string)
+
+	onWalk := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if info.IsDir() {
+			return nil
+		}
+		paths <- path
+		return nil
+	}
+
+	go func() {
+		filepath.Walk(root, onWalk)
+		close(paths)
+	}()
+
+	return paths
 }
