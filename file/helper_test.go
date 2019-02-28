@@ -7,8 +7,11 @@ import (
 	"image/jpeg"
 	"image/png"
 	"os"
+	"reflect"
 	"testing"
 )
+
+const testImgDir = "test/data/imgs/"
 
 // TestMain creates and removes nat.jpg and nat.png.
 func TestMain(m *testing.M) {
@@ -17,11 +20,16 @@ func TestMain(m *testing.M) {
 }
 
 func run(m *testing.M) int {
+	// create test dirs
+	os.MkdirAll("./test/data/imgs", os.ModePerm)
+	os.Mkdir("./test/data/other", os.ModePerm)
+
+	// create test imgs
 	const w, h = 1000, 1000
 	var im draw.Image
 	im = image.NewRGBA(image.Rectangle{Max: image.Point{X: w, Y: h}})
 	im = fibGradient(im)
-	f, err := os.Create("nat.jpg")
+	f, err := os.Create(testImgDir + "nat.jpg")
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +38,7 @@ func run(m *testing.M) int {
 		panic(err)
 	}
 	f.Close()
-	f, err = os.Create("nat.png")
+	f, err = os.Create(testImgDir + "nat.png")
 	if err != nil {
 		panic(err)
 	}
@@ -42,11 +50,7 @@ func run(m *testing.M) int {
 
 	// teardown
 	defer func() {
-		err = os.Remove("nat.jpg")
-		if err != nil {
-			panic(err)
-		}
-		err = os.Remove("nat.png")
+		err = os.RemoveAll("./test")
 		if err != nil {
 			panic(err)
 		}
@@ -92,8 +96,8 @@ func TestGuessFileType(t *testing.T) {
 		wantErr bool
 	}{
 		{"nonexisting", args{"nat"}, "", true},
-		{"jpg", args{"nat.jpg"}, "image/jpeg", false},
-		{"png", args{"nat.png"}, "image/png", false},
+		{"jpg", args{testImgDir + "nat.jpg"}, "image/jpeg", false},
+		{"png", args{testImgDir + "nat.png"}, "image/png", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -120,8 +124,8 @@ func TestSha1sum(t *testing.T) {
 		wantErr bool
 	}{
 		{"nonexisting", args{"nat"}, "", true},
-		{"jpg", args{"nat.jpg"}, "672ecff0c4cab64e77321c38a091b1a2fb3ede66", false},
-		{"png", args{"nat.png"}, "3d92ce14e0d333df4df8c1b6adb922a6d5b3ecb3", false},
+		{"jpg", args{testImgDir + "nat.jpg"}, "672ecff0c4cab64e77321c38a091b1a2fb3ede66", false},
+		{"png", args{testImgDir + "nat.png"}, "3d92ce14e0d333df4df8c1b6adb922a6d5b3ecb3", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -134,5 +138,17 @@ func TestSha1sum(t *testing.T) {
 				t.Errorf("Sha1sum() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestWalkDir(t *testing.T) {
+	ch := WalkDir(testImgDir)
+	var got []string
+	for p := range ch {
+		got = append(got, p)
+	}
+	want := []string{testImgDir + "nat.jpg", testImgDir + "nat.png"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("WalkDir() = %v, want %v", got, want)
 	}
 }
