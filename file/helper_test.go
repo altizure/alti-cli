@@ -5,13 +5,17 @@ import (
 	"image/color"
 	"image/draw"
 	"image/jpeg"
+	_ "image/jpeg"
 	"image/png"
+	_ "image/png"
 	"os"
 	"reflect"
 	"testing"
 )
 
 const testImgDir = "test/data/imgs/"
+const testImgWidth = 1000
+const testImgHeight = 1000
 
 // TestMain creates and removes nat.jpg and nat.png.
 func TestMain(m *testing.M) {
@@ -25,9 +29,8 @@ func run(m *testing.M) int {
 	os.Mkdir("test/data/other", os.ModePerm)
 
 	// create test imgs
-	const w, h = 1000, 1000
 	var im draw.Image
-	im = image.NewRGBA(image.Rectangle{Max: image.Point{X: w, Y: h}})
+	im = image.NewRGBA(image.Rectangle{Max: image.Point{X: testImgWidth, Y: testImgHeight}})
 	im = fibGradient(im)
 	f, err := os.Create(testImgDir + "nat.jpg")
 	if err != nil {
@@ -160,7 +163,7 @@ func TestSha1sum(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		{"nonexisting", args{"nat"}, "", true},
+		{"no-nexisting", args{"nat"}, "", true},
 		{"jpg", args{testImgDir + "nat.jpg"}, "672ecff0c4cab64e77321c38a091b1a2fb3ede66", false},
 		{"png", args{testImgDir + "nat.png"}, "3d92ce14e0d333df4df8c1b6adb922a6d5b3ecb3", false},
 	}
@@ -187,5 +190,38 @@ func TestWalkDir(t *testing.T) {
 	want := []string{testImgDir + "nat.jpg", testImgDir + "nat.png"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("WalkDir() = %v, want %v", got, want)
+	}
+}
+
+func TestGetImageSize(t *testing.T) {
+	type args struct {
+		img string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int
+		want1   int
+		wantErr bool
+	}{
+		{"no-nexisting", args{"nat"}, 0, 0, true},
+		{"jpg", args{testImgDir + "nat.jpg"}, testImgWidth, testImgHeight, false},
+		{"png", args{testImgDir + "nat.png"}, testImgWidth, testImgHeight, false},
+		{"non-image", args{"test/data/other/log.txt"}, 0, 0, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1, err := GetImageSize(tt.args.img)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetImageSize() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("GetImageSize() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("GetImageSize() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
 	}
 }
