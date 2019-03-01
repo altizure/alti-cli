@@ -14,6 +14,18 @@ import (
 	"strings"
 )
 
+// DimToGigaPixel computes the giga-pixel from width and height.
+func DimToGigaPixel(w, h int) float64 {
+	return float64(max(2073600, w*h)) / 1000000000
+}
+
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
 // GetImageSize decodes the width and height of an image.
 func GetImageSize(img string) (int, int, error) {
 	valid, err := IsImageFile(img)

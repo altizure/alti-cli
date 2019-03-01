@@ -225,3 +225,47 @@ func TestGetImageSize(t *testing.T) {
 		})
 	}
 }
+
+func TestDimtoGigaPixel(t *testing.T) {
+	type args struct {
+		w int
+		h int
+	}
+	tests := []struct {
+		name string
+		args args
+		want float64
+	}{
+		{"small", args{0, 0}, 0.0020736},
+		{"iPhone X", args{4032, 3024}, 0.012192768},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := DimToGigaPixel(tt.args.w, tt.args.h); got != tt.want {
+				t.Errorf("DimToGigaPixel() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_max(t *testing.T) {
+	type args struct {
+		x int
+		y int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{"simple", args{1, 3}, 3},
+		{"simple", args{520, 3}, 520},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := max(tt.args.x, tt.args.y); got != tt.want {
+				t.Errorf("max() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
