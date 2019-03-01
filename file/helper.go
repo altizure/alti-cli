@@ -7,7 +7,20 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+// IsImageFile tells if the file is an image.
+func IsImageFile(img string) (bool, error) {
+	ext, err := GuessFileType(img)
+	if err != nil {
+		return false, err
+	}
+	if strings.Contains(ext, "image/") {
+		return true, nil
+	}
+	return false, nil
+}
 
 // GuessFileType guesses the type of file.
 func GuessFileType(file string) (string, error) {
