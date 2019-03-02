@@ -40,6 +40,16 @@ func Load() Config {
 	return c
 }
 
+// GetConfigDir returns the path of the config directory that
+// contains the config.yaml file.
+func GetConfigDir() (string, error) {
+	home, err := homedir.Dir()
+	if err != nil {
+		return "", err
+	}
+	return path.Join(home, ".altizure"), nil
+}
+
 // Config represents everything in the config stored by viper.
 type Config struct {
 	Scopes map[string]Scope `yaml:"scopes"`
@@ -228,11 +238,11 @@ func (c Config) Save() error {
 	if err != nil {
 		return err
 	}
-	home, err := homedir.Dir()
+	confDir, err := GetConfigDir()
 	if err != nil {
 		return err
 	}
-	confPath := path.Join(home, ".altizure", "config.yaml")
+	confPath := path.Join(confDir, "config.yaml")
 	err = ioutil.WriteFile(confPath, data, 0644)
 	if err != nil {
 		return err
