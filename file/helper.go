@@ -3,12 +3,49 @@ package file
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"image"
+	// for image.DecodeConfig
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 )
+
+// DimToGigaPixel computes the giga-pixel from width and height.
+func DimToGigaPixel(w, h int) float64 {
+	return float64(max(2073600, w*h)) / 1000000000
+}
+
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+// GetImageSize decodes the width and height of an image.
+func GetImageSize(img string) (int, int, error) {
+	valid, err := IsImageFile(img)
+	if err != nil {
+		return 0, 0, err
+	}
+	if !valid {
+		return 0, 0, nil
+	}
+	f, err := os.Open(img)
+	if err != nil {
+		return 0, 0, err
+	}
+	defer f.Close()
+	i, _, err := image.DecodeConfig(f)
+	if err != nil {
+		return 0, 0, err
+	}
+	return i.Width, i.Height, nil
+}
 
 // IsImageFile tells if the file is an image.
 func IsImageFile(img string) (bool, error) {
