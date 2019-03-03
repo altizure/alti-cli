@@ -226,7 +226,7 @@ func TestGetImageSize(t *testing.T) {
 	}
 }
 
-func TestDimtoGigaPixel(t *testing.T) {
+func TestDimToGigaPixel(t *testing.T) {
 	type args struct {
 		w int
 		h int
@@ -265,6 +265,55 @@ func Test_max(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := max(tt.args.x, tt.args.y); got != tt.want {
 				t.Errorf("max() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFilesize(t *testing.T) {
+	type args struct {
+		file string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int64
+		wantErr bool
+	}{
+		{"non-existing", args{"nat"}, 0, true},
+		{"jpg", args{testImgDir + "nat.jpg"}, 415568, false},
+		{"png", args{testImgDir + "nat.png"}, 1734577, false},
+		{"non-image", args{"test/data/other/log.txt"}, 61, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := Filesize(tt.args.file)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Filesize() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Filesize() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBytesToMB(t *testing.T) {
+	type args struct {
+		bytes int64
+	}
+	tests := []struct {
+		name string
+		args args
+		want float64
+	}{
+		{"simple", args{1734577}, 1.654221534729004},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := BytesToMB(tt.args.bytes); got != tt.want {
+				t.Errorf("BytesToMB() = %v, want %v", got, tt.want)
 			}
 		})
 	}
