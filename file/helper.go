@@ -85,6 +85,28 @@ func Sha1sum(file string) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
+// Filesize returns the filesize in bytes of a file.
+func Filesize(file string) (int64, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+
+	stat, err := f.Stat()
+	if err != nil {
+		return 0, err
+	}
+
+	bytes := stat.Size()
+	return bytes, nil
+}
+
+// BytesToMB converts bytes to mega-bytes.
+func BytesToMB(bytes int64) float64 {
+	return float64(bytes) / 1024 / 1024
+}
+
 // WalkDir walks the given directory and
 // return each path through the returned channel.
 func WalkDir(root string) <-chan string {
