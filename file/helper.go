@@ -3,6 +3,7 @@ package file
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"errors"
 	"image"
 	// for image.DecodeConfig
 	_ "image/jpeg"
@@ -129,4 +130,36 @@ func WalkDir(root string) <-chan string {
 	}()
 
 	return paths
+}
+
+// WalkFiles starts a goroutine to walk the directory tree at root and send the
+// path of each regular file on the string channel.  It sends the result of the
+// walk on the error channel. If done is closed, walkFiles abandons its work.
+func WalkFiles(done <-chan struct{}, root string) (<-chan string, <-chan error) {
+	paths := make(chan string)
+	errc := make(chan error, 1)
+
+	onWalk := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.Mode().IsRegular() {
+			return nil
+		}
+		select {
+		case paths <- path:
+		case <-done:
+			return errors.New("walk canceled")
+		}
+		return nil
+	}
+
+	go func() {
+		// Close the paths channel after Walk returns.
+		defer close(paths)
+		// No select needed for this send, since errc is buffered.
+		errc <- filepath.Walk(root, onWalk)
+	}()
+
+	return paths, errc
 }

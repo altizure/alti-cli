@@ -2,8 +2,8 @@ package db
 
 // Image represents an image in the db.
 type Image struct {
-	PID       string `storm:"id"`
-	IID       string `storm:"index"`
+	PID       string `storm:"index"`
+	IID       string `storm:"id"`
 	Name      string
 	Filename  string
 	LocalPath string

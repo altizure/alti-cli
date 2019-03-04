@@ -193,6 +193,22 @@ func TestWalkDir(t *testing.T) {
 	}
 }
 
+func TestWalkFiles(t *testing.T) {
+	done := make(chan struct{})
+	paths, errc := WalkFiles(done, testImgDir)
+	var got []string
+	for p := range paths {
+		got = append(got, p)
+	}
+	if err := <-errc; err != nil {
+		t.Errorf("WalkFiles() error: %v", err)
+	}
+	want := []string{testImgDir + "nat.jpg", testImgDir + "nat.png"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("WalkFiles() = %v, want %v", got, want)
+	}
+}
+
 func TestGetImageSize(t *testing.T) {
 	type args struct {
 		img string
