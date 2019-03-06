@@ -19,6 +19,14 @@ const (
 	ErrProjRemove ProjectError = "project: remove"
 	// ErrProjNotFound is returned when a project is not found.
 	ErrProjNotFound ProjectError = "project: not found"
+	// ErrFileNotImage is returned when a file is not a supported image.
+	ErrFileNotImage FileError = "file: not image"
+	// ErrFilesize is returned when the filesize of a file could not be determined.
+	ErrFilesize FileError = "file: unknown filesize"
+	// ErrFileImageDim is returned when the dimension of an image could not be determined.
+	ErrFileImageDim FileError = "file: unknown image dimension"
+	// ErrFileChecksum is returned when the checksum of a file could not be computed.
+	ErrFileChecksum FileError = "file: unknown checksum"
 )
 
 // AppError is the application specific error.
@@ -46,5 +54,12 @@ func (e ServerError) Error() string {
 type ProjectError string
 
 func (e ProjectError) Error() string {
+	return string(e)
+}
+
+// FileError is the file related error.
+type FileError string
+
+func (e FileError) Error() string {
 	return string(e)
 }
