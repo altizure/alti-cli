@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"log"
-	"path/filepath"
 	"time"
 
 	"github.com/jackytck/alti-cli/file"
@@ -22,43 +21,47 @@ of all images of a given directory.`,
 		start := time.Now()
 
 		log.Printf("Checking %s...\n", dir)
-		pc := file.WalkDir(dir)
 
 		var totalGP float64
 		var totalImg int
 		var totalMB float64
 
-		for p := range pc {
-			isImg, err := file.IsImageFile(p)
-			if err != nil || !isImg {
-				continue
-			}
-			bytes, err := file.Filesize(p)
-			if err != nil {
-				log.Printf("Error getting filesize of %s\n", p)
-				continue
-			}
-			mb := file.BytesToMB(bytes)
-			w, h, err := file.GetImageSize(p)
-			if err != nil {
-				log.Printf("Error getting dimension of %s\n", p)
-				continue
-			}
-			gp := file.DimToGigaPixel(w, h)
-			sha1, err := file.Sha1sum(p)
-			if err != nil {
-				log.Printf("Error getting sha1 checksum of %s\n", p)
-				continue
-			}
-			filename := filepath.Base(p)
+		done := make(chan struct{})
+		defer close(done)
 
+		paths, errc := file.WalkFiles(done, dir)
+		result := make(chan file.ImageDigest)
+
+		digester := file.ImageDigester{
+			Done:   done,
+			Paths:  paths,
+			Result: result,
+		}
+		threads := digester.Run(-1)
+		if verbose {
+			log.Printf("Working in %d thread(s)...", threads)
+		}
+
+		for r := range result {
+			if r.Error != nil {
+				log.Printf("Invalid image: %q, Reason: %v", r.Path, r.Error)
+				continue
+			}
+
+			mb := file.BytesToMB(r.Filesize)
 			if verbose {
-				log.Printf("Filename: %q, Dimension: %dx%d, GP: %.2f, Size: %.2f MB, Checksum: %s\n", filename, w, h, gp, mb, sha1)
+				log.Printf("Filename: %q, Dimension: %dx%d, GP: %.2f, Size: %.2f MB, Checksum: %s\n",
+					r.Filename, r.Width, r.Height, r.GP, mb, r.SHA1)
 			}
 
-			totalGP += gp
+			totalGP += r.GP
 			totalImg++
 			totalMB += mb
+		}
+
+		// check whether the Walk failed
+		if err := <-errc; err != nil {
+			panic(err)
 		}
 
 		if totalImg > 0 {
@@ -67,7 +70,9 @@ of all images of a given directory.`,
 			log.Println("No image is found!")
 		}
 
-		log.Println("Took", time.Since(start))
+		if verbose {
+			log.Println("Took", time.Since(start))
+		}
 	},
 }
 
