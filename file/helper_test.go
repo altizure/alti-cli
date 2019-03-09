@@ -181,21 +181,9 @@ func TestSha1sum(t *testing.T) {
 	}
 }
 
-func TestWalkDir(t *testing.T) {
-	ch := WalkDir(testImgDir)
-	var got []string
-	for p := range ch {
-		got = append(got, p)
-	}
-	want := []string{testImgDir + "nat.jpg", testImgDir + "nat.png"}
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("WalkDir() = %v, want %v", got, want)
-	}
-}
-
 func TestWalkFiles(t *testing.T) {
 	done := make(chan struct{})
-	paths, errc := WalkFiles(done, testImgDir)
+	paths, errc := WalkFiles(done, testImgDir, "")
 	var got []string
 	for p := range paths {
 		got = append(got, p)
@@ -204,6 +192,22 @@ func TestWalkFiles(t *testing.T) {
 		t.Errorf("WalkFiles() error: %v", err)
 	}
 	want := []string{testImgDir + "nat.jpg", testImgDir + "nat.png"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("WalkFiles() = %v, want %v", got, want)
+	}
+}
+
+func TestWalkFilesSkip(t *testing.T) {
+	done := make(chan struct{})
+	paths, errc := WalkFiles(done, testImgDir, "\\w*.png")
+	var got []string
+	for p := range paths {
+		got = append(got, p)
+	}
+	if err := <-errc; err != nil {
+		t.Errorf("WalkFiles() error: %v", err)
+	}
+	want := []string{testImgDir + "nat.jpg"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("WalkFiles() = %v, want %v", got, want)
 	}

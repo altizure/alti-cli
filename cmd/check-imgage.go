@@ -9,6 +9,7 @@ import (
 )
 
 var dir string
+var skip string
 var verbose bool
 
 // checkImageCmd represents the checkImage command
@@ -29,7 +30,7 @@ of all images of a given directory.`,
 		done := make(chan struct{})
 		defer close(done)
 
-		paths, errc := file.WalkFiles(done, dir)
+		paths, errc := file.WalkFiles(done, dir, skip)
 		result := make(chan file.ImageDigest)
 
 		digester := file.ImageDigester{
@@ -50,8 +51,8 @@ of all images of a given directory.`,
 
 			mb := file.BytesToMB(r.Filesize)
 			if verbose {
-				log.Printf("Filename: %q, Dimension: %dx%d, GP: %.2f, Size: %.2f MB, Checksum: %s\n",
-					r.Filename, r.Width, r.Height, r.GP, mb, r.SHA1)
+				log.Printf("Path: %q, Filename: %q, Dimension: %dx%d, GP: %.2f, Size: %.2f MB, Checksum: %s\n",
+					r.Path, r.Filename, r.Width, r.Height, r.GP, mb, r.SHA1)
 			}
 
 			totalGP += r.GP
@@ -79,6 +80,7 @@ of all images of a given directory.`,
 func init() {
 	checkCmd.AddCommand(checkImageCmd)
 	checkImageCmd.Flags().StringVarP(&dir, "dir", "d", dir, "Directory path")
+	checkImageCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
 	checkImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	checkImageCmd.MarkFlagRequired("dir")
 }

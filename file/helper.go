@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"image"
+	"regexp"
 	// for image.DecodeConfig
 	_ "image/jpeg"
 	_ "image/png"
@@ -108,42 +109,29 @@ func BytesToMB(bytes int64) float64 {
 	return float64(bytes) / 1024 / 1024
 }
 
-// WalkDir walks the given directory and
-// return each path through the returned channel.
-func WalkDir(root string) <-chan string {
-	paths := make(chan string)
-
-	onWalk := func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return nil
-		}
-		if info.IsDir() {
-			return nil
-		}
-		paths <- path
-		return nil
-	}
-
-	go func() {
-		filepath.Walk(root, onWalk)
-		close(paths)
-	}()
-
-	return paths
-}
-
 // WalkFiles starts a goroutine to walk the directory tree at root and send the
 // path of each regular file on the string channel.  It sends the result of the
 // walk on the error channel. If done is closed, walkFiles abandons its work.
-func WalkFiles(done <-chan struct{}, root string) (<-chan string, <-chan error) {
+// skip is a regular expression pattern used for skipping paths. Would not skip
+// if it is an empty string.
+func WalkFiles(done <-chan struct{}, root string, skip string) (<-chan string, <-chan error) {
 	paths := make(chan string)
 	errc := make(chan error, 1)
+
+	r, err := regexp.Compile(skip)
+	if err != nil {
+		errc <- err
+		return paths, errc
+	}
 
 	onWalk := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if !info.Mode().IsRegular() {
+			return nil
+		}
+		if skip != "" && r.MatchString(path) {
 			return nil
 		}
 		select {
