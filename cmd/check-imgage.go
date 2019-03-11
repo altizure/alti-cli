@@ -15,6 +15,7 @@ var dir string
 var skip string
 var verbose bool
 var printTable bool
+var thread int = -1
 
 // checkImageCmd represents the checkImage command
 var checkImageCmd = &cobra.Command{
@@ -42,7 +43,7 @@ of all images of a given directory.`,
 			Paths:  paths,
 			Result: result,
 		}
-		threads := digester.Run(-1)
+		threads := digester.Run(thread)
 		if verbose {
 			log.Printf("Working in %d thread(s)...", threads)
 		}
@@ -107,5 +108,6 @@ func init() {
 	checkImageCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
 	checkImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	checkImageCmd.Flags().BoolVarP(&printTable, "table", "t", printTable, "Output all of the found images in table format")
+	checkImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores")
 	checkImageCmd.MarkFlagRequired("dir")
 }
