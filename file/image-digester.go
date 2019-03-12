@@ -13,6 +13,7 @@ type ImageDigest struct {
 	IsImage  bool
 	Path     string
 	Filename string
+	Filetype string
 	Filesize int64 // in bytes
 	Width    int
 	Height   int
@@ -88,7 +89,15 @@ func work(p string) ImageDigest {
 	// b. filename
 	ret.Filename = filepath.Base(p)
 
-	// c. filesize
+	// c. filetype
+	t, err := GuessFileType(p)
+	if err != nil {
+		ret.Error = err
+		return ret
+	}
+	ret.Filetype = t
+
+	// d. filesize
 	bytes, err := Filesize(p)
 	if err != nil {
 		ret.Error = errors.ErrFilesize
@@ -96,7 +105,7 @@ func work(p string) ImageDigest {
 	}
 	ret.Filesize = bytes
 
-	// d. image dimension
+	// e. image dimension
 	w, h, err := GetImageSize(p)
 	if err != nil {
 		ret.Error = errors.ErrFileImageDim
@@ -105,10 +114,10 @@ func work(p string) ImageDigest {
 	ret.Width = w
 	ret.Height = h
 
-	// e. gp usage
+	// f. gp usage
 	ret.GP = DimToGigaPixel(w, h)
 
-	// f. checksum
+	// g. checksum
 	sha1, err := Sha1sum(p)
 	if err != nil {
 		ret.Error = errors.ErrFileChecksum

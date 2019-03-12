@@ -15,7 +15,7 @@ var dir string
 var skip string
 var verbose bool
 var printTable bool
-var thread int = -1
+var thread = -1
 
 // checkImageCmd represents the checkImage command
 var checkImageCmd = &cobra.Command{
@@ -59,8 +59,8 @@ of all images of a given directory.`,
 
 			mb := file.BytesToMB(r.Filesize)
 			if verbose {
-				log.Printf("Path: %q, Filename: %q, Dimension: %d x %d, GP: %.2f, Size: %.2f MB, Checksum: %s\n",
-					r.Path, r.Filename, r.Width, r.Height, r.GP, mb, r.SHA1)
+				log.Printf("Path: %q, Filename: %q, Dimension: %d x %d, GP: %.2f, Type: %s, Size: %.2f MB, Checksum: %s\n",
+					r.Path, r.Filename, r.Width, r.Height, r.GP, r.Filetype, mb, r.SHA1)
 			}
 
 			if printTable {
