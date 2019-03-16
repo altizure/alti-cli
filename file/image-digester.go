@@ -3,6 +3,7 @@ package file
 import (
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 
 	"github.com/jackytck/alti-cli/errors"
@@ -12,6 +13,7 @@ import (
 type ImageDigest struct {
 	IsImage  bool
 	Path     string
+	URL      string // relative url from root
 	Filename string
 	Filetype string
 	Filesize int64 // in bytes
@@ -24,6 +26,7 @@ type ImageDigest struct {
 
 // ImageDigester reads path names from paths...
 type ImageDigester struct {
+	Root   string
 	Done   <-chan struct{}
 	Paths  <-chan string
 	Result chan<- ImageDigest
@@ -34,7 +37,7 @@ type ImageDigester struct {
 func (id *ImageDigester) Digest() {
 	for path := range id.Paths {
 		select {
-		case id.Result <- work(path):
+		case id.Result <- work(id.Root, path):
 		case <-id.Done:
 			return
 		}
@@ -68,9 +71,10 @@ func (id *ImageDigester) Run(n int) int {
 
 // work checks the specified image file
 // and get its name, size, width, height, gp and sha1.
-func work(p string) ImageDigest {
+func work(r, p string) ImageDigest {
 	ret := ImageDigest{
 		Path: p,
+		URL:  strings.Replace(p[len(r):], " ", "%20", -1),
 	}
 
 	// a. is image?

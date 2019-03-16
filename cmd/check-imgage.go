@@ -39,6 +39,7 @@ of all images of a given directory.`,
 		result := make(chan file.ImageDigest)
 
 		digester := file.ImageDigester{
+			Root:   dir,
 			Done:   done,
 			Paths:  paths,
 			Result: result,
@@ -59,8 +60,8 @@ of all images of a given directory.`,
 
 			mb := file.BytesToMB(r.Filesize)
 			if verbose {
-				log.Printf("Path: %q, Filename: %q, Dimension: %d x %d, GP: %.2f, Type: %s, Size: %.2f MB, Checksum: %s\n",
-					r.Path, r.Filename, r.Width, r.Height, r.GP, r.Filetype, mb, r.SHA1)
+				log.Printf("Path: %q, URL: %q, Filename: %q, Dimension: %d x %d, GP: %.2f, Type: %s, Size: %.2f MB, Checksum: %s\n",
+					r.Path, r.URL, r.Filename, r.Width, r.Height, r.GP, r.Filetype, mb, r.SHA1)
 			}
 
 			if printTable {
