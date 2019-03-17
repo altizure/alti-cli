@@ -25,6 +25,12 @@ var checkImageCmd = &cobra.Command{
 of all images of a given directory.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		start := time.Now()
+		defer func() {
+			if verbose {
+				elapsed := time.Since(start)
+				log.Println("Took", elapsed)
+			}
+		}()
 
 		log.Printf("Checking %s...\n", dir)
 
@@ -84,7 +90,6 @@ of all images of a given directory.`,
 		if err := <-errc; err != nil {
 			panic(err)
 		}
-		elapsed := time.Since(start)
 
 		if totalImg > 0 {
 			log.Printf("Found %d images, total %.2f GP, %.2f MB", totalImg, totalGP, totalMB)
@@ -92,12 +97,8 @@ of all images of a given directory.`,
 			log.Println("No image is found!")
 		}
 
-		if verbose {
-			log.Println("Took", elapsed)
-		}
-
 		if printTable {
-			table.SetFooter([]string{fmt.Sprintf("%d image(s)", totalImg), "Total", fmt.Sprintf("%.2f GP", totalGP), fmt.Sprintf("%.2f MB", totalMB), fmt.Sprintf("Took %v", elapsed)})
+			table.SetFooter([]string{fmt.Sprintf("%d image(s)", totalImg), "Total", fmt.Sprintf("%.2f GP", totalGP), fmt.Sprintf("%.2f MB", totalMB), `\ (•◡•) /`})
 			table.Render()
 		}
 	},
