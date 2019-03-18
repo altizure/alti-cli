@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jackytck/alti-cli/file"
+	"github.com/jackytck/alti-cli/web"
 	"github.com/spf13/cobra"
 )
 
@@ -89,8 +90,24 @@ var importImageCmd = &cobra.Command{
 			return
 		}
 
-		// @TODO
-		log.Println("Uploading...")
+		// setup direct upload
+		method := "direct"
+		_, err := web.PreferedLocalURL()
+		if err != nil {
+			log.Println("Client is invisible. Direct upload is not supported!")
+			method = "s3"
+		} else {
+			log.Println("Direct upload is supported!")
+		}
+
+		switch method {
+		case "direct":
+			log.Println("TODO: direct upload...")
+		case "s3":
+			log.Println("TODO: s3 upload...")
+		case "oss":
+			log.Println("TODO: oss upload...")
+		}
 	},
 }
 
