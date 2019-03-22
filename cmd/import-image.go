@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jackytck/alti-cli/file"
+	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/web"
 	"github.com/spf13/cobra"
 )
@@ -24,6 +25,14 @@ var importImageCmd = &cobra.Command{
 				log.Println("Took", elapsed)
 			}
 		}()
+
+		// check pid
+		p, err := gql.SearchProjectID(id, true)
+		if err != nil {
+			fmt.Println("Project could not be found! Error:", err)
+			return
+		}
+		log.Printf("Importing to %q...\n", p.Name)
 
 		log.Printf("Checking %s...\n", dir)
 
@@ -92,7 +101,7 @@ var importImageCmd = &cobra.Command{
 
 		// setup direct upload
 		method := "direct"
-		_, err := web.PreferedLocalURL()
+		_, err = web.PreferedLocalURL()
 		if err != nil {
 			log.Println("Client is invisible. Direct upload is not supported!")
 			method = "s3"
@@ -113,9 +122,11 @@ var importImageCmd = &cobra.Command{
 
 func init() {
 	importCmd.AddCommand(importImageCmd)
+	importImageCmd.Flags().StringVarP(&id, "id", "p", id, "Project id")
 	importImageCmd.Flags().StringVarP(&dir, "dir", "d", dir, "Directory path")
 	importImageCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
 	importImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	importImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores")
+	importImageCmd.MarkFlagRequired("id")
 	importImageCmd.MarkFlagRequired("dir")
 }
