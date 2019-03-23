@@ -75,7 +75,7 @@ var importImageCmd = &cobra.Command{
 		}
 
 		// check whether the Walk failed
-		if err := <-errc; err != nil {
+		if err = <-errc; err != nil {
 			panic(err)
 		}
 
@@ -91,7 +91,8 @@ var importImageCmd = &cobra.Command{
 		if totalImg > 1 {
 			plural = "s"
 		}
-		fmt.Printf("Continue to upload %d image%s or not? (Y/N): ", totalImg, plural)
+		fmt.Printf("After importing (if no duplicate):\nImages #: %d -> %d\tGP: %.2f -> %.2f\n", p.NumImage, p.NumImage+totalImg, p.GigaPixel, p.GigaPixel+totalGP)
+		fmt.Printf("Continue to import %d image%s or not? (Y/N): ", totalImg, plural)
 		fmt.Scanln(&ans)
 		ans = strings.ToUpper(ans)
 		if ans != "Y" && ans != "YES" {
