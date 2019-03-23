@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/asdine/storm"
+	"github.com/jackytck/alti-cli/db"
 	"github.com/jackytck/alti-cli/file"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/web"
@@ -36,10 +38,12 @@ var importImageCmd = &cobra.Command{
 
 		log.Printf("Checking %s...\n", dir)
 
+		// stats
 		var totalGP float64
 		var totalImg int
 		var totalMB float64
 
+		// setup image digester
 		done := make(chan struct{})
 		defer close(done)
 
@@ -57,6 +61,12 @@ var importImageCmd = &cobra.Command{
 			log.Printf("Working in %d thread(s)...", threads)
 		}
 
+		// setup local temp db
+		localDB, err := db.OpenDB("")
+		if err != nil {
+			panic(err)
+		}
+
 		for r := range result {
 			if r.Error != nil {
 				log.Printf("Invalid image: %q, Reason: %v", r.Path, r.Error)
@@ -72,6 +82,21 @@ var importImageCmd = &cobra.Command{
 			totalGP += r.GP
 			totalImg++
 			totalMB += mb
+
+			img := db.Image{
+				PID:       p.ID,
+				Filename:  r.Filename,
+				URL:       r.URL,
+				LocalPath: r.Path,
+				Hash:      r.SHA1,
+				Width:     r.Width,
+				Height:    r.Height,
+				GP:        r.GP,
+			}
+			err = localDB.Save(&img)
+			if err != nil {
+				panic(err)
+			}
 		}
 
 		// check whether the Walk failed
@@ -108,6 +133,19 @@ var importImageCmd = &cobra.Command{
 			method = "s3"
 		} else {
 			log.Println("Direct upload is supported!")
+		}
+
+		// read from local db
+		var imgs []db.Image
+		limit, skip := 10, 0
+		for skip < totalImg {
+			err = localDB.All(&imgs, storm.Limit(limit), storm.Skip(skip))
+			if err != nil {
+				panic(err)
+			}
+			log.Println("imgs", len(imgs), imgs[0].SID, imgs[0].Filename, imgs[len(imgs)-1].SID, imgs[len(imgs)-1].Filename)
+
+			skip += limit
 		}
 
 		switch method {
