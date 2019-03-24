@@ -28,12 +28,12 @@ var networkCmd = &cobra.Command{
 		}
 		table.Render()
 
-		url, err := web.PreferedLocalURL()
+		u, err := web.PreferedLocalURL()
 		if err != nil {
 			fmt.Println("Client is invisible. Direct upload is not supported!")
 			return
 		}
-		fmt.Printf("Prefered %q for direct upload!\n", url)
+		fmt.Printf("Prefered %q for direct upload!\n", u.Hostname())
 	},
 }
 

@@ -4,15 +4,18 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 )
 
 // Server represents a local web server.
+// Format of `Address` is `ip:port`, or `ip:` to get random port.
 type Server struct {
 	Directory string
 	Address   string
 }
 
-// ServeStatic starts a static server on address serving contents of directory.
+// ServeStatic starts a static server serving the contents of the `directory`
+// over `address`. It returns the http.Server and random port number with error.
 func (s *Server) ServeStatic(verbose bool) (*http.Server, int, error) {
 	fs := http.FileServer(http.Dir(s.Directory))
 	mux := http.NewServeMux()
@@ -30,7 +33,13 @@ func (s *Server) ServeStatic(verbose bool) (*http.Server, int, error) {
 	}
 	p := listener.Addr().(*net.TCPAddr).Port
 	if verbose {
-		log.Printf("Serving at http://127.0.0.1:%v\n", p)
+		host := s.Address
+		if host == "" {
+			host = "127.0.0.1"
+		} else {
+			host = strings.Split(host, ":")[0]
+		}
+		log.Printf("Serving at http://%s:%d\n", host, p)
 	}
 
 	go func() {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
+	"net/url"
 	"os"
 	"strings"
 
@@ -94,10 +95,10 @@ func CheckVisibility() (map[string]bool, error) {
 
 // PreferedLocalURL returns visible url in following preference:
 // non-localhost > localhost url.
-func PreferedLocalURL() (string, error) {
+func PreferedLocalURL() (*url.URL, error) {
 	checks, err := CheckVisibility()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	var ret string
 	for k, v := range checks {
@@ -113,7 +114,11 @@ func PreferedLocalURL() (string, error) {
 		}
 	}
 	if ret == "" {
-		return ret, errors.ErrClientInvisible
+		return nil, errors.ErrClientInvisible
 	}
-	return ret, nil
+	u, err := url.ParseRequestURI(ret)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
 }
