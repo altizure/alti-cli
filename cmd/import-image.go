@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -62,10 +63,20 @@ var importImageCmd = &cobra.Command{
 		}
 
 		// setup local temp db
-		localDB, err := db.OpenDB("")
+		dbPath, err := db.OpenPath()
 		if err != nil {
 			panic(err)
 		}
+		localDB, err := db.OpenDB(dbPath)
+		if err != nil {
+			panic(err)
+		}
+		defer func() {
+			err := os.Remove(dbPath)
+			if err != nil {
+				panic(err)
+			}
+		}()
 
 		for r := range result {
 			if r.Error != nil {
@@ -125,7 +136,7 @@ var importImageCmd = &cobra.Command{
 			return
 		}
 
-		// setup direct upload
+		// check direct upload
 		method := "direct"
 		_, err = web.PreferedLocalURL()
 		if err != nil {
@@ -143,20 +154,25 @@ var importImageCmd = &cobra.Command{
 			if err != nil {
 				panic(err)
 			}
-			log.Println("imgs", len(imgs), imgs[0].SID, imgs[0].Filename, imgs[len(imgs)-1].SID, imgs[len(imgs)-1].Filename)
+			upload(method, localDB, imgs)
 
 			skip += limit
 		}
-
-		switch method {
-		case "direct":
-			log.Println("TODO: direct upload...")
-		case "s3":
-			log.Println("TODO: s3 upload...")
-		case "oss":
-			log.Println("TODO: oss upload...")
-		}
 	},
+}
+
+func upload(method string, db *storm.DB, imgs []db.Image) error {
+	log.Println("imgs", len(imgs), imgs[0].SID, imgs[0].Filename, imgs[len(imgs)-1].SID, imgs[len(imgs)-1].Filename)
+	switch method {
+	case "direct":
+		log.Println("TODO: direct upload...")
+	case "s3":
+		log.Println("TODO: s3 upload...")
+	case "oss":
+		log.Println("TODO: oss upload...")
+	}
+
+	return nil
 }
 
 func init() {
