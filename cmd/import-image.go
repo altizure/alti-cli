@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -138,12 +140,29 @@ var importImageCmd = &cobra.Command{
 
 		// check direct upload
 		method := "direct"
-		_, err = web.PreferedLocalURL()
+		var localSever *http.Server
+		var port int
+		pu, err := web.PreferedLocalURL()
 		if err != nil {
 			log.Println("Client is invisible. Direct upload is not supported!")
 			method = "s3"
 		} else {
-			log.Println("Direct upload is supported!")
+			log.Printf("Direct upload is supported over %q!\n", pu.Hostname())
+
+			// setup local web server
+			s := web.Server{Directory: dir, Address: pu.Hostname() + ":"}
+			fmt.Println("local server", s)
+			localSever, port, err = s.ServeStatic(verbose)
+			if err != nil {
+				panic(err)
+			}
+			log.Printf("Serving files at http://%s:%d\n", pu.Hostname(), port)
+
+			defer func() {
+				if err := localSever.Shutdown(context.TODO()); err != nil {
+					panic(err)
+				}
+			}()
 		}
 
 		// read from local db
@@ -166,6 +185,8 @@ func upload(method string, db *storm.DB, imgs []db.Image) error {
 	switch method {
 	case "direct":
 		log.Println("TODO: direct upload...")
+		fmt.Println(imgs[0])
+		time.Sleep(time.Second * 100)
 	case "s3":
 		log.Println("TODO: s3 upload...")
 	case "oss":
