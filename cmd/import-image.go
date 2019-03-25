@@ -142,7 +142,7 @@ var importImageCmd = &cobra.Command{
 		method := "direct"
 		var localSever *http.Server
 		var port int
-		pu, err := web.PreferedLocalURL()
+		pu, _, err := web.PreferedLocalURL()
 		if err != nil {
 			log.Println("Client is invisible. Direct upload is not supported!")
 			method = "s3"

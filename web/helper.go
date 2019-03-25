@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/url"
 	"os"
@@ -81,6 +82,7 @@ func CheckVisibility() (map[string]bool, error) {
 	}
 	for _, ip := range ips {
 		url := fmt.Sprintf("http://%v:%v", ip, port)
+		log.Printf("Checking %q\n", url)
 		res := gql.CheckDirectNetwork(url)
 		ret[url] = res
 	}
@@ -95,10 +97,10 @@ func CheckVisibility() (map[string]bool, error) {
 
 // PreferedLocalURL returns visible url in following preference:
 // non-localhost > localhost url.
-func PreferedLocalURL() (*url.URL, error) {
+func PreferedLocalURL() (*url.URL, map[string]bool, error) {
 	checks, err := CheckVisibility()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	var ret string
 	for k, v := range checks {
@@ -114,11 +116,11 @@ func PreferedLocalURL() (*url.URL, error) {
 		}
 	}
 	if ret == "" {
-		return nil, errors.ErrClientInvisible
+		return nil, checks, errors.ErrClientInvisible
 	}
 	u, err := url.ParseRequestURI(ret)
 	if err != nil {
-		return nil, err
+		return nil, checks, err
 	}
-	return u, nil
+	return u, checks, nil
 }
