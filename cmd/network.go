@@ -17,7 +17,7 @@ var networkCmd = &cobra.Command{
 	Short: "Check if api server could reach this client",
 	Long:  "Locally start a web server and check if the api server could reach this server.",
 	Run: func(cmd *cobra.Command, args []string) {
-		u, res, err := web.PreferedLocalURL()
+		u, res, err := web.PreferedLocalURL(verbose)
 		if err != errors.ErrClientInvisible {
 			errors.Must(err)
 		}
@@ -40,4 +40,5 @@ var networkCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(networkCmd)
+	networkCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more network checking info")
 }

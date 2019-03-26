@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
@@ -58,7 +59,7 @@ func GetAllIP() ([]string, error) {
 
 // CheckVisibility checks if api server could reach this client machine
 // for each newtwork interface.
-func CheckVisibility() (map[string]bool, error) {
+func CheckVisibility(verbose bool) (map[string]bool, error) {
 	ret := make(map[string]bool)
 
 	// tmp dir for server
@@ -80,11 +81,27 @@ func CheckVisibility() (map[string]bool, error) {
 	if err != nil {
 		return nil, err
 	}
+	ch := make(chan netCheckResult)
+	var wg sync.WaitGroup
+	wg.Add(len(ips))
+
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
 	for _, ip := range ips {
-		url := fmt.Sprintf("http://%v:%v", ip, port)
-		log.Printf("Checking %q\n", url)
-		res := gql.CheckDirectNetwork(url)
-		ret[url] = res
+		go func(ip string) {
+			url := fmt.Sprintf("http://%v:%v", ip, port)
+			if verbose {
+				log.Printf("Checking %q...", url)
+			}
+			res := gql.CheckDirectNetwork(url)
+			ch <- netCheckResult{url, res}
+			wg.Done()
+		}(ip)
+	}
+	for r := range ch {
+		ret[r.url] = r.visibility
 	}
 
 	// close down temp server
@@ -95,10 +112,15 @@ func CheckVisibility() (map[string]bool, error) {
 	return ret, nil
 }
 
+type netCheckResult struct {
+	url        string
+	visibility bool
+}
+
 // PreferedLocalURL returns visible url in following preference:
 // non-localhost > localhost url.
-func PreferedLocalURL() (*url.URL, map[string]bool, error) {
-	checks, err := CheckVisibility()
+func PreferedLocalURL(verbose bool) (*url.URL, map[string]bool, error) {
+	checks, err := CheckVisibility(verbose)
 	if err != nil {
 		return nil, nil, err
 	}

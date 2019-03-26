@@ -74,7 +74,7 @@ var importImageCmd = &cobra.Command{
 			panic(err)
 		}
 		defer func() {
-			err := os.Remove(dbPath)
+			err = os.Remove(dbPath)
 			if err != nil {
 				panic(err)
 			}
@@ -142,7 +142,7 @@ var importImageCmd = &cobra.Command{
 		method := "direct"
 		var localSever *http.Server
 		var port int
-		pu, _, err := web.PreferedLocalURL()
+		pu, _, err := web.PreferedLocalURL(verbose)
 		if err != nil {
 			log.Println("Client is invisible. Direct upload is not supported!")
 			method = "s3"
@@ -159,7 +159,7 @@ var importImageCmd = &cobra.Command{
 			log.Printf("Serving files at http://%s:%d\n", pu.Hostname(), port)
 
 			defer func() {
-				if err := localSever.Shutdown(context.TODO()); err != nil {
+				if err = localSever.Shutdown(context.TODO()); err != nil {
 					panic(err)
 				}
 			}()
