@@ -27,6 +27,8 @@ const (
 	ErrFileImageDim FileError = "file: unknown image dimension"
 	// ErrFileChecksum is returned when the checksum of a file could not be computed.
 	ErrFileChecksum FileError = "file: unknown checksum"
+	// ErrImgReg is returned when an image could not be registered for uploading.
+	ErrImgReg UploadError = "upload: cannot register upload image"
 )
 
 // AppError is the application specific error.
@@ -61,5 +63,12 @@ func (e ProjectError) Error() string {
 type FileError string
 
 func (e FileError) Error() string {
+	return string(e)
+}
+
+// UploadError is the upload related error.
+type UploadError string
+
+func (e UploadError) Error() string {
 	return string(e)
 }
