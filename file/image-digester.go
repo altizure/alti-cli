@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/jackytck/alti-cli/errors"
+	"github.com/jackytck/alti-cli/gql"
 )
 
 // ImageDigest is the product of reading a regular file in local file system.
@@ -21,12 +22,14 @@ type ImageDigest struct {
 	Height   int
 	GP       float64
 	SHA1     string
+	Existed  bool // existed in altizure or not
 	Error    error
 }
 
 // ImageDigester reads path names from paths...
 type ImageDigester struct {
 	Root   string
+	PID    string
 	Done   <-chan struct{}
 	Paths  <-chan string
 	Result chan<- ImageDigest
@@ -37,7 +40,7 @@ type ImageDigester struct {
 func (id *ImageDigester) Digest() {
 	for path := range id.Paths {
 		select {
-		case id.Result <- work(id.Root, path):
+		case id.Result <- work(id.PID, id.Root, path):
 		case <-id.Done:
 			return
 		}
@@ -71,7 +74,7 @@ func (id *ImageDigester) Run(n int) int {
 
 // work checks the specified image file
 // and get its name, size, width, height, gp and sha1.
-func work(r, p string) ImageDigest {
+func work(pid, r, p string) ImageDigest {
 	ret := ImageDigest{
 		Path: p,
 		URL:  strings.Replace(p[len(r):], " ", "%20", -1),
@@ -128,6 +131,13 @@ func work(r, p string) ImageDigest {
 		return ret
 	}
 	ret.SHA1 = sha1
+
+	// h. check if already uploaded
+	ret.Existed, err = gql.HasImage(pid, sha1)
+	if err != nil {
+		ret.Error = err
+		return ret
+	}
 
 	return ret
 }

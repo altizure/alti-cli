@@ -9,6 +9,10 @@ import (
 
 // HasImage asks if the project has the given image by hash.
 func HasImage(pid, checksum string) (bool, error) {
+	if pid == "" || checksum == "" {
+		return false, nil
+	}
+
 	config := config.Load()
 	active := config.GetActive()
 	client := graphql.NewClient(active.Endpoint + "/graphql")
@@ -24,7 +28,7 @@ func HasImage(pid, checksum string) (bool, error) {
 	`)
 	req.Header.Set("key", active.Key)
 	req.Header.Set("altitoken", active.Token)
-	req.Var("id", pid)
+	req.Var("pid", pid)
 	req.Var("checksum", checksum)
 
 	ctx := context.Background()
