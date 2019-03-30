@@ -45,6 +45,7 @@ var importImageCmd = &cobra.Command{
 		var totalGP float64
 		var totalImg int
 		var totalMB float64
+		var existedCnt int
 
 		// setup image digester
 		done := make(chan struct{})
@@ -55,6 +56,7 @@ var importImageCmd = &cobra.Command{
 
 		digester := file.ImageDigester{
 			Root:   dir,
+			PID:    p.ID,
 			Done:   done,
 			Paths:  paths,
 			Result: result,
@@ -88,8 +90,13 @@ var importImageCmd = &cobra.Command{
 
 			mb := file.BytesToMB(r.Filesize)
 			if verbose {
-				log.Printf("Path: %q, URL: %q, Filename: %q, Dimension: %d x %d, GP: %.2f, Type: %s, Size: %.2f MB, Checksum: %s\n",
-					r.Path, r.URL, r.Filename, r.Width, r.Height, r.GP, r.Filetype, mb, r.SHA1)
+				log.Printf("Path: %q, URL: %q, Filename: %q, Dimension: %d x %d, GP: %.2f, Type: %s, Size: %.2f MB, Checksum: %s, Existed: %v\n",
+					r.Path, r.URL, r.Filename, r.Width, r.Height, r.GP, r.Filetype, mb, r.SHA1, r.Existed)
+			}
+
+			if r.Existed {
+				existedCnt++
+				continue
 			}
 
 			totalGP += r.GP
@@ -118,13 +125,20 @@ var importImageCmd = &cobra.Command{
 		}
 
 		if totalImg == 0 {
-			log.Println("No image is found!")
+			if existedCnt > 0 {
+				log.Println("No new image is found! All of the images in this directory have been imported.")
+			} else {
+				log.Println("No image is found!")
+			}
 			return
 		}
 
 		// ask user to proceed or not
 		var ans string
-		log.Printf("Found %d images, total %.2f GP, %.2f MB", totalImg, totalGP, totalMB)
+		if existedCnt > 0 {
+			log.Printf("%d images already existed in the project", existedCnt)
+		}
+		log.Printf("Found %d new images, total %.2f GP, %.2f MB", totalImg, totalGP, totalMB)
 		plural := ""
 		if totalImg > 1 {
 			plural = "s"
