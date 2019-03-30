@@ -6,7 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/asdine/storm"
@@ -75,11 +77,23 @@ var importImageCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		defer func() {
-			err = os.Remove(dbPath)
+		cleanupDB := func() {
+			err := os.Remove(dbPath)
 			if err != nil {
 				panic(err)
 			}
+		}
+		defer cleanupDB()
+
+		// capture ctrl+c
+		cc := make(chan os.Signal)
+		signal.Notify(cc, os.Interrupt, syscall.SIGTERM)
+		go func() {
+			<-cc
+			cleanupDB()
+			fmt.Println()
+			log.Println("Bye!")
+			os.Exit(1)
 		}()
 
 		for r := range result {
