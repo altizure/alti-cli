@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"sync"
 
 	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/gql"
@@ -17,13 +18,38 @@ var accountCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config := config.Load()
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"ID", "Endpoint", "Username", "Status", "Select"})
+		table.SetHeader([]string{"ID", "Endpoint", "Username", "Status", "Select", "Sales", "Super"})
 		for _, v := range config.Scopes {
 			for _, p := range v.Profiles {
-				mode := gql.CheckSystemMode(v.Endpoint, p.Key)
-				r := []string{p.ID, v.Endpoint, p.Name, mode, ""}
+				var wg sync.WaitGroup
+				wg.Add(3)
+
+				var mode string
+				var super, sales bool
+
+				go func() {
+					mode = gql.CheckSystemMode(v.Endpoint, p.Key)
+					wg.Done()
+				}()
+				go func() {
+					sales = gql.IsSales(v.Endpoint, p.Key, p.Token)
+					wg.Done()
+				}()
+				go func() {
+					super = gql.IsSuper(v.Endpoint, p.Key, p.Token)
+					wg.Done()
+				}()
+
+				wg.Wait()
+				r := []string{p.ID, v.Endpoint, p.Name, mode, "", "", ""}
 				if config.Active == p.ID {
 					r[4] = "Active"
+				}
+				if sales {
+					r[5] = "Yes"
+				}
+				if super {
+					r[6] = "Yes"
 				}
 				table.Append(r)
 			}
