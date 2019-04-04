@@ -43,23 +43,23 @@ func RegisterImageURL(pid, url, filename, checksum string) (*types.Image, error)
 	if err := client.Run(ctx, req, &res); err != nil {
 		return nil, err
 	}
-	iid := res.uploadImageURL.ID
+	iid := res.UploadImageURL.ID
 	if iid == "" {
 		return nil, errors.ErrImgReg
 	}
 
 	img := types.Image{
-		ID:       res.uploadImageURL.ID,
-		State:    res.uploadImageURL.State,
-		Name:     res.uploadImageURL.Name,
-		Filename: res.uploadImageURL.Filename,
+		ID:       res.UploadImageURL.ID,
+		State:    res.UploadImageURL.State,
+		Name:     res.UploadImageURL.Name,
+		Filename: res.UploadImageURL.Filename,
 	}
 
 	return &img, nil
 }
 
 type regImgURLRes struct {
-	uploadImageURL struct {
+	UploadImageURL struct {
 		ID       string
 		State    string
 		Name     string
