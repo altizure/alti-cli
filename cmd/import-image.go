@@ -171,6 +171,7 @@ var importImageCmd = &cobra.Command{
 		var localSever *http.Server
 		var port int
 		pu, _, err := web.PreferedLocalURL(verbose)
+		baseURL := ""
 		if err != nil {
 			log.Println("Client is invisible. Direct upload is not supported!")
 			method = "s3"
@@ -184,7 +185,8 @@ var importImageCmd = &cobra.Command{
 			if err != nil {
 				panic(err)
 			}
-			log.Printf("Serving files at http://%s:%d\n", pu.Hostname(), port)
+			baseURL = fmt.Sprintf("http://%s:%d", pu.Hostname(), port)
+			log.Printf("Serving files at %s\n", baseURL)
 
 			defer func() {
 				if err = localSever.Shutdown(context.TODO()); err != nil {
@@ -201,14 +203,17 @@ var importImageCmd = &cobra.Command{
 			if err != nil {
 				panic(err)
 			}
-			upload(method, localDB, imgs)
+			err = upload(method, localDB, imgs, baseURL)
+			if err != nil {
+				panic(err)
+			}
 
 			skip += limit
 		}
 	},
 }
 
-func upload(method string, db *storm.DB, imgs []db.Image) error {
+func upload(method string, db *storm.DB, imgs []db.Image, baseURL string) error {
 	log.Println("imgs", len(imgs), imgs[0].SID, imgs[0].Filename, imgs[len(imgs)-1].SID, imgs[len(imgs)-1].Filename)
 	switch method {
 	case "direct":
