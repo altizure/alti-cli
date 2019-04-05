@@ -18,7 +18,9 @@ const (
 	// ErrProjRemove is returned when a project could not be removed.
 	ErrProjRemove ProjectError = "project: remove"
 	// ErrProjNotFound is returned when a project is not found.
-	ErrProjNotFound ProjectError = "project: not found"
+	ErrProjNotFound ProjectError = "project: project not found"
+	// ErrImgNotFound is returned when an image could not be founded in the project.
+	ErrImgNotFound ProjectError = "project: image not found"
 	// ErrFileNotImage is returned when a file is not a supported image.
 	ErrFileNotImage FileError = "file: not image"
 	// ErrFilesize is returned when the filesize of a file could not be determined.

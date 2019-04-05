@@ -6,4 +6,5 @@ type Image struct {
 	State    string
 	Name     string
 	Filename string
+	Error    []string
 }
