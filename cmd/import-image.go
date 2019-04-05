@@ -218,8 +218,23 @@ func upload(method string, db *storm.DB, imgs []db.Image, baseURL string) error 
 	switch method {
 	case "direct":
 		log.Println("TODO: direct upload...")
-		fmt.Println(imgs[0])
-		time.Sleep(time.Second * 100)
+		img := imgs[0]
+		gqlImg, err := gql.RegisterImageURL(img.PID, baseURL+img.URL, img.Filename, img.Hash)
+		if err != nil {
+			return err
+		}
+		fmt.Println(gqlImg)
+		for {
+			gqlImg, err = gql.ProjectImage(img.PID, gqlImg.ID)
+			if err != nil {
+				return err
+			}
+			fmt.Println(gqlImg)
+			if gqlImg.State != "Uploaded" {
+				break
+			}
+			time.Sleep(time.Second * 1)
+		}
 	case "s3":
 		log.Println("TODO: s3 upload...")
 	case "oss":
