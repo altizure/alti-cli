@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/asdine/storm"
+	"github.com/jackytck/alti-cli/cloud"
 	"github.com/jackytck/alti-cli/db"
 	"github.com/jackytck/alti-cli/file"
 	"github.com/jackytck/alti-cli/gql"
@@ -170,10 +170,12 @@ var importImageCmd = &cobra.Command{
 		method := "direct"
 		var localSever *http.Server
 		var port int
+		log.Println("Checking direct upload...")
 		pu, _, err := web.PreferedLocalURL(verbose)
 		baseURL := ""
 		if err != nil {
 			log.Println("Client is invisible. Direct upload is not supported!")
+			log.Println("Using S3.")
 			method = "s3"
 		} else {
 			log.Printf("Direct upload is supported over %q!\n", pu.Hostname())
@@ -195,53 +197,27 @@ var importImageCmd = &cobra.Command{
 			}()
 		}
 
-		// read from local db
-		var imgs []db.Image
-		limit, skip := 10, 0
-		for skip < totalImg {
-			err = localDB.All(&imgs, storm.Limit(limit), storm.Skip(skip))
-			if err != nil {
-				panic(err)
-			}
-			err = upload(method, localDB, imgs, baseURL)
-			if err != nil {
-				panic(err)
-			}
+		// read from local db, register and upload
+		imgc, errc := db.AllImage(localDB)
+		ruRes := make(chan string)
+		ruDigester := cloud.ImageRegUploader{
+			Method:  method,
+			BaseURL: baseURL,
+			Images:  imgc,
+			Done:    done,
+			Result:  ruRes,
+		}
+		ruDigester.Run(thread)
 
-			skip += limit
+		for res := range ruRes {
+			log.Println(res)
+		}
+
+		// check whether the read from local db failed
+		if err = <-errc; err != nil {
+			panic(err)
 		}
 	},
-}
-
-func upload(method string, db *storm.DB, imgs []db.Image, baseURL string) error {
-	log.Println("imgs", len(imgs), imgs[0].SID, imgs[0].Filename, imgs[len(imgs)-1].SID, imgs[len(imgs)-1].Filename)
-	switch method {
-	case "direct":
-		log.Println("TODO: direct upload...")
-		img := imgs[0]
-		gqlImg, err := gql.RegisterImageURL(img.PID, baseURL+img.URL, img.Filename, img.Hash)
-		if err != nil {
-			return err
-		}
-		fmt.Println(gqlImg)
-		for {
-			gqlImg, err = gql.ProjectImage(img.PID, gqlImg.ID)
-			if err != nil {
-				return err
-			}
-			fmt.Println(gqlImg)
-			if gqlImg.State != "Uploaded" {
-				break
-			}
-			time.Sleep(time.Second * 1)
-		}
-	case "s3":
-		log.Println("TODO: s3 upload...")
-	case "oss":
-		log.Println("TODO: oss upload...")
-	}
-
-	return nil
 }
 
 func init() {
