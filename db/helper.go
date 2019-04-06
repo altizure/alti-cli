@@ -40,3 +40,33 @@ func OpenPath() (string, error) {
 	dbFile := path.Join(confDir, randStr+".db")
 	return dbFile, nil
 }
+
+// AllImage returns  all images via channel.
+func AllImage(db *storm.DB) (<-chan Image, <-chan error) {
+	ret := make(chan Image)
+	errc := make(chan error, 1)
+
+	go func() {
+		defer close(ret)
+		defer close(errc)
+
+		var imgs []Image
+		limit, skip := 50, 0
+		for {
+			err := db.All(&imgs, storm.Limit(limit), storm.Skip(skip))
+			if err != nil {
+				errc <- err
+				return
+			}
+			if len(imgs) == 0 {
+				break
+			}
+			for _, img := range imgs {
+				ret <- img
+			}
+			skip += limit
+		}
+	}()
+
+	return ret, errc
+}
