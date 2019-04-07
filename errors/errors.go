@@ -1,6 +1,8 @@
 package errors
 
 const (
+	// ErrNotImplemented is returned when the desired feature is not yet implemented.
+	ErrNotImplemented AppError = "app: feature not implemented"
 	// ErrNoConfig is returned when config file is not found.
 	ErrNoConfig AppError = "app: no config"
 	// ErrNotLogin is returned when user is not login.

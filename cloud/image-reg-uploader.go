@@ -1,11 +1,11 @@
 package cloud
 
 import (
-	"log"
 	"runtime"
 	"sync"
 
 	"github.com/jackytck/alti-cli/db"
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 )
 
@@ -80,11 +80,11 @@ func (iru *ImageRegUploader) directUpload(img db.Image) db.Image {
 }
 
 func (iru *ImageRegUploader) s3Upload(img db.Image) db.Image {
-	log.Println("TODO: s3 upload...")
+	img.Error = errors.ErrNotImplemented.Error()
 	return img
 }
 
 func (iru *ImageRegUploader) ossUpload(img db.Image) db.Image {
-	log.Println("TODO: oss upload...")
+	img.Error = errors.ErrNotImplemented.Error()
 	return img
 }
