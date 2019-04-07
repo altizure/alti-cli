@@ -5,11 +5,17 @@ import (
 	"log"
 	"runtime"
 	"sync"
-	"time"
 
 	"github.com/jackytck/alti-cli/db"
 	"github.com/jackytck/alti-cli/gql"
 )
+
+// ImageRegUploadRes contains the result with error of the image registration
+// and uploading operation.
+type ImageRegUploadRes struct {
+	db.Image
+	Error error
+}
 
 // ImageRegUploader coordinates image registration and uploading concurrently.
 type ImageRegUploader struct {
@@ -17,7 +23,7 @@ type ImageRegUploader struct {
 	BaseURL string
 	Images  <-chan db.Image
 	Done    <-chan struct{}
-	Result  chan<- string
+	Result  chan<- ImageRegUploadRes
 }
 
 // Digest registers and uploads each image from Images and send back the
@@ -25,7 +31,7 @@ type ImageRegUploader struct {
 func (iru *ImageRegUploader) Digest() {
 	for img := range iru.Images {
 		select {
-		case iru.Result <- fmt.Sprintf("TODO: %s", img.Filename):
+		case iru.Result <- iru.regUpload(img):
 		case <-iru.Done:
 			return
 		}
@@ -57,33 +63,39 @@ func (iru *ImageRegUploader) Run(n int) int {
 	return n
 }
 
-func upload(method string, imgs []db.Image, baseURL string) error {
-	log.Println("imgs", len(imgs), imgs[0].SID, imgs[0].Filename, imgs[len(imgs)-1].SID, imgs[len(imgs)-1].Filename)
-	switch method {
+func (iru *ImageRegUploader) regUpload(img db.Image) ImageRegUploadRes {
+	var ret ImageRegUploadRes
+	switch iru.Method {
 	case "direct":
-		log.Println("TODO: direct upload...")
-		img := imgs[0]
-		gqlImg, err := gql.RegisterImageURL(img.PID, baseURL+img.URL, img.Filename, img.Hash)
-		if err != nil {
-			return err
-		}
-		fmt.Println(gqlImg)
-		for {
-			gqlImg, err = gql.ProjectImage(img.PID, gqlImg.ID)
-			if err != nil {
-				return err
-			}
-			fmt.Println(gqlImg)
-			if gqlImg.State != "Uploaded" {
-				break
-			}
-			time.Sleep(time.Second * 1)
-		}
+		return iru.directUpload(img)
 	case "s3":
-		log.Println("TODO: s3 upload...")
+		return iru.s3Upload(img)
 	case "oss":
-		log.Println("TODO: oss upload...")
+		return iru.ossUpload(img)
 	}
+	return ret
+}
 
-	return nil
+func (iru *ImageRegUploader) directUpload(img db.Image) ImageRegUploadRes {
+	ret := ImageRegUploadRes{Image: img}
+	gqlImg, err := gql.RegisterImageURL(img.PID, iru.BaseURL+img.URL, img.Filename, img.Hash)
+	if err != nil {
+		ret.Error = err
+		return ret
+	}
+	fmt.Println("gqlImg", gqlImg)
+	ret.State = gqlImg.State
+	return ret
+}
+
+func (iru *ImageRegUploader) s3Upload(img db.Image) ImageRegUploadRes {
+	ret := ImageRegUploadRes{Image: img}
+	log.Println("TODO: s3 upload...")
+	return ret
+}
+
+func (iru *ImageRegUploader) ossUpload(img db.Image) ImageRegUploadRes {
+	ret := ImageRegUploadRes{Image: img}
+	log.Println("TODO: oss upload...")
+	return ret
 }

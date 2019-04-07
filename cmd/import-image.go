@@ -199,7 +199,7 @@ var importImageCmd = &cobra.Command{
 
 		// read from local db, register and upload
 		imgc, errc := db.AllImage(localDB)
-		ruRes := make(chan string)
+		ruRes := make(chan cloud.ImageRegUploadRes)
 		ruDigester := cloud.ImageRegUploader{
 			Method:  method,
 			BaseURL: baseURL,
@@ -210,7 +210,7 @@ var importImageCmd = &cobra.Command{
 		ruDigester.Run(thread)
 
 		for res := range ruRes {
-			log.Println(res)
+			log.Println("ruRes", res)
 		}
 
 		// check whether the read from local db failed
