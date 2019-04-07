@@ -1,7 +1,6 @@
 package cloud
 
 import (
-	"fmt"
 	"log"
 	"runtime"
 	"sync"
@@ -10,20 +9,13 @@ import (
 	"github.com/jackytck/alti-cli/gql"
 )
 
-// ImageRegUploadRes contains the result with error of the image registration
-// and uploading operation.
-type ImageRegUploadRes struct {
-	db.Image
-	Error error
-}
-
 // ImageRegUploader coordinates image registration and uploading concurrently.
 type ImageRegUploader struct {
 	Method  string
 	BaseURL string
 	Images  <-chan db.Image
 	Done    <-chan struct{}
-	Result  chan<- ImageRegUploadRes
+	Result  chan<- db.Image
 }
 
 // Digest registers and uploads each image from Images and send back the
@@ -63,8 +55,8 @@ func (iru *ImageRegUploader) Run(n int) int {
 	return n
 }
 
-func (iru *ImageRegUploader) regUpload(img db.Image) ImageRegUploadRes {
-	var ret ImageRegUploadRes
+func (iru *ImageRegUploader) regUpload(img db.Image) db.Image {
+	var ret db.Image
 	switch iru.Method {
 	case "direct":
 		return iru.directUpload(img)
@@ -76,26 +68,23 @@ func (iru *ImageRegUploader) regUpload(img db.Image) ImageRegUploadRes {
 	return ret
 }
 
-func (iru *ImageRegUploader) directUpload(img db.Image) ImageRegUploadRes {
-	ret := ImageRegUploadRes{Image: img}
+func (iru *ImageRegUploader) directUpload(img db.Image) db.Image {
 	gqlImg, err := gql.RegisterImageURL(img.PID, iru.BaseURL+img.URL, img.Filename, img.Hash)
 	if err != nil {
-		ret.Error = err
-		return ret
+		img.Error = err.Error()
+		return img
 	}
-	fmt.Println("gqlImg", gqlImg)
-	ret.State = gqlImg.State
-	return ret
+	img.IID = gqlImg.ID
+	img.State = gqlImg.State
+	return img
 }
 
-func (iru *ImageRegUploader) s3Upload(img db.Image) ImageRegUploadRes {
-	ret := ImageRegUploadRes{Image: img}
+func (iru *ImageRegUploader) s3Upload(img db.Image) db.Image {
 	log.Println("TODO: s3 upload...")
-	return ret
+	return img
 }
 
-func (iru *ImageRegUploader) ossUpload(img db.Image) ImageRegUploadRes {
-	ret := ImageRegUploadRes{Image: img}
+func (iru *ImageRegUploader) ossUpload(img db.Image) db.Image {
 	log.Println("TODO: oss upload...")
-	return ret
+	return img
 }

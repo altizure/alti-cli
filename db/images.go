@@ -14,4 +14,5 @@ type Image struct {
 	Width     int
 	Height    int
 	GP        float64
+	Error     string
 }
