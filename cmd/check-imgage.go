@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/c2h5oh/datasize"
 	"github.com/jackytck/alti-cli/file"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -36,7 +37,7 @@ of all images of a given directory.`,
 
 		var totalGP float64
 		var totalImg int
-		var totalMB float64
+		var totalByte datasize.ByteSize
 
 		done := make(chan struct{})
 		defer close(done)
@@ -83,7 +84,7 @@ of all images of a given directory.`,
 
 			totalGP += r.GP
 			totalImg++
-			totalMB += mb
+			totalByte += datasize.ByteSize(r.Filesize)
 		}
 
 		// check whether the Walk failed
@@ -92,13 +93,13 @@ of all images of a given directory.`,
 		}
 
 		if totalImg > 0 {
-			log.Printf("Found %d images, total %.2f GP, %.2f MB", totalImg, totalGP, totalMB)
+			log.Printf("Found %d images, total %.2f GP, %s", totalImg, totalGP, totalByte.HumanReadable())
 		} else {
 			log.Println("No image is found!")
 		}
 
 		if printTable {
-			table.SetFooter([]string{fmt.Sprintf("%d image(s)", totalImg), "Total", fmt.Sprintf("%.2f GP", totalGP), fmt.Sprintf("%.2f MB", totalMB), `\ (•◡•) /`})
+			table.SetFooter([]string{fmt.Sprintf("%d image(s)", totalImg), "Total", fmt.Sprintf("%.2f GP", totalGP), totalByte.HumanReadable(), `\ (•◡•) /`})
 			table.Render()
 		}
 	},

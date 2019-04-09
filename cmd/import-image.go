@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/c2h5oh/datasize"
 	"github.com/jackytck/alti-cli/cloud"
 	"github.com/jackytck/alti-cli/db"
 	"github.com/jackytck/alti-cli/file"
@@ -46,7 +47,7 @@ var importImageCmd = &cobra.Command{
 		// stats
 		var totalGP float64
 		var totalImg int
-		var totalMB float64
+		var totalByte datasize.ByteSize
 		var existedCnt int
 
 		// setup image digester
@@ -115,7 +116,7 @@ var importImageCmd = &cobra.Command{
 
 			totalGP += r.GP
 			totalImg++
-			totalMB += mb
+			totalByte += datasize.ByteSize(r.Filesize)
 
 			img := db.Image{
 				PID:       p.ID,
@@ -152,7 +153,7 @@ var importImageCmd = &cobra.Command{
 		if existedCnt > 0 {
 			log.Printf("%d images already existed in the project", existedCnt)
 		}
-		log.Printf("Found %d new images, total %.2f GP, %.2f MB", totalImg, totalGP, totalMB)
+		log.Printf("Found %d images, total %.2f GP, %s", totalImg, totalGP, totalByte.HumanReadable())
 		plural := ""
 		if totalImg > 1 {
 			plural = "s"
