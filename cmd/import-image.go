@@ -236,7 +236,7 @@ func init() {
 	importImageCmd.Flags().StringVarP(&dir, "dir", "d", dir, "Directory path")
 	importImageCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
 	importImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
-	importImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores")
+	importImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores x 4")
 	importImageCmd.MarkFlagRequired("id")
 	importImageCmd.MarkFlagRequired("dir")
 }

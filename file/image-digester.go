@@ -48,11 +48,11 @@ func (id *ImageDigester) Digest() {
 }
 
 // Run starts n number of goroutines to digest image files.
-// If n is not positive, it will be set to number of CPU cores.
+// If n is not positive, it will be set to number of CPU cores x 4.
 // Return n.
 func (id *ImageDigester) Run(n int) int {
 	if n <= 0 {
-		n = runtime.NumCPU()
+		n = runtime.NumCPU() * 4
 	}
 	var wg sync.WaitGroup
 	wg.Add(n)

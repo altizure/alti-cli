@@ -110,6 +110,6 @@ func init() {
 	checkImageCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
 	checkImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	checkImageCmd.Flags().BoolVarP(&printTable, "table", "t", printTable, "Output all of the found images in table format")
-	checkImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores")
+	checkImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores x 4")
 	checkImageCmd.MarkFlagRequired("dir")
 }
