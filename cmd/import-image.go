@@ -211,7 +211,6 @@ var importImageCmd = &cobra.Command{
 		ruDigester.Run(thread)
 
 		for img := range ruRes {
-			log.Printf("%+v\n", img)
 			err = localDB.Save(&img)
 			if err != nil {
 				panic(err)
