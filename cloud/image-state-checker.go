@@ -3,9 +3,10 @@ package cloud
 import (
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/jackytck/alti-cli/db"
-	"github.com/jackytck/alti-cli/errors"
+	"github.com/jackytck/alti-cli/gql"
 )
 
 // ImageStateChecker check the image states of all images.
@@ -52,8 +53,21 @@ func (isc *ImageStateChecker) Run(n int) int {
 	return n
 }
 
+// checkState checks the db image state via api, until state is changed to
+// 'Ready' or 'Invalid', or timeout in this client.
 func (isc *ImageStateChecker) checkState(img db.Image) db.Image {
 	var ret db.Image
-	ret.Error = errors.ErrNotImplemented.Error()
+	qImg, err := gql.ProjectImage(img.PID, img.IID)
+	for {
+		if err != nil {
+			ret.Error = err.Error()
+			return ret
+		}
+		ret.State = qImg.State
+		if qImg.State == "Ready" || qImg.State == "Invalid" {
+			break
+		}
+		time.Sleep(time.Second)
+	}
 	return ret
 }
