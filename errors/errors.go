@@ -33,6 +33,8 @@ const (
 	ErrFileChecksum FileError = "file: unknown checksum"
 	// ErrImgReg is returned when an image could not be registered for uploading.
 	ErrImgReg UploadError = "upload: cannot register upload image"
+	// ErrClientTimeout is returned when the cli client could not get back Ready or Invalid image state within timeout.
+	ErrClientTimeout UploadError = "upload: client timeout"
 )
 
 // AppError is the application specific error.
