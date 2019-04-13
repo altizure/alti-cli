@@ -212,6 +212,9 @@ var importImageCmd = &cobra.Command{
 
 		for img := range ruRes {
 			err = localDB.Save(&img)
+			if verbose {
+				log.Printf("Registered %q\n", img.Filename)
+			}
 			if err != nil {
 				panic(err)
 			}
@@ -222,11 +225,40 @@ var importImageCmd = &cobra.Command{
 			panic(err)
 		}
 
-		// @TODO: check for image ready state
-		imgc, _ = db.AllImage(localDB)
-		for dbImg := range imgc {
-			log.Println(dbImg)
+		// check for image state: Ready / Invalid / Client timeout
+		log.Println("Checking image states....")
+		imgc, errc = db.AllImage(localDB)
+		checkerRes := make(chan db.Image)
+		checker := cloud.ImageStateChecker{
+			Images:  imgc,
+			Done:    done,
+			Result:  checkerRes,
+			Timeout: time.Minute,
 		}
+		checker.Run(thread)
+
+		for img := range checkerRes {
+			err = localDB.Save(&img)
+			if verbose {
+				if img.Error != "" {
+					log.Printf("Image upload error: %q\n", img.Error)
+				} else {
+					log.Printf("Image %q is %q\n", img.Filename, img.State)
+				}
+			}
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		// check whether the read from local db failed
+		if err = <-errc; err != nil {
+			panic(err)
+		}
+
+		// @TODO: generate report of uploading
+
+		log.Printf("To inspect more, type: 'alti-cli myproj inspect -p %v'\n", id)
 	},
 }
 

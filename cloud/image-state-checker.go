@@ -64,8 +64,8 @@ func (isc *ImageStateChecker) checkState(img db.Image) db.Image {
 	go func() {
 		defer close(imgCh)
 		i := img
-		qImg, err := gql.ProjectImage(img.PID, img.IID)
 		for {
+			qImg, err := gql.ProjectImage(img.PID, img.IID)
 			if err != nil {
 				i.Error = err.Error()
 				imgCh <- i
