@@ -237,12 +237,15 @@ var importImageCmd = &cobra.Command{
 		}
 		checker.Run(thread)
 
+		var okCnt, errCnt int
 		for img := range checkerRes {
 			err = localDB.Save(&img)
 			if verbose {
 				if img.Error != "" {
+					errCnt++
 					log.Printf("Image upload error: %q\n", img.Error)
 				} else {
+					okCnt++
 					log.Printf("Image %q is %q\n", img.Filename, img.State)
 				}
 			}
@@ -257,6 +260,10 @@ var importImageCmd = &cobra.Command{
 		}
 
 		// @TODO: generate report of uploading
+		log.Printf("%d out of %d images are uploaded and ready.", okCnt, totalImg)
+		if errCnt > 0 {
+			log.Printf("%d images failed. Please try again later.", errCnt)
+		}
 
 		log.Printf("To inspect more, type: 'alti-cli myproj inspect -p %v'\n", id)
 	},
