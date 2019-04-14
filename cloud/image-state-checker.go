@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -72,7 +73,15 @@ func (isc *ImageStateChecker) checkState(img db.Image) db.Image {
 				return
 			}
 			i.State = qImg.State
-			if qImg.State == "Ready" || qImg.State == "Invalid" {
+			if qImg.State == "Ready" {
+				imgCh <- i
+				return
+			}
+			if qImg.State == "Invalid" {
+				i.Error = strings.Join(qImg.Error, ";")
+				if i.Error == "" {
+					i.Error = errors.ErrImgInvalid.Error()
+				}
 				imgCh <- i
 				return
 			}

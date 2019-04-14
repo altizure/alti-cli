@@ -241,7 +241,7 @@ var importImageCmd = &cobra.Command{
 		for img := range checkerRes {
 			err = localDB.Save(&img)
 			if verbose {
-				if img.Error != "" {
+				if img.Error != "" || img.State == "Invalid" {
 					errCnt++
 					log.Printf("Image upload error: %q\n", img.Error)
 				} else {
