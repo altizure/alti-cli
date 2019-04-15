@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/csv"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,6 +20,8 @@ import (
 	"github.com/jackytck/alti-cli/web"
 	"github.com/spf13/cobra"
 )
+
+var report string
 
 // importImageCmd represents the importImage command
 var importImageCmd = &cobra.Command{
@@ -259,13 +262,24 @@ var importImageCmd = &cobra.Command{
 			panic(err)
 		}
 
-		// @TODO: generate report of uploading
 		log.Printf("%d out of %d images are uploaded and ready.", okCnt, totalImg)
 		if errCnt > 0 {
 			log.Printf("%d images failed. Please try again later.", errCnt)
 		}
-
 		log.Printf("To inspect more, type: 'alti-cli myproj inspect -p %v'\n", id)
+
+		// @TODO: generate report of uploading
+		if report != "" {
+			log.Println("Generating csv upload report...")
+			out, err := os.Create(report)
+			if err != nil {
+				panic(err)
+			}
+			defer out.Close()
+			writer := csv.NewWriter(out)
+
+			writer.Write([]string{"Filename", "State", "Error"})
+		}
 	},
 }
 
@@ -274,6 +288,7 @@ func init() {
 	importImageCmd.Flags().StringVarP(&id, "id", "p", id, "Project id")
 	importImageCmd.Flags().StringVarP(&dir, "dir", "d", dir, "Directory path")
 	importImageCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
+	importImageCmd.Flags().StringVarP(&report, "report", "r", dir, "Path of csv upload report output")
 	importImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	importImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores x 4")
 	importImageCmd.MarkFlagRequired("id")
