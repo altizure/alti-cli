@@ -53,7 +53,7 @@ func AllImage(db *storm.DB) (<-chan Image, <-chan error) {
 		var imgs []Image
 		limit, skip := 50, 0
 		for {
-			err := db.All(&imgs, storm.Limit(limit), storm.Skip(skip))
+			err := db.AllByIndex("Filename", &imgs, storm.Limit(limit), storm.Skip(skip))
 			if err != nil {
 				errc <- err
 				return

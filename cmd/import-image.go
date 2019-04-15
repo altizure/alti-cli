@@ -81,6 +81,10 @@ var importImageCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
+		err = localDB.Init(&db.Image{})
+		if err != nil {
+			panic(err)
+		}
 		cleanupDB := func() {
 			err := os.Remove(dbPath)
 			if err != nil {
@@ -279,6 +283,19 @@ var importImageCmd = &cobra.Command{
 			writer := csv.NewWriter(out)
 
 			writer.Write([]string{"Filename", "State", "Error"})
+			imgc, errc = db.AllImage(localDB)
+			for img := range imgc {
+				err = writer.Write([]string{img.Filename, img.State, img.Error})
+				if err != nil {
+					panic(err)
+				}
+			}
+			writer.Flush()
+
+			// check whether the read from local db failed
+			if err = <-errc; err != nil {
+				panic(err)
+			}
 		}
 	},
 }
