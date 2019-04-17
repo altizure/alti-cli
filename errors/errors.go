@@ -37,6 +37,8 @@ const (
 	ErrImgInvalid UploadError = "upload: invalid image"
 	// ErrClientTimeout is returned when the cli client could not get back Ready or Invalid image state within timeout.
 	ErrClientTimeout UploadError = "upload: client timeout"
+	// ErrNoBucketSuggestion is returned when no bucket suggestion is returned.
+	ErrNoBucketSuggestion UploadError = "upload: no bucket suggestion"
 )
 
 // AppError is the application specific error.
