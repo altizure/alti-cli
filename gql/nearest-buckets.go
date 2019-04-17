@@ -2,7 +2,6 @@ package gql
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/jackytck/alti-cli/config"
@@ -34,7 +33,6 @@ func BucketSuggestion(cloud string) (string, error) {
 	if err := client.Run(ctx, req, &res); err != nil {
 		return "", err
 	}
-	fmt.Println("res", res)
 	buks := res.GetGeoIPInfo.NearestBuckets
 	if len(buks) == 0 {
 		return "", errors.ErrNoBucketSuggestion

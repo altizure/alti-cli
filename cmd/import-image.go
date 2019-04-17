@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var method string
 var report string
 
 // importImageCmd represents the importImage command
@@ -43,7 +44,7 @@ var importImageCmd = &cobra.Command{
 			fmt.Println("Project could not be found! Error:", err)
 			return
 		}
-		log.Printf("Importing to %q...\n", p.Name)
+		log.Printf("Importing to %q with pid: %q...\n", p.Name, p.ID)
 
 		log.Printf("Checking %s...\n", dir)
 
@@ -86,9 +87,9 @@ var importImageCmd = &cobra.Command{
 			panic(err)
 		}
 		cleanupDB := func() {
-			err := os.Remove(dbPath)
-			if err != nil {
-				panic(err)
+			err2 := os.Remove(dbPath)
+			if err2 != nil {
+				panic(err2)
 			}
 		}
 		defer cleanupDB()
@@ -175,34 +176,44 @@ var importImageCmd = &cobra.Command{
 		}
 
 		// check direct upload
-		method := "direct"
-		var localSever *http.Server
-		var port int
-		log.Println("Checking direct upload...")
-		pu, _, err := web.PreferedLocalURL(verbose)
-		baseURL := ""
-		if err != nil {
-			log.Println("Client is invisible. Direct upload is not supported!")
-			log.Println("Using S3.")
-			method = "s3"
-		} else {
-			log.Printf("Direct upload is supported over %q!\n", pu.Hostname())
+		var baseURL string
+		if method == "" {
+			method = "direct"
+			var localSever *http.Server
+			var port int
+			log.Println("Checking direct upload...")
+			pu, _, err2 := web.PreferedLocalURL(verbose)
+			baseURL = ""
+			if err2 != nil {
+				log.Println("Client is invisible. Direct upload is not supported!")
+				log.Println("Using S3.")
+				method = "s3"
+			} else {
+				log.Printf("Direct upload is supported over %q!\n", pu.Hostname())
 
-			// setup local web server
-			s := web.Server{Directory: dir, Address: pu.Hostname() + ":"}
-			fmt.Println("local server", s)
-			localSever, port, err = s.ServeStatic(verbose)
-			if err != nil {
-				panic(err)
-			}
-			baseURL = fmt.Sprintf("http://%s:%d", pu.Hostname(), port)
-			log.Printf("Serving files at %s\n", baseURL)
-
-			defer func() {
-				if err = localSever.Shutdown(context.TODO()); err != nil {
+				// setup local web server
+				s := web.Server{Directory: dir, Address: pu.Hostname() + ":"}
+				fmt.Println("local server", s)
+				localSever, port, err = s.ServeStatic(verbose)
+				if err != nil {
 					panic(err)
 				}
-			}()
+				baseURL = fmt.Sprintf("http://%s:%d", pu.Hostname(), port)
+				log.Printf("Serving files at %s\n", baseURL)
+
+				defer func() {
+					if err = localSever.Shutdown(context.TODO()); err != nil {
+						panic(err)
+					}
+				}()
+			}
+		} else {
+			log.Printf("Using %s to upload\n", method)
+			bucket, err2 := gql.BucketSuggestion(method)
+			if err2 != nil {
+				panic(err2)
+			}
+			log.Printf("Bucket %q is chosen", bucket)
 		}
 
 		// read from local db, register and upload
@@ -220,7 +231,11 @@ var importImageCmd = &cobra.Command{
 		for img := range ruRes {
 			err = localDB.Save(&img)
 			if verbose {
-				log.Printf("Registered %q\n", img.Filename)
+				if img.Error != "" {
+					log.Printf("Registration failed: %q\n", img.Error)
+				} else {
+					log.Printf("Registered %q\n", img.Filename)
+				}
 			}
 			if err != nil {
 				panic(err)
@@ -306,6 +321,7 @@ func init() {
 	importImageCmd.Flags().StringVarP(&dir, "dir", "d", dir, "Directory path")
 	importImageCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
 	importImageCmd.Flags().StringVarP(&report, "report", "r", dir, "Path of csv upload report output")
+	importImageCmd.Flags().StringVarP(&method, "method", "m", dir, "Desired method of upload: 'direct', 's3' or 'oss'")
 	importImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	importImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores x 4")
 	importImageCmd.MarkFlagRequired("id")
