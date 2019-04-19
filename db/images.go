@@ -7,6 +7,7 @@ type Image struct {
 	IID       string
 	Name      string
 	Filename  string `storm:"index"`
+	Filetype  string
 	URL       string
 	LocalPath string
 	Hash      string

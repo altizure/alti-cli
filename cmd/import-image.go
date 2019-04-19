@@ -17,6 +17,7 @@ import (
 	"github.com/jackytck/alti-cli/db"
 	"github.com/jackytck/alti-cli/file"
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/types"
 	"github.com/jackytck/alti-cli/web"
 	"github.com/spf13/cobra"
 )
@@ -129,6 +130,7 @@ var importImageCmd = &cobra.Command{
 			img := db.Image{
 				PID:       p.ID,
 				Filename:  r.Filename,
+				Filetype:  types.ConvertToImageType(r.Filetype),
 				URL:       r.URL,
 				LocalPath: r.Path,
 				Hash:      r.SHA1,
@@ -287,7 +289,7 @@ var importImageCmd = &cobra.Command{
 		}
 		log.Printf("To inspect more, type: 'alti-cli myproj inspect -p %v'\n", id)
 
-		// @TODO: generate report of uploading
+		// generate report of uploading
 		if report != "" {
 			log.Println("Generating csv upload report...")
 			out, err := os.Create(report)
