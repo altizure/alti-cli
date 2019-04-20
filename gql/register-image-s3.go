@@ -10,7 +10,8 @@ import (
 )
 
 // RegisterImageS3 registers a S3 image.
-func RegisterImageS3(pid, bucket, filename, imageType, checksum string) (*types.Image, error) {
+// And get back the registered image and the signed url to S3.
+func RegisterImageS3(pid, bucket, filename, imageType, checksum string) (*types.Image, string, error) {
 	config := config.Load()
 	active := config.GetActive()
 	client := graphql.NewClient(active.Endpoint + "/graphql")
@@ -45,11 +46,12 @@ func RegisterImageS3(pid, bucket, filename, imageType, checksum string) (*types.
 	// run it and capture the response
 	var res regImgS3Res
 	if err := client.Run(ctx, req, &res); err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	iid := res.UploadImageS3.Image.ID
-	if iid == "" {
-		return nil, errors.ErrImgReg
+	url := res.UploadImageS3.URL
+	if iid == "" || url == "" {
+		return nil, "", errors.ErrImgReg
 	}
 
 	img := types.Image{
@@ -59,7 +61,7 @@ func RegisterImageS3(pid, bucket, filename, imageType, checksum string) (*types.
 		Filename: res.UploadImageS3.Image.Filename,
 	}
 
-	return &img, nil
+	return &img, url, nil
 }
 
 type regImgS3Res struct {

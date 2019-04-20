@@ -1,6 +1,7 @@
 package cloud
 
 import (
+	"log"
 	"runtime"
 	"sync"
 
@@ -12,6 +13,7 @@ import (
 // ImageRegUploader coordinates image registration and uploading concurrently.
 type ImageRegUploader struct {
 	Method  string
+	Bucket  string
 	BaseURL string
 	Images  <-chan db.Image
 	Done    <-chan struct{}
@@ -80,7 +82,15 @@ func (iru *ImageRegUploader) directUpload(img db.Image) db.Image {
 }
 
 func (iru *ImageRegUploader) s3Upload(img db.Image) db.Image {
-	img.Error = errors.ErrNotImplemented.Error()
+	gqlImg, url, err := gql.RegisterImageS3(img.PID, iru.Bucket, img.Filename, img.Filetype, img.Hash)
+	if err != nil {
+		img.Error = err.Error()
+		return img
+	}
+	img.IID = gqlImg.ID
+	img.State = gqlImg.State
+	// @TODO: upload to S3
+	log.Println(url)
 	return img
 }
 

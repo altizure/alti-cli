@@ -23,6 +23,7 @@ import (
 )
 
 var method string
+var bucket string
 var report string
 
 // importImageCmd represents the importImage command
@@ -211,10 +212,11 @@ var importImageCmd = &cobra.Command{
 			}
 		} else {
 			log.Printf("Using %s to upload\n", method)
-			bucket, err2 := gql.BucketSuggestion(method)
+			b, err2 := gql.BucketSuggestion(method)
 			if err2 != nil {
 				panic(err2)
 			}
+			bucket = b
 			log.Printf("Bucket %q is chosen", bucket)
 		}
 
@@ -223,6 +225,7 @@ var importImageCmd = &cobra.Command{
 		ruRes := make(chan db.Image)
 		ruDigester := cloud.ImageRegUploader{
 			Method:  method,
+			Bucket:  bucket,
 			BaseURL: baseURL,
 			Images:  imgc,
 			Done:    done,
