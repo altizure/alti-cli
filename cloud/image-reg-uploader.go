@@ -2,8 +2,10 @@ package cloud
 
 import (
 	"log"
+	"net/http"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/jackytck/alti-cli/db"
 	"github.com/jackytck/alti-cli/errors"
@@ -18,6 +20,7 @@ type ImageRegUploader struct {
 	Images  <-chan db.Image
 	Done    <-chan struct{}
 	Result  chan<- db.Image
+	Verbose bool
 }
 
 // Digest registers and uploads each image from Images and send back the
@@ -89,8 +92,38 @@ func (iru *ImageRegUploader) s3Upload(img db.Image) db.Image {
 	}
 	img.IID = gqlImg.ID
 	img.State = gqlImg.State
-	// @TODO: upload to S3
-	log.Println(url)
+
+	// func to put to s3
+	upload := func() error {
+		if iru.Verbose {
+			log.Printf("Uploading %q\n", img.Filename)
+		}
+		res, err := PutFile(img.LocalPath, url)
+		if err != nil {
+			return err
+		}
+		defer res.Body.Close()
+		if res.StatusCode != http.StatusOK {
+			return errors.ErrS3Error
+		}
+		return nil
+	}
+
+	trial := 5
+	for i := 0; i < trial; i++ {
+		err = upload()
+		if err == nil {
+			break
+		}
+		if iru.Verbose {
+			log.Printf("Retrying (x %d) upload to S3 for %q\n", i+1, img.Filename)
+		}
+		time.Sleep(time.Second)
+	}
+	if err != nil {
+		img.Error = err.Error()
+	}
+
 	return img
 }
 

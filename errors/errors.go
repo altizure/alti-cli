@@ -39,6 +39,8 @@ const (
 	ErrClientTimeout UploadError = "upload: client timeout"
 	// ErrNoBucketSuggestion is returned when no bucket suggestion is returned.
 	ErrNoBucketSuggestion UploadError = "upload: no bucket suggestion"
+	// ErrS3Error is returned when file upload operation could not result in ok status code.
+	ErrS3Error UploadError = "upload: s3 error"
 )
 
 // AppError is the application specific error.

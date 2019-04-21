@@ -230,6 +230,7 @@ var importImageCmd = &cobra.Command{
 			Images:  imgc,
 			Done:    done,
 			Result:  ruRes,
+			Verbose: verbose,
 		}
 		ruDigester.Run(thread)
 
@@ -239,7 +240,11 @@ var importImageCmd = &cobra.Command{
 				if img.Error != "" {
 					log.Printf("Registration failed: %q\n", img.Error)
 				} else {
-					log.Printf("Registered %q\n", img.Filename)
+					if method == "direct" {
+						log.Printf("Registered %q\n", img.Filename)
+					} else {
+						log.Printf("Registered and uploaded %q\n", img.Filename)
+					}
 				}
 			}
 			if err != nil {
