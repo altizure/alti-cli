@@ -48,6 +48,7 @@ func TestBestMatch(t *testing.T) {
 		{"regex match", args{[]string{"abc", "nat", "pi", "nata"}, "na", ""}, "nat"},
 		{"regex match", args{[]string{"abc", "nat", "pi", "nata"}, "ata", ""}, "nata"},
 		{"regex match", args{[]string{"abc", "nat", "pi", "nata", "natal"}, "ta", ""}, "nata"},
+		{"case insensitive", args{[]string{"abc", "Nat", "Pi", "UST", "Jan"}, "us", ""}, "UST"},
 		{"special regex characters", args{[]string{"abc", "nat", "pi", "nata", "natal"}, "()|[]{", ""}, ""},
 		{"no match", args{[]string{"abc", "nat", "pi", "nata"}, "123", "bunny"}, "bunny"},
 	}

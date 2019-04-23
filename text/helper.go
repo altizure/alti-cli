@@ -21,7 +21,7 @@ func Contains(a []string, s string) (int, bool) {
 // If no regex match, return def.
 func BestMatch(a []string, s, def string) string {
 	e := regexp.QuoteMeta(s)
-	r, _ := regexp.Compile(fmt.Sprintf("\\w*%s\\w*", e))
+	r, _ := regexp.Compile(fmt.Sprintf("(?i)\\w*%s\\w*", e))
 	if i, ok := Contains(a, s); ok {
 		return a[i]
 	}
