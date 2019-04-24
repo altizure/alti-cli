@@ -180,7 +180,7 @@ var importImageCmd = &cobra.Command{
 
 		// check direct upload
 		var baseURL string
-		if method == "" {
+		if method == "" || method == "direct" {
 			method = "direct"
 			var localSever *http.Server
 			var port int
@@ -196,7 +196,6 @@ var importImageCmd = &cobra.Command{
 
 				// setup local web server
 				s := web.Server{Directory: dir, Address: pu.Hostname() + ":"}
-				fmt.Println("local server", s)
 				localSever, port, err = s.ServeStatic(verbose)
 				if err != nil {
 					panic(err)
@@ -210,13 +209,23 @@ var importImageCmd = &cobra.Command{
 					}
 				}()
 			}
-		} else {
+		}
+		if method == "s3" || method == "oss" {
 			log.Printf("Using %s to upload\n", method)
-			b, err2 := gql.BucketSuggestion(method)
-			if err2 != nil {
-				panic(err2)
+			if bucket == "" {
+				b, err2 := gql.BucketSuggestion(method)
+				if err2 != nil {
+					panic(err2)
+				}
+				bucket = b
+			} else {
+				b, buckets, err2 := gql.QueryBucket("image", method, bucket)
+				if err2 != nil {
+					log.Printf("Valid buckets are: %q\n", buckets)
+					return
+				}
+				bucket = b
 			}
-			bucket = b
 			log.Printf("Bucket %q is chosen", bucket)
 		}
 
@@ -330,8 +339,9 @@ func init() {
 	importImageCmd.Flags().StringVarP(&id, "id", "p", id, "Project id")
 	importImageCmd.Flags().StringVarP(&dir, "dir", "d", dir, "Directory path")
 	importImageCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
-	importImageCmd.Flags().StringVarP(&report, "report", "r", dir, "Path of csv upload report output")
-	importImageCmd.Flags().StringVarP(&method, "method", "m", dir, "Desired method of upload: 'direct', 's3' or 'oss'")
+	importImageCmd.Flags().StringVarP(&report, "report", "r", report, "Path of csv upload report output")
+	importImageCmd.Flags().StringVarP(&method, "method", "m", method, "Desired method of upload: 'direct', 's3' or 'oss'")
+	importImageCmd.Flags().StringVarP(&bucket, "bucket", "b", bucket, "Desired bucket to upload for method: 's3' or 'oss'")
 	importImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	importImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores x 4")
 	importImageCmd.MarkFlagRequired("id")
