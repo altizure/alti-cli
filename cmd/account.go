@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"sort"
 	"strings"
 	"sync"
 
@@ -17,9 +18,9 @@ var accountCmd = &cobra.Command{
 	Short: "List all the available accounts",
 	Long:  "List all the previously logined accoutns across different servers.",
 	Run: func(cmd *cobra.Command, args []string) {
+		// prepare account list
+		var accounts [][]string
 		config := config.Load()
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"ID", "Endpoint", "Username", "Status", "Select", "Sales", "Super", "Upload Cloud"})
 		for _, v := range config.Scopes {
 			for _, p := range v.Profiles {
 				var wg sync.WaitGroup
@@ -58,11 +59,31 @@ var accountCmd = &cobra.Command{
 					r[6] = "Yes"
 				}
 				r[7] = strings.Join(cloud, ",")
-				table.Append(r)
+				accounts = append(accounts, r)
 			}
 		}
+		sort.Sort(byEndpoint(accounts))
+
+		// render
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"ID", "Endpoint", "Username", "Status", "Select", "Sales", "Super", "Upload Cloud"})
+		table.AppendBulk(accounts)
 		table.Render()
 	},
+}
+
+type byEndpoint [][]string
+
+func (e byEndpoint) Len() int {
+	return len(e)
+}
+
+func (e byEndpoint) Swap(i, j int) {
+	e[i], e[j] = e[j], e[i]
+}
+
+func (e byEndpoint) Less(i, j int) bool {
+	return e[i][1]+e[i][0] < e[j][1]+e[j][0]
 }
 
 func init() {
