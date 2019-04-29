@@ -43,6 +43,8 @@ const (
 	ErrS3Error UploadError = "upload: s3 error"
 	// ErrBucketInvalid is returned when the provided bucket is invalid.
 	ErrBucketInvalid UploadError = "upload: invalid bucket"
+	// ErrNOSTS is returned when a new STS could not be obtained.
+	ErrNOSTS UploadError = "upload: oss sts error"
 )
 
 // AppError is the application specific error.
