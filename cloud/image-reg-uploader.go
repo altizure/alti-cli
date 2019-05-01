@@ -21,6 +21,17 @@ type ImageRegUploader struct {
 	Done    <-chan struct{}
 	Result  chan<- db.Image
 	Verbose bool
+	ossUp   *OSSUploader
+}
+
+// WithOSSUploader setups an OSS uploader for current pid and bucket.
+func (iru *ImageRegUploader) WithOSSUploader(pid string) error {
+	up, err := NewOSSUploader(pid, gql.RefreshSTS(pid, iru.Bucket))
+	if err != nil {
+		return err
+	}
+	iru.ossUp = up
+	return nil
 }
 
 // Digest registers and uploads each image from Images and send back the
@@ -98,9 +109,9 @@ func (iru *ImageRegUploader) s3Upload(img db.Image) db.Image {
 		if iru.Verbose {
 			log.Printf("Uploading %q\n", img.Filename)
 		}
-		res, err := PutFile(img.LocalPath, url)
-		if err != nil {
-			return err
+		res, err2 := PutFile(img.LocalPath, url)
+		if err2 != nil {
+			return err2
 		}
 		defer res.Body.Close()
 		if res.StatusCode != http.StatusOK {
@@ -128,6 +139,9 @@ func (iru *ImageRegUploader) s3Upload(img db.Image) db.Image {
 }
 
 func (iru *ImageRegUploader) ossUpload(img db.Image) db.Image {
-	img.Error = errors.ErrNotImplemented.Error()
+	if iru.ossUp == nil {
+		img.Error = errors.ErrOSSUploaderNotFound.Error()
+		return img
+	}
 	return img
 }

@@ -45,6 +45,8 @@ const (
 	ErrBucketInvalid UploadError = "upload: invalid bucket"
 	// ErrNOSTS is returned when a new STS could not be obtained.
 	ErrNOSTS UploadError = "upload: oss sts error"
+	// ErrOSSUploaderNotFound is returned when an OSS uploader is not found.
+	ErrOSSUploaderNotFound UploadError = "upload: oss uploader not found"
 )
 
 // AppError is the application specific error.

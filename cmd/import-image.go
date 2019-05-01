@@ -241,6 +241,9 @@ var importImageCmd = &cobra.Command{
 			Result:  ruRes,
 			Verbose: verbose,
 		}
+		if method == "oss" {
+			ruDigester.WithOSSUploader(p.ID)
+		}
 		ruDigester.Run(thread)
 
 		for img := range ruRes {
