@@ -143,5 +143,32 @@ func (iru *ImageRegUploader) ossUpload(img db.Image) db.Image {
 		img.Error = errors.ErrOSSUploaderNotFound.Error()
 		return img
 	}
+
+	gqlImg, err := gql.RegisterImageOSS(img.PID, iru.Bucket, img.Filename, img.Filetype, img.Hash)
+	if err != nil {
+		img.Error = err.Error()
+		return img
+	}
+	img.IID = gqlImg.ID
+	img.State = gqlImg.State
+
+	trial := 5
+	for i := 0; i < trial; i++ {
+		if iru.Verbose {
+			log.Printf("Uploading %q\n", img.Filename)
+		}
+		err = iru.ossUp.PutFile(img.LocalPath, gqlImg.Filename)
+		if err == nil {
+			break
+		}
+		if iru.Verbose {
+			log.Printf("Retrying (x %d) upload to OSS for %q\n", i+1, img.Filename)
+		}
+		time.Sleep(time.Second)
+	}
+	if err != nil {
+		img.Error = err.Error()
+	}
+
 	return img
 }
