@@ -47,6 +47,8 @@ const (
 	ErrNOSTS UploadError = "upload: oss sts error"
 	// ErrOSSUploaderNotFound is returned when an OSS uploader is not found.
 	ErrOSSUploaderNotFound UploadError = "upload: oss uploader not found"
+	// ErrImgMutateState is returned when the image state could not be mutated.
+	ErrImgMutateState UploadError = "upload: cannot not mutate image state"
 )
 
 // AppError is the application specific error.
