@@ -69,6 +69,7 @@ func GetSTS(pid, bucket string) (*types.STS, error) {
 		Token:    res.UploadImageOSS.STS.Token,
 		Endpoint: res.UploadImageOSS.STS.Endpoint,
 		Bucket:   res.UploadImageOSS.STS.Bucket,
+		Expire:   res.UploadImageOSS.STS.Expire,
 	}
 
 	return &sts, nil
