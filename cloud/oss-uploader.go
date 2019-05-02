@@ -21,7 +21,6 @@ func NewOSSUploader(pid string, refresh func() (*types.STS, error)) (*OSSUploade
 	if err != nil {
 		return nil, err
 	}
-
 	return &ret, nil
 }
 

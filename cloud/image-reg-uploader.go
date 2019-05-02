@@ -96,6 +96,7 @@ func (iru *ImageRegUploader) directUpload(img db.Image) db.Image {
 }
 
 func (iru *ImageRegUploader) s3Upload(img db.Image) db.Image {
+	// a. register s3 image
 	gqlImg, url, err := gql.RegisterImageS3(img.PID, iru.Bucket, img.Filename, img.Filetype, img.Hash)
 	if err != nil {
 		img.Error = err.Error()
@@ -104,7 +105,16 @@ func (iru *ImageRegUploader) s3Upload(img db.Image) db.Image {
 	img.IID = gqlImg.ID
 	img.State = gqlImg.State
 
-	// func to put to s3
+	// b. signal the start of upload
+	state, err := gql.StartImageUpload(img.IID)
+	if err != nil {
+		img.Error = err.Error()
+		return img
+	}
+	img.State = state
+
+	// c. upload to s3 with retry
+	// helper func to put to s3
 	upload := func() error {
 		if iru.Verbose {
 			log.Printf("Uploading %q\n", img.Filename)
@@ -144,6 +154,7 @@ func (iru *ImageRegUploader) ossUpload(img db.Image) db.Image {
 		return img
 	}
 
+	// a. register oss image
 	gqlImg, err := gql.RegisterImageOSS(img.PID, iru.Bucket, img.Filename, img.Filetype, img.Hash)
 	if err != nil {
 		img.Error = err.Error()
@@ -152,6 +163,15 @@ func (iru *ImageRegUploader) ossUpload(img db.Image) db.Image {
 	img.IID = gqlImg.ID
 	img.State = gqlImg.State
 
+	// b. signal the start of upload
+	state, err := gql.StartImageUpload(img.IID)
+	if err != nil {
+		img.Error = err.Error()
+		return img
+	}
+	img.State = state
+
+	// c. upload to oss with retry
 	trial := 5
 	for i := 0; i < trial; i++ {
 		if iru.Verbose {
@@ -169,6 +189,14 @@ func (iru *ImageRegUploader) ossUpload(img db.Image) db.Image {
 	if err != nil {
 		img.Error = err.Error()
 	}
+
+	// d. signal the end of upload
+	state, err = gql.DoneImageUpload(img.IID)
+	if err != nil {
+		img.Error = err.Error()
+		return img
+	}
+	img.State = state
 
 	return img
 }
