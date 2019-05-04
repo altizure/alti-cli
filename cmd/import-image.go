@@ -17,6 +17,7 @@ import (
 	"github.com/jackytck/alti-cli/db"
 	"github.com/jackytck/alti-cli/file"
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/text"
 	"github.com/jackytck/alti-cli/types"
 	"github.com/jackytck/alti-cli/web"
 	"github.com/spf13/cobra"
@@ -39,6 +40,24 @@ var importImageCmd = &cobra.Command{
 				log.Println("Took", elapsed)
 			}
 		}()
+
+		// check cloud
+		if method != "" && strings.ToLower(method) != "direct" {
+			supMethods := gql.SupportedCloud("", "")
+			if sm := text.BestMatch(supMethods, method, ""); sm == "" {
+				log.Printf("Upload method: %q is not supported!\n", method)
+				m := len(supMethods)
+				switch m {
+				case 0:
+					log.Println("No supported mehtod is found! You could only use via 'direct' upload!")
+				case 1:
+					log.Printf("Only %q upload is supported!", supMethods[0])
+				default:
+					log.Printf("Supported upload methods are: %q!", supMethods)
+				}
+				return
+			}
+		}
 
 		// check pid
 		p, err := gql.SearchProjectID(id, true)
