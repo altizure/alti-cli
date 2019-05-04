@@ -265,11 +265,13 @@ var importImageCmd = &cobra.Command{
 		}
 		ruDigester.Run(thread)
 
+		regFailCnt := 0
 		for img := range ruRes {
 			err = localDB.Save(&img)
 			if verbose {
 				if img.Error != "" {
 					log.Printf("Registration failed: %q\n", img.Error)
+					regFailCnt++
 				} else {
 					if method == "direct" {
 						log.Printf("Registered %q\n", img.Filename)
@@ -286,6 +288,10 @@ var importImageCmd = &cobra.Command{
 		// check whether the read from local db failed
 		if err = <-errc; err != nil {
 			panic(err)
+		}
+		if regFailCnt == totalImg {
+			log.Println("You run out of luck! All images failed to register!")
+			return
 		}
 
 		// check for image state: Ready / Invalid / Client timeout
