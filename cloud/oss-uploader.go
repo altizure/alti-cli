@@ -27,15 +27,25 @@ func NewOSSUploader(pid string, refresh func() (*types.STS, error)) (*OSSUploade
 // OSSUploader takes care of uploading files to a specific loccation
 // and refresh its credentials.
 type OSSUploader struct {
-	PID        string
-	RefreshSTS func() (*types.STS, error)
-	creds      *types.STS
-	bucket     *oss.Bucket
-	mutex      sync.Mutex
+	PID         string
+	RefreshSTS  func() (*types.STS, error)
+	creds       *types.STS
+	bucket      *oss.Bucket
+	credsLock   sync.Mutex
+	refreshLock sync.Mutex
 }
 
 // Refresh refreshes its STS token.
 func (ou *OSSUploader) Refresh() error {
+	ou.refreshLock.Lock()
+	defer ou.refreshLock.Unlock()
+	expired, err := ou.isExpired()
+	if err != nil {
+		return err
+	}
+	if !expired {
+		return nil
+	}
 	sts, err := ou.RefreshSTS()
 	if err != nil {
 		return err
@@ -46,9 +56,11 @@ func (ou *OSSUploader) Refresh() error {
 
 // PutFile puts a file under the project's write-only space in OSS.
 func (ou *OSSUploader) PutFile(filepath, cloudPath string) error {
-	if expired, err := ou.isExpired(); expired || err != nil {
-		ou.Refresh()
+	err := ou.Refresh()
+	if err != nil {
+		return err
 	}
+	// defensive: check if still has error or is expired even after refresh
 	if expired, err := ou.isExpired(); expired || err != nil {
 		if err != nil {
 			return err
@@ -61,29 +73,29 @@ func (ou *OSSUploader) PutFile(filepath, cloudPath string) error {
 
 // getCreds gets the sts creds.
 func (ou *OSSUploader) getCreds() *types.STS {
-	ou.mutex.Lock()
-	defer ou.mutex.Unlock()
+	ou.credsLock.Lock()
+	defer ou.credsLock.Unlock()
 	return ou.creds
 }
 
 // setCreds sets the sts creds.
 func (ou *OSSUploader) setCreds(creds *types.STS) {
-	ou.mutex.Lock()
-	defer ou.mutex.Unlock()
+	ou.credsLock.Lock()
+	defer ou.credsLock.Unlock()
 	ou.creds = creds
 }
 
 // getBucket gets the bucket handler.
 func (ou *OSSUploader) getBucket() *oss.Bucket {
-	ou.mutex.Lock()
-	defer ou.mutex.Unlock()
+	ou.credsLock.Lock()
+	defer ou.credsLock.Unlock()
 	return ou.bucket
 }
 
 // setBucket sets the bucket handler.
 func (ou *OSSUploader) setBucket(bucket *oss.Bucket) {
-	ou.mutex.Lock()
-	defer ou.mutex.Unlock()
+	ou.credsLock.Lock()
+	defer ou.credsLock.Unlock()
 	ou.bucket = bucket
 }
 
@@ -107,7 +119,11 @@ func (ou *OSSUploader) reconnect() error {
 
 // isExpired tells if the current STS has expired.
 func (ou *OSSUploader) isExpired() (bool, error) {
-	due, err := time.Parse("2006-01-02T15:04:05Z", ou.getCreds().Expire)
+	c := ou.getCreds()
+	if c == nil {
+		return true, nil
+	}
+	due, err := time.Parse("2006-01-02T15:04:05Z", c.Expire)
 	if err != nil {
 		return true, err
 	}

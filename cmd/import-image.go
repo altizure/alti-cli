@@ -261,7 +261,10 @@ var importImageCmd = &cobra.Command{
 			Verbose: verbose,
 		}
 		if method == "oss" {
-			ruDigester.WithOSSUploader(p.ID)
+			err2 := ruDigester.WithOSSUploader(p.ID)
+			if err2 != nil {
+				panic(err2)
+			}
 		}
 		ruDigester.Run(thread)
 
