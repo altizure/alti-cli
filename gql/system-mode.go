@@ -31,6 +31,12 @@ func CheckSystemMode(endpoint, key string) string {
 	return mode
 }
 
+// ActiveSystemMode checks the system mode of currently active profile.
+func ActiveSystemMode() string {
+	_, endpoint, key, _ := ActiveClient("")
+	return CheckSystemMode(endpoint, key)
+}
+
 type systemModeRes struct {
 	Support struct {
 		SystemMode string

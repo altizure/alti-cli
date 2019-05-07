@@ -41,6 +41,14 @@ var importImageCmd = &cobra.Command{
 			}
 		}()
 
+		// check api server
+		mode := gql.ActiveSystemMode()
+		if mode != "Normal" {
+			log.Printf("API server is in %q mode.\n", mode)
+			log.Println("Nothing could be uploaded at the moment!")
+			return
+		}
+
 		// check cloud
 		if method != "" && strings.ToLower(method) != "direct" {
 			supMethods := gql.SupportedCloud("", "")
@@ -49,7 +57,7 @@ var importImageCmd = &cobra.Command{
 				m := len(supMethods)
 				switch m {
 				case 0:
-					log.Println("No supported mehtod is found! You could only use via 'direct' upload!")
+					log.Println("No supported mehtod is found! You could only use 'direct' upload!")
 				case 1:
 					log.Printf("Only %q upload is supported!", supMethods[0])
 				default:
