@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"strings"
 
 	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/errors"
@@ -42,6 +43,8 @@ func QueryBucket(kind, cloud, bucket string) (string, []string, error) {
 func BucketList(kind, cloud string) ([]string, error) {
 	var ret []string
 
+	kind = strings.ToLower(kind)
+	cloud = strings.ToLower(cloud)
 	b, ok := bucketType[kind]
 	if !ok {
 		return ret, errors.ErrBucketInvalid
