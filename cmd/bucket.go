@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -17,6 +18,14 @@ var bucketCmd = &cobra.Command{
 	Short: "List all available buckets",
 	Long:  `'alti-cli list bucket' to list all available buckets of different types.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// check api server
+		mode := gql.ActiveSystemMode()
+		if mode != "Normal" {
+			log.Printf("API server is in %q mode.\n", mode)
+			log.Println("Nothing could be uploaded at the moment!")
+			return
+		}
+
 		clouds := gql.SupportedCloud("", "")
 		kinds := []string{"image", "model"}
 
@@ -30,13 +39,17 @@ var bucketCmd = &cobra.Command{
 					}
 					continue
 				}
-				buckets = append(buckets, []string{k, strings.ToLower(c), strings.Join(buks, ", "), fmt.Sprintf("%d", len(buks))})
+				suggested, err := gql.SuggestedBucket(k, c)
+				if err != nil {
+					panic(err)
+				}
+				buckets = append(buckets, []string{k, strings.ToLower(c), strings.Join(buks, ", "), suggested, fmt.Sprintf("%d", len(buks))})
 			}
 		}
 
 		// render
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Kind", "Cloud", "Buckets", "Count"})
+		table.SetHeader([]string{"Kind", "Cloud", "Buckets", "Suggested", "Count"})
 		table.AppendBulk(buckets)
 		table.Render()
 	},

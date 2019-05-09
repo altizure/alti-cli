@@ -240,7 +240,7 @@ var importImageCmd = &cobra.Command{
 		if method == "s3" || method == "oss" {
 			log.Printf("Using %s to upload\n", method)
 			if bucket == "" {
-				b, err2 := gql.BucketSuggestion(method)
+				b, err2 := gql.SuggestedBucket("image", method)
 				if err2 != nil {
 					panic(err2)
 				}
