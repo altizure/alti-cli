@@ -26,6 +26,7 @@ import (
 var method string
 var bucket string
 var report string
+var assumeYes bool
 
 // importImageCmd represents the importImage command
 var importImageCmd = &cobra.Command{
@@ -198,11 +199,15 @@ var importImageCmd = &cobra.Command{
 		}
 		fmt.Printf("After importing (if no duplicate):\nImages #: %d -> %d\tGP: %.2f -> %.2f\n", p.NumImage, p.NumImage+totalImg, p.GigaPixel, p.GigaPixel+totalGP)
 		fmt.Printf("Continue to import %d image%s or not? (Y/N): ", totalImg, plural)
-		fmt.Scanln(&ans)
-		ans = strings.ToUpper(ans)
-		if ans != "Y" && ans != "YES" {
-			log.Println("Cancelled.")
-			return
+		if assumeYes {
+			fmt.Println("Yes")
+		} else {
+			fmt.Scanln(&ans)
+			ans = strings.ToUpper(ans)
+			if ans != "Y" && ans != "YES" {
+				log.Println("Cancelled.")
+				return
+			}
 		}
 
 		// check direct upload
@@ -381,6 +386,7 @@ func init() {
 	importImageCmd.Flags().StringVarP(&report, "report", "r", report, "Path of csv upload report output")
 	importImageCmd.Flags().StringVarP(&method, "method", "m", method, "Desired method of upload: 'direct', 's3' or 'oss'")
 	importImageCmd.Flags().StringVarP(&bucket, "bucket", "b", bucket, "Desired bucket to upload for method: 's3' or 'oss'")
+	importImageCmd.Flags().BoolVarP(&assumeYes, "assumeyes", "y", assumeYes, "Assume yes; assume that the answer to any question which would be asked is yes")
 	importImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	importImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores x 4")
 	importImageCmd.MarkFlagRequired("id")
