@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"log"
 	"os"
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/gql"
@@ -18,6 +20,12 @@ var accountCmd = &cobra.Command{
 	Short: "List all the available accounts",
 	Long:  "List all the previously logined accoutns across different servers.",
 	Run: func(cmd *cobra.Command, args []string) {
+		start := time.Now()
+		defer func() {
+			elapsed := time.Since(start)
+			log.Println("Took", elapsed)
+		}()
+
 		// prepare account list
 		var accounts [][]string
 		config := config.Load()
