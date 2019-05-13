@@ -23,6 +23,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const directUpload = "direct"
+
 var method string
 var bucket string
 var report string
@@ -51,7 +53,7 @@ var importImageCmd = &cobra.Command{
 		}
 
 		// check cloud
-		if method != "" && strings.ToLower(method) != "direct" {
+		if method != "" && strings.ToLower(method) != directUpload {
 			supMethods := gql.SupportedCloud("", "")
 			if sm := text.BestMatch(supMethods, method, ""); sm == "" {
 				log.Printf("Upload method: %q is not supported!\n", method)
@@ -212,8 +214,8 @@ var importImageCmd = &cobra.Command{
 
 		// check direct upload
 		var baseURL string
-		if method == "" || method == "direct" {
-			method = "direct"
+		if method == "" || method == directUpload {
+			method = directUpload
 			var localSever *http.Server
 			var port int
 			log.Println("Checking direct upload...")

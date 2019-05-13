@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/config"
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/spf13/cobra"
 )
 
