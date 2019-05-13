@@ -2,13 +2,12 @@ package gql
 
 import (
 	"context"
-	"log"
 
 	"github.com/machinebox/graphql"
 )
 
 // GetUserTokenByCode gets the self-issued by phone and one-time login code.
-func GetUserTokenByCode(endpoint, appKey, phone, code string) string {
+func GetUserTokenByCode(endpoint, appKey, phone, code string) (string, error) {
 	client := graphql.NewClient(endpoint + "/graphql")
 
 	req := graphql.NewRequest(`
@@ -26,9 +25,9 @@ func GetUserTokenByCode(endpoint, appKey, phone, code string) string {
 	// run it and capture the response
 	var res getUserTokenByCodeRes
 	if err := client.Run(ctx, req, &res); err != nil {
-		log.Fatal(err)
+		return "", err
 	}
-	return res.GetUserTokenByLoginCode
+	return res.GetUserTokenByLoginCode, nil
 }
 
 type getUserTokenByCodeRes struct {

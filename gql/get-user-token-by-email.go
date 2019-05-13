@@ -2,13 +2,12 @@ package gql
 
 import (
 	"context"
-	"log"
 
 	"github.com/machinebox/graphql"
 )
 
 // GetUserTokenByEmail gets the self-issued user token.
-func GetUserTokenByEmail(endpoint, appKey, email, password string, fresh bool) string {
+func GetUserTokenByEmail(endpoint, appKey, email, password string, fresh bool) (string, error) {
 	// create a client (safe to share across requests)
 	client := graphql.NewClient(endpoint + "/graphql")
 
@@ -30,9 +29,9 @@ func GetUserTokenByEmail(endpoint, appKey, email, password string, fresh bool) s
 	// run it and capture the response
 	var res getUserTokenRes
 	if err := client.Run(ctx, req, &res); err != nil {
-		log.Fatal(err)
+		return "", err
 	}
-	return res.GetUserToken
+	return res.GetUserToken, nil
 }
 
 type getUserTokenRes struct {

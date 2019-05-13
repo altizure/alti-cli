@@ -12,6 +12,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+var byPhone bool
+
 // loginCmd represents the login command
 var loginCmd = &cobra.Command{
 	Use:   "login",
@@ -43,24 +45,49 @@ var loginCmd = &cobra.Command{
 			appKey = dap.Key
 		}
 
-		// c. email
-		var email string
-		fmt.Printf("Your login email: ")
-		fmt.Scanln(&email)
+		var token string
 
-		// d. password
-		fmt.Printf("Your password: ")
-		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
-		if err != nil {
-			panic(err)
-		}
-		password := string(bytePassword)
-		fmt.Println()
+		if byPhone {
+			// c1. phone
+			var phone string
+			fmt.Printf("Your phone number (international): ")
+			fmt.Scanln(&phone)
 
-		token := gql.GetUserToken(endpoint, appKey, email, password, false)
-		if token == "" {
-			fmt.Println("Incorrect email or password!")
-			return
+			err = gql.RequestLoginCode(endpoint, appKey, phone)
+			if err != nil {
+				panic(err)
+			}
+
+			// d1. login code from sms
+			var code string
+			fmt.Printf("Your login code: ")
+			fmt.Scanln(&code)
+
+			token, err = gql.GetUserTokenByCode(endpoint, appKey, phone, code)
+			if err != nil || token == "" {
+				fmt.Println("Incorrect code!")
+				return
+			}
+		} else {
+			// c2. email
+			var email string
+			fmt.Printf("Your login email: ")
+			fmt.Scanln(&email)
+
+			// d2. password
+			fmt.Printf("Your password: ")
+			bytePassword, err2 := terminal.ReadPassword(int(syscall.Stdin))
+			if err2 != nil {
+				panic(err2)
+			}
+			password := string(bytePassword)
+			fmt.Println()
+
+			token, err = gql.GetUserTokenByEmail(endpoint, appKey, email, password, false)
+			if err != nil || token == "" {
+				fmt.Println("Incorrect email or password!")
+				return
+			}
 		}
 
 		// store key + token
@@ -87,4 +114,5 @@ var loginCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(loginCmd)
+	loginCmd.Flags().BoolVarP(&byPhone, "phone", "p", byPhone, "Use verified phone number to login")
 }
