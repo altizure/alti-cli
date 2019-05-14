@@ -18,15 +18,20 @@ var projRemoveCmd = &cobra.Command{
 	Short: "Remove project by pid",
 	Long:  "Remove a project by its pid.",
 	Run: func(cmd *cobra.Command, args []string) {
-		// check project info
-		p, err := gql.Project(id)
+		p, err := gql.SearchProjectID(id, true)
 		if err != nil {
-			fmt.Println("Project could not be removed! Error:", err)
+			fmt.Println("Project could not be found! Error:", err)
 			return
 		}
+
+		// check project info
 		if p.NumImage > 0 || p.GigaPixel > 0 {
 			var ans string
-			fmt.Printf("Warning: Project: %q is not empty. Are you sure? (Y/N): ", p.Name)
+			s := ""
+			if p.NumImage > 1 {
+				s = "s"
+			}
+			fmt.Printf("Warning: Project: %q is not empty. It has %d image%s. Are you sure? (Y/N): ", p.Name, p.NumImage, s)
 			fmt.Scanln(&ans)
 			ans = strings.ToUpper(ans)
 			if ans != "Y" && ans != "YES" {
@@ -35,7 +40,7 @@ var projRemoveCmd = &cobra.Command{
 			}
 		}
 
-		_, err = gql.RemoveProject(id)
+		_, err = gql.RemoveProject(p.ID)
 		if err != nil {
 			fmt.Println("Project could not be removed! Error:", err)
 			return
@@ -49,6 +54,6 @@ var projRemoveCmd = &cobra.Command{
 
 func init() {
 	projectCmd.AddCommand(projRemoveCmd)
-	projRemoveCmd.Flags().StringVarP(&id, "id", "p", id, "Project id")
+	projRemoveCmd.Flags().StringVarP(&id, "id", "p", id, "Project (partial) id")
 	projRemoveCmd.MarkFlagRequired("id")
 }
