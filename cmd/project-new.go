@@ -19,7 +19,7 @@ var newCmd = &cobra.Command{
 	Short: "Create an empty reconstruction project",
 	Long:  "Create an empty reconstruction project.",
 	Run: func(cmd *cobra.Command, args []string) {
-		pid, err := gql.CreateProject(name, projType, "", visibility, false)
+		pid, err := gql.CreateProject(name, projType, "", visibility)
 		if err != nil {
 			fmt.Println("Project could not be created!", err)
 			return

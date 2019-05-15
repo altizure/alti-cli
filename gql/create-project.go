@@ -10,7 +10,7 @@ import (
 
 // CreateProject creates a new empty project
 // and returns the pid of the newly created project.
-func CreateProject(name, projType, modelType, visibility string, importedModel bool) (string, error) {
+func CreateProject(name, projType, modelType, visibility string) (string, error) {
 	config := config.Load()
 	active := config.GetActive()
 	client := graphql.NewClient(active.Endpoint + "/graphql")
@@ -31,7 +31,7 @@ func CreateProject(name, projType, modelType, visibility string, importedModel b
 	req.Var("type", projType)
 	if modelType != "" {
 		req.Var("modelType", modelType)
-		req.Var("imported", importedModel)
+		req.Var("imported", true)
 	}
 	req.Var("visibility", visibility)
 
