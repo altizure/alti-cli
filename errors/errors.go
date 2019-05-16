@@ -37,6 +37,8 @@ const (
 	ErrImgInvalid UploadError = "upload: invalid image"
 	// ErrClientTimeout is returned when the cli client could not get back Ready or Invalid image state within timeout.
 	ErrClientTimeout UploadError = "upload: client timeout"
+	// ErrUploadMethodInvalid is returned when the specified upload method is not supported.
+	ErrUploadMethodInvalid UploadError = "upload: invalid upload method"
 	// ErrNoBucketSuggestion is returned when no bucket suggestion is returned.
 	ErrNoBucketSuggestion UploadError = "upload: no bucket suggestion"
 	// ErrS3Error is returned when file upload operation could not result in ok status code.
