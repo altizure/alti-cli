@@ -24,12 +24,13 @@ func CheckAPIServer(logger func(string, ...interface{})) error {
 }
 
 // CheckUploadMethod checks if the supplied upload method is suppored.
-func CheckUploadMethod(method string, logger func(string, ...interface{})) error {
+// kind is 'image', 'model' or 'meta'
+func CheckUploadMethod(kind string, method string, logger func(string, ...interface{})) error {
 	if logger == nil {
 		logger = log.Printf
 	}
 	if method != "" && strings.ToLower(method) != DirectUploadMethod {
-		supMethods := gql.SupportedCloud("", "")
+		supMethods := gql.SupportedCloud("", "", kind)
 		if sm := text.BestMatch(supMethods, method, ""); sm == "" {
 			logger("Upload method: %q is not supported!\n", method)
 			m := len(supMethods)

@@ -54,7 +54,7 @@ var importImageCmd = &cobra.Command{
 
 		// check cloud
 		if method != "" && strings.ToLower(method) != directUpload {
-			supMethods := gql.SupportedCloud("", "")
+			supMethods := gql.SupportedCloud("", "", "image")
 			if sm := text.BestMatch(supMethods, method, ""); sm == "" {
 				log.Printf("Upload method: %q is not supported!\n", method)
 				m := len(supMethods)

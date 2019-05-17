@@ -51,7 +51,7 @@ var accountCmd = &cobra.Command{
 					wg.Done()
 				}()
 				go func() {
-					cloud = gql.SupportedCloud(v.Endpoint, p.Key)
+					cloud = gql.SupportedCloud(v.Endpoint, p.Key, "image")
 					wg.Done()
 				}()
 
@@ -74,7 +74,7 @@ var accountCmd = &cobra.Command{
 
 		// render
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"ID", "Endpoint", "Username", "Status", "Select", "Sales", "Super", "Upload Cloud"})
+		table.SetHeader([]string{"ID", "Endpoint", "Username", "Status", "Select", "Sales", "Super", "Image Upload Cloud"})
 		table.AppendBulk(accounts)
 		table.Render()
 	},

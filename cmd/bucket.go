@@ -27,7 +27,7 @@ var bucketCmd = &cobra.Command{
 			return
 		}
 
-		clouds := gql.SupportedCloud("", "")
+		clouds := gql.SupportedCloud("", "", "image")
 		kinds := []string{"image", "model"}
 
 		var buckets [][]string

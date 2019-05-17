@@ -8,7 +8,7 @@ import (
 )
 
 // SupportedCloud queries for the supported cloud of the given endpoint.
-func SupportedCloud(endpoint, key string) []string {
+func SupportedCloud(endpoint, key, kind string) []string {
 	if endpoint == "" || key == "" {
 		config := config.Load()
 		active := config.GetActive()
@@ -18,12 +18,13 @@ func SupportedCloud(endpoint, key string) []string {
 	client := graphql.NewClient(endpoint + "/graphql")
 
 	req := graphql.NewRequest(`
-		{
+		query ($kind: UPLOAD_TYPE) {
 			support {
-				supportedCloud
+				supportedCloud(kind: $kind)
 			}
 		}
 	`)
+	req.Var("kind", kind)
 	req.Header.Set("key", key)
 
 	ctx := context.Background()
