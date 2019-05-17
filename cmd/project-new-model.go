@@ -13,7 +13,7 @@ var modelType = "CAD"
 
 // newCmd represents the new command
 var newModelCmd = &cobra.Command{
-	Use:   "new model",
+	Use:   "model",
 	Short: "Create an empty model project",
 	Long:  "Create an empty model project.",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -34,7 +34,7 @@ var newModelCmd = &cobra.Command{
 }
 
 func init() {
-	projectCmd.AddCommand(newModelCmd)
+	projNewCmd.AddCommand(newModelCmd)
 	newModelCmd.Flags().StringVarP(&name, "name", "n", name, "Project name")
 	newModelCmd.MarkFlagRequired("name")
 	newModelCmd.Flags().StringVarP(&projType, "projectType", "p", projType, "free, pro")
