@@ -2,6 +2,7 @@ package service
 
 import (
 	"log"
+	"os"
 	"strings"
 
 	"github.com/jackytck/alti-cli/errors"
@@ -93,7 +94,7 @@ func CheckDirectUpload(verbose bool, logger func(string, ...interface{})) error 
 		logger("Client is invisible. Direct upload is not supported!")
 		return err
 	}
-	logger("Direct upload is supported over %q!\n", pu.Hostname())
+	logger("Direct upload is supported over %q\n", pu.Hostname())
 	return nil
 }
 
@@ -109,6 +110,17 @@ func CheckPID(kind, pid string) CheckFn {
 		if kind == "image" && p.IsImported || kind == "model" && !p.IsImported {
 			logger("%q project could nont be found!", kind)
 			return errors.ErrProjNotFound
+		}
+		return nil
+	}
+}
+
+// CheckFile checks if the file exists.
+func CheckFile(f string) CheckFn {
+	return func(logger LogFn) error {
+		if _, err := os.Stat(f); os.IsNotExist(err) {
+			logger("Could not found file: %q", f)
+			return err
 		}
 		return nil
 	}
