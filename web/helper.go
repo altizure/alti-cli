@@ -15,6 +15,29 @@ import (
 	"github.com/jackytck/alti-cli/gql"
 )
 
+// StartLocalServer starts a local server serving dir on random port.
+func StartLocalServer(dir string, verbose bool) (string, func(), error) {
+	pu, _, err := PreferedLocalURL(verbose)
+	if err != nil {
+		return "", nil, err
+	}
+	s := Server{Directory: dir, Address: pu.Hostname() + ":"}
+	hs, port, err := s.ServeStatic(verbose)
+	if err != nil {
+		return "", nil, err
+	}
+
+	baseURL := fmt.Sprintf("http://%s:%d", pu.Hostname(), port)
+	log.Printf("Serving files at %s\n", baseURL)
+	done := func() {
+		log.Println("Shutting down local server...")
+		if err = hs.Shutdown(context.TODO()); err != nil {
+			panic(err)
+		}
+	}
+	return baseURL, done, nil
+}
+
 // GetOutboundIP gets the preferred outbound ip of this machine.
 func GetOutboundIP() (string, error) {
 	conn, err := net.Dial("udp", "8.8.8.8:80")

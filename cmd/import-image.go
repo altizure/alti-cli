@@ -216,7 +216,7 @@ var importImageCmd = &cobra.Command{
 		var baseURL string
 		if method == "" || method == directUpload {
 			method = directUpload
-			var localSever *http.Server
+			var localServer *http.Server
 			var port int
 			log.Println("Checking direct upload...")
 			pu, _, err2 := web.PreferedLocalURL(verbose)
@@ -230,7 +230,7 @@ var importImageCmd = &cobra.Command{
 
 				// setup local web server
 				s := web.Server{Directory: dir, Address: pu.Hostname() + ":"}
-				localSever, port, err = s.ServeStatic(verbose)
+				localServer, port, err = s.ServeStatic(verbose)
 				if err != nil {
 					panic(err)
 				}
@@ -238,7 +238,7 @@ var importImageCmd = &cobra.Command{
 				log.Printf("Serving files at %s\n", baseURL)
 
 				defer func() {
-					if err = localSever.Shutdown(context.TODO()); err != nil {
+					if err = localServer.Shutdown(context.TODO()); err != nil {
 						panic(err)
 					}
 				}()
