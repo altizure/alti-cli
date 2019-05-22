@@ -51,6 +51,8 @@ const (
 	ErrOSSUploaderNotFound UploadError = "upload: oss uploader not found"
 	// ErrImgMutateState is returned when the image state could not be mutated.
 	ErrImgMutateState UploadError = "upload: cannot not mutate image state"
+	// ErrModelReg is returned when a model could not be registered for uploading.
+	ErrModelReg UploadError = "upload: cannot register upload model"
 )
 
 // AppError is the application specific error.
