@@ -24,6 +24,7 @@ func Project(id string) (*types.Project, error) {
 				id
 				name
 				isImported
+				importedState
 				projectType
 				numImage
 				gigaPixel
@@ -56,14 +57,15 @@ func Project(id string) (*types.Project, error) {
 	}
 
 	p := types.Project{
-		ID:          r.ID,
-		Name:        r.Name,
-		IsImported:  r.IsImported,
-		ProjectType: r.ProjectType,
-		NumImage:    r.NumImage,
-		GigaPixel:   r.GigaPixel,
-		TaskState:   r.TaskState,
-		Date:        r.Date,
+		ID:            r.ID,
+		Name:          r.Name,
+		IsImported:    r.IsImported,
+		ImportedState: r.ImportedState,
+		ProjectType:   r.ProjectType,
+		NumImage:      r.NumImage,
+		GigaPixel:     r.GigaPixel,
+		TaskState:     r.TaskState,
+		Date:          r.Date,
 	}
 
 	return &p, nil
@@ -71,13 +73,14 @@ func Project(id string) (*types.Project, error) {
 
 type projRes struct {
 	Project struct {
-		ID          string
-		Name        string
-		IsImported  bool
-		ProjectType string
-		NumImage    int
-		GigaPixel   float64
-		TaskState   string
-		Date        time.Time
+		ID            string
+		Name          string
+		IsImported    bool
+		ImportedState string
+		ProjectType   string
+		NumImage      int
+		GigaPixel     float64
+		TaskState     string
+		Date          time.Time
 	}
 }

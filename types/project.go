@@ -10,14 +10,15 @@ import (
 
 // Project represents the gql project type.
 type Project struct {
-	ID          string
-	Name        string
-	IsImported  bool
-	ProjectType string
-	NumImage    int
-	GigaPixel   float64
-	TaskState   string
-	Date        time.Time
+	ID            string
+	Name          string
+	IsImported    bool
+	ImportedState string
+	ProjectType   string
+	NumImage      int
+	GigaPixel     float64
+	TaskState     string
+	Date          time.Time
 }
 
 func (p Project) String() string {
