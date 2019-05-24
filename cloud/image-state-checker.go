@@ -60,7 +60,6 @@ func (isc *ImageStateChecker) Run(n int) int {
 // 'Ready' or 'Invalid', or timeout in this client.
 func (isc *ImageStateChecker) checkState(img db.Image) db.Image {
 	imgCh := make(chan db.Image)
-	timer := time.NewTimer(isc.Timeout)
 
 	go func() {
 		defer close(imgCh)
@@ -91,7 +90,7 @@ func (isc *ImageStateChecker) checkState(img db.Image) db.Image {
 
 	ret := img
 	select {
-	case <-timer.C:
+	case <-time.After(isc.Timeout):
 		ret.Error = errors.ErrClientTimeout.Error()
 	case ret = <-imgCh:
 	}
