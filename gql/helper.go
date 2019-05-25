@@ -1,8 +1,10 @@
 package gql
 
 import (
+	"encoding/json"
 	"fmt"
 
+	"github.com/TylerBrock/colorjson"
 	"github.com/jackytck/alti-cli/config"
 	"github.com/machinebox/graphql"
 )
@@ -24,4 +26,20 @@ func ActiveClient(room string) (*graphql.Client, string, string, string) {
 	client := graphql.NewClient(url)
 
 	return client, endpoint, key, token
+}
+
+// PrettyPrint prints a raw json string into an indented colored string.
+func PrettyPrint(data []byte) (string, error) {
+	var obj map[string]interface{}
+	err := json.Unmarshal(data, &obj)
+	if err != nil {
+		return "", err
+	}
+	f := colorjson.NewFormatter()
+	f.Indent = 2
+	bs, err := f.Marshal(obj)
+	if err != nil {
+		return "", err
+	}
+	return string(bs), nil
 }
