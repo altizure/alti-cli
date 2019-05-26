@@ -53,6 +53,12 @@ const (
 	ErrImgMutateState UploadError = "upload: cannot not mutate image state"
 	// ErrModelReg is returned when a model could not be registered for uploading.
 	ErrModelReg UploadError = "upload: cannot register upload model"
+	// ErrClientQuery is returned when the input gql query file is not found.
+	ErrClientQuery ClientError = "client: query file not found"
+	// ErrClientVar is returned when the input gql variable file is not found.
+	ErrClientVar ClientError = "client: variable file not found"
+	// ErrClientVarInvalid is returned when the input gql variable file is not valid.
+	ErrClientVarInvalid ClientError = "client: variable file invalid"
 )
 
 // AppError is the application specific error.
@@ -94,5 +100,12 @@ func (e FileError) Error() string {
 type UploadError string
 
 func (e UploadError) Error() string {
+	return string(e)
+}
+
+// ClientError is the client related error.
+type ClientError string
+
+func (e ClientError) Error() string {
 	return string(e)
 }

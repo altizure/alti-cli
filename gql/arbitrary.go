@@ -9,7 +9,7 @@ import (
 )
 
 // Arbitrary makes arbitrary query or mutation.
-func Arbitrary(query string) (string, error) {
+func Arbitrary(query string, vars map[string]interface{}) (string, error) {
 	config := config.Load()
 	active := config.GetActive()
 	client := graphql.NewClient(active.Endpoint + "/graphql")
@@ -18,6 +18,10 @@ func Arbitrary(query string) (string, error) {
 
 	req.Header.Set("key", active.Key)
 	req.Header.Set("altitoken", active.Token)
+
+	for k, v := range vars {
+		req.Var(k, v)
+	}
 
 	ctx := context.Background()
 	var res json.RawMessage

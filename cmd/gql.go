@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 
@@ -9,7 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var query string
+var queryFile string
+var varFile string
 
 // gqlCmd represents the gql command
 var gqlCmd = &cobra.Command{
@@ -17,10 +19,24 @@ var gqlCmd = &cobra.Command{
 	Short: "Run arbitrary gql request.",
 	Long:  "Run arbitrary gql request.",
 	Run: func(cmd *cobra.Command, args []string) {
-		q, err := ioutil.ReadFile(query)
-		errors.Must(err)
+		q, err := ioutil.ReadFile(queryFile)
+		if err != nil {
+			fmt.Println(errors.ErrClientQuery)
+			return
+		}
+		vb, err := ioutil.ReadFile(varFile)
+		if err != nil {
+			fmt.Println(errors.ErrClientVar)
+			return
+		}
+		va := make(map[string]interface{})
+		err = json.Unmarshal(vb, &va)
+		if err != nil {
+			fmt.Println(errors.ErrClientVarInvalid)
+			return
+		}
 
-		res, err := gql.Arbitrary(string(q))
+		res, err := gql.Arbitrary(string(q), va)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -32,5 +48,6 @@ var gqlCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(gqlCmd)
-	gqlCmd.Flags().StringVarP(&query, "query", "q", query, "File storing the gql string.")
+	gqlCmd.Flags().StringVarP(&queryFile, "query", "q", queryFile, "File storing the gql string.")
+	gqlCmd.Flags().StringVarP(&varFile, "variable", "k", varFile, "File storing the related variables.")
 }
