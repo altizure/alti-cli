@@ -24,16 +24,18 @@ var gqlCmd = &cobra.Command{
 			fmt.Println(errors.ErrClientQuery)
 			return
 		}
-		vb, err := ioutil.ReadFile(varFile)
-		if err != nil {
-			fmt.Println(errors.ErrClientVar)
-			return
-		}
 		va := make(map[string]interface{})
-		err = json.Unmarshal(vb, &va)
-		if err != nil {
-			fmt.Println(errors.ErrClientVarInvalid)
-			return
+		if varFile != "" {
+			vb, err2 := ioutil.ReadFile(varFile)
+			if err2 != nil {
+				fmt.Println(errors.ErrClientVar)
+				return
+			}
+			err = json.Unmarshal(vb, &va)
+			if err != nil {
+				fmt.Println(errors.ErrClientVarInvalid)
+				return
+			}
 		}
 
 		res, err := gql.Arbitrary(string(q), va)
