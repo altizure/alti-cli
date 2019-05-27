@@ -19,6 +19,8 @@ import (
 )
 
 var model string
+var ip string
+var port string
 
 // importModelCmd represents the importModel command
 var importModelCmd = &cobra.Command{
@@ -38,10 +40,11 @@ var importModelCmd = &cobra.Command{
 		if err := service.Check(
 			nil,
 			service.CheckAPIServer(),
-			service.CheckUploadMethod("model", method),
+			service.CheckUploadMethod("model", method, ip, port),
 			service.CheckPID("model", id),
 			service.CheckFile(model),
 		); err != nil {
+			log.Println(err)
 			return
 		}
 
@@ -119,6 +122,8 @@ func init() {
 	importModelCmd.Flags().StringVarP(&id, "id", "p", id, "Project id")
 	importModelCmd.Flags().StringVarP(&model, "file", "f", model, "File path of model zip file.")
 	importModelCmd.Flags().StringVarP(&method, "method", "m", method, "Desired method of upload: 'direct' or 's3'")
+	importModelCmd.Flags().StringVar(&ip, "ip", ip, "IP address of ad-hoc local server for direct upload.")
+	importModelCmd.Flags().StringVar(&port, "port", port, "Port of ad-hoc local server for direct upload.")
 	importModelCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more info of operation")
 	importModelCmd.MarkFlagRequired("id")
 	importModelCmd.MarkFlagRequired("file")

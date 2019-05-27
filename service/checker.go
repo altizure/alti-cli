@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -18,7 +19,7 @@ type CheckFn func(LogFn) error
 type LogFn func(string, ...interface{})
 
 // Check checks all of the passed in checker functions.
-func Check(logger func(string, ...interface{}), cs ...CheckFn) error {
+func Check(logger LogFn, cs ...CheckFn) error {
 	if logger == nil {
 		logger = log.Printf
 	}
@@ -46,7 +47,7 @@ func CheckAPIServer() CheckFn {
 
 // CheckUploadMethod checks if the supplied upload method is suppored.
 // kind is 'image', 'model' or 'meta'
-func CheckUploadMethod(kind, method string) CheckFn {
+func CheckUploadMethod(kind, method, ip, port string) CheckFn {
 	return func(logger LogFn) error {
 		if method == "" {
 			logger("No upload method is provided.")
@@ -57,6 +58,15 @@ func CheckUploadMethod(kind, method string) CheckFn {
 
 		// check direct upload
 		if method == DirectUploadMethod {
+			// if ip and port are provided
+			if ip != "" && port != "" {
+				err := CheckDirectUploadIPPort(ip, port, logger)
+				if err != nil {
+					return err
+				}
+				return nil
+			}
+			// if ip and port are not provided
 			err := CheckDirectUpload(false, logger)
 			if err != nil {
 				logger("Supported upload methods are: %q!", supMethods)
@@ -84,7 +94,7 @@ func CheckUploadMethod(kind, method string) CheckFn {
 }
 
 // CheckDirectUpload checks if direct upload is supported.
-func CheckDirectUpload(verbose bool, logger func(string, ...interface{})) error {
+func CheckDirectUpload(verbose bool, logger LogFn) error {
 	if logger == nil {
 		logger = log.Printf
 	}
@@ -95,6 +105,21 @@ func CheckDirectUpload(verbose bool, logger func(string, ...interface{})) error 
 		return err
 	}
 	logger("Direct upload is supported over %q\n", pu.Hostname())
+	return nil
+}
+
+// CheckDirectUploadIPPort checks if the given ip and port could be accessed by
+// api server.
+func CheckDirectUploadIPPort(ip, port string, logger LogFn) error {
+	if logger == nil {
+		logger = log.Printf
+	}
+	_, err := web.CheckVisibilityIPPort(ip, port, true)
+	if err != nil {
+		url := fmt.Sprintf("http://%s:%s", ip, port)
+		logger("%q is not accessible!", url)
+		return err
+	}
 	return nil
 }
 

@@ -169,3 +169,39 @@ func PreferedLocalURL(verbose bool) (*url.URL, map[string]bool, error) {
 	}
 	return u, checks, nil
 }
+
+// CheckVisibilityIPPort checks if starting a local server over the given
+// ip and port could be visible by the api server.
+func CheckVisibilityIPPort(ip, port string, verbose bool) (bool, error) {
+	url := fmt.Sprintf("http://%v:%v", ip, port)
+	if verbose {
+		log.Printf("Checking %q...", url)
+	}
+
+	// tmp dir for server
+	tmpDir, err := ioutil.TempDir("", "alti-cli-")
+	if err != nil {
+		return false, err
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// create local web server
+	s := Server{
+		Directory: tmpDir,
+		Address:   fmt.Sprintf("%s:%s", ip, port),
+	}
+	server, _, err := s.ServeStatic(false)
+	if err != nil {
+		return false, err
+	}
+
+	// check given ip + port over api server
+	res := gql.CheckDirectNetwork(url)
+
+	// close down temp server
+	if err := server.Shutdown(context.TODO()); err != nil {
+		return false, err
+	}
+
+	return res, nil
+}
