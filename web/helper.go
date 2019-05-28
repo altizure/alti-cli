@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 
@@ -147,22 +148,32 @@ func PreferedLocalURL(verbose bool) (*url.URL, map[string]bool, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	var ret string
+
+	// classify local or non-local ips
+	var local, nonLocal []string
 	for k, v := range checks {
 		if !v {
 			continue
 		}
-		if ret == "" {
-			ret = k
-		}
-		if !strings.Contains(k, "127.0.0.1") {
-			ret = k
-			break
+		if strings.Contains(k, "127.0.0.1") {
+			local = append(local, k)
+		} else {
+			nonLocal = append(nonLocal, k)
 		}
 	}
-	if ret == "" {
+	if len(local)+len(nonLocal) == 0 {
 		return nil, checks, errors.ErrClientInvisible
 	}
+	sort.Strings(nonLocal)
+
+	// prefer non-local over local ip
+	var ret string
+	if len(nonLocal) > 0 {
+		ret = nonLocal[0]
+	} else {
+		ret = local[0]
+	}
+
 	u, err := url.ParseRequestURI(ret)
 	if err != nil {
 		return nil, checks, err
