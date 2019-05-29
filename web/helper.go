@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -17,18 +18,34 @@ import (
 )
 
 // StartLocalServer starts a local server serving dir on random port.
-func StartLocalServer(dir string, verbose bool) (string, func(), error) {
-	pu, _, err := PreferedLocalURL(verbose)
-	if err != nil {
-		return "", nil, err
-	}
-	s := Server{Directory: dir, Address: pu.Hostname() + ":"}
-	hs, port, err := s.ServeStatic(verbose)
-	if err != nil {
-		return "", nil, err
+// If ip is not provided, non-local ip will be used.
+// If port is not provided, a random port will be used.
+func StartLocalServer(dir, ip, port string, verbose bool) (string, func(), error) {
+	var address string
+
+	// use prefered ip if not provided
+	if ip == "" {
+		pu, _, err := PreferedLocalURL(verbose)
+		if err != nil {
+			return "", nil, err
+		}
+		address = pu.Hostname() + ":" + port
+	} else {
+		address = ip + ":" + port
 	}
 
-	baseURL := fmt.Sprintf("http://%s:%d", pu.Hostname(), port)
+	s := Server{Directory: dir, Address: address}
+	hs, p, err := s.ServeStatic(verbose)
+	if err != nil {
+		return "", nil, err
+	}
+	// using random port
+	ps := strconv.Itoa(p)
+	if ps != port {
+		address += ps
+	}
+
+	baseURL := fmt.Sprintf("http://%s", address)
 	log.Printf("Serving files at %s\n", baseURL)
 	done := func() {
 		log.Println("Shutting down local server...")

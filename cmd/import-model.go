@@ -57,7 +57,7 @@ var importModelCmd = &cobra.Command{
 		var baseURL, directURL string
 		filename := filepath.Base(model)
 		if method == service.DirectUploadMethod {
-			bu, done, err := web.StartLocalServer(filepath.Dir(model), false)
+			bu, done, err := web.StartLocalServer(filepath.Dir(model), ip, port, false)
 			errors.Must(err)
 			defer done()
 			serDone = done
@@ -84,7 +84,7 @@ var importModelCmd = &cobra.Command{
 
 		// register model
 		if method == service.DirectUploadMethod {
-			im, err := gql.RegisterModelURL(id, directURL, filename, checksum)
+			im, err := gql.RegisterModelURL(proj.ID, directURL, filename, checksum)
 			errors.Must(err)
 			log.Printf("Registered model with state: %q\n", im.State)
 
