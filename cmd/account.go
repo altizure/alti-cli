@@ -12,6 +12,7 @@ import (
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // accountCmd represents the account command
@@ -56,7 +57,12 @@ var accountCmd = &cobra.Command{
 				}()
 
 				wg.Wait()
-				r := []string{p.ID, v.Endpoint, p.Name, mode, "", "", "", ""}
+
+				nameOrEmail := p.Name
+				if bson.IsObjectIdHex(p.Name) {
+					nameOrEmail = p.Email
+				}
+				r := []string{p.ID, v.Endpoint, nameOrEmail, mode, "", "", "", ""}
 				if config.Active == p.ID {
 					r[4] = "Active"
 				}
@@ -74,7 +80,7 @@ var accountCmd = &cobra.Command{
 
 		// render
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"ID", "Endpoint", "Username", "Status", "Select", "Sales", "Super", "Image Upload Cloud"})
+		table.SetHeader([]string{"ID", "Endpoint", "Username/Email", "Status", "Select", "Sales", "Super", "Image Upload Cloud"})
 		table.AppendBulk(accounts)
 		table.Render()
 	},
