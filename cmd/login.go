@@ -105,7 +105,7 @@ var loginCmd = &cobra.Command{
 		errors.Must(err)
 
 		// store username
-		err = conf.SetActiveName(user.Username, true)
+		err = conf.SetActiveUserInfo(user.Username, user.Email, true)
 		errors.Must(err)
 
 		fmt.Printf("Welcome %s (%s), you are logined to %s!\n", user.Name, user.Email, endpoint)

@@ -154,6 +154,7 @@ func (c Config) RemoveProfile(id string, save bool) (*APoint, error) {
 				ret.Endpoint = v.Endpoint
 				ret.Key = p.Key
 				ret.Name = p.Name
+				ret.Email = p.Email
 				ret.Token = p.Token
 			}
 		}
@@ -217,12 +218,13 @@ func (c *Config) Size() int {
 	return ret
 }
 
-// SetActiveName sets the username of the active profile.
-func (c *Config) SetActiveName(name string, save bool) error {
+// SetActiveUserInfo sets the username of the active profile.
+func (c *Config) SetActiveUserInfo(name, email string, save bool) error {
 	for _, v := range c.Scopes {
 		for i, p := range v.Profiles {
 			if p.ID == c.Active {
 				v.Profiles[i].Name = name
+				v.Profiles[i].Email = email
 			}
 		}
 	}
@@ -279,6 +281,7 @@ func (s *Scope) Add(p Profile) Profile {
 type Profile struct {
 	ID    string `yaml:"id"`
 	Name  string `yaml:"name"`
+	Email string `yaml:"email"`
 	Key   string `yaml:"key"`
 	Token string `yaml:"token"`
 }
@@ -292,6 +295,7 @@ func (p Profile) Equal(o Profile) bool {
 type APoint struct {
 	Endpoint string `yaml:"endpoint"`
 	Name     string `yaml:"name"`
+	Email    string `yaml:"email"`
 	Key      string `yaml:"key"`
 	Token    string `yaml:"token"`
 }

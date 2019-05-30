@@ -31,7 +31,7 @@ func TestConfig_GetActive(t *testing.T) {
 		fields fields
 		want   APoint
 	}{
-		{"default active", fields{DefaultConfig().Scopes, DefaultConfig().Active}, APoint{DefaultEndpoint, "", DefaultAppKey, ""}},
+		{"default active", fields{DefaultConfig().Scopes, DefaultConfig().Active}, APoint{DefaultEndpoint, "", "", DefaultAppKey, ""}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -61,7 +61,7 @@ func TestConfig_GetProfile(t *testing.T) {
 		want    *Profile
 		wantErr bool
 	}{
-		{"partial match", fields{DefaultConfig().Scopes, DefaultConfig().Active}, args{"def"}, &Profile{"default", "", DefaultAppKey, ""}, false},
+		{"partial match", fields{DefaultConfig().Scopes, DefaultConfig().Active}, args{"def"}, &Profile{"default", "", "", DefaultAppKey, ""}, false},
 		{"not found", fields{DefaultConfig().Scopes, DefaultConfig().Active}, args{"nat"}, nil, true},
 	}
 	for _, tt := range tests {
@@ -121,6 +121,7 @@ func TestConfig_String(t *testing.T) {
     profiles:
     - id: default
       name: ""
+      email: ""
       key: Ah8bOakrkmSl2FA9OCbT8EnFOUrPwOOZ7HQxZm6
       token: ""
 active: default
@@ -153,8 +154,8 @@ func TestScope_Add(t *testing.T) {
 		args   args
 		want   Profile
 	}{
-		{"empty", fields{"nat-endpoint", []Profile{}}, args{Profile{"natid", "Nat", "nat-key", "nat-token"}}, Profile{"natid", "Nat", "nat-key", "nat-token"}},
-		{"exists", fields{"nat-endpoint", []Profile{{"aid", "Nat", "nat-key", "nat-token"}}}, args{Profile{"natid", "Nat", "nat-key", "nat-token"}}, Profile{"aid", "Nat", "nat-key", "nat-token"}},
+		{"empty", fields{"nat-endpoint", []Profile{}}, args{Profile{"natid", "Nat", "nat@nat.com", "nat-key", "nat-token"}}, Profile{"natid", "Nat", "nat@nat.com", "nat-key", "nat-token"}},
+		{"exists", fields{"nat-endpoint", []Profile{{"aid", "Nat", "nat@nat.com", "nat-key", "nat-token"}}}, args{Profile{"natid", "Nat", "nat@nat.com", "nat-key", "nat-token"}}, Profile{"aid", "Nat", "nat@nat.com", "nat-key", "nat-token"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -176,6 +177,7 @@ func TestProfile_Equal(t *testing.T) {
 	type fields struct {
 		ID    string
 		Name  string
+		Email string
 		Key   string
 		Token string
 	}
@@ -188,9 +190,9 @@ func TestProfile_Equal(t *testing.T) {
 		args   args
 		want   bool
 	}{
-		{"equal", fields{"anyid", "Nat1", "nat-key", "nat-token"}, args{Profile{"anoterid", "Nat2", "nat-key", "nat-token"}}, true},
-		{"different key", fields{"anyid", "Nat", "nat-key", "nat-token"}, args{Profile{"anoterid", "Nat", "a-key", "nat-token"}}, false},
-		{"different token", fields{"anyid", "Nat", "nat-key", "nat-token"}, args{Profile{"anyid", "Nat", "nat-key", "a-token"}}, false},
+		{"equal", fields{"anyid", "Nat1", "nat@nat.com", "nat-key", "nat-token"}, args{Profile{"anoterid", "Nat2", "nat2@nat.com", "nat-key", "nat-token"}}, true},
+		{"different key", fields{"anyid", "Nat", "nat@nat.com", "nat-key", "nat-token"}, args{Profile{"anoterid", "Nat", "nat@nat.com", "a-key", "nat-token"}}, false},
+		{"different token", fields{"anyid", "Nat", "nat@nat.com", "nat-key", "nat-token"}, args{Profile{"anyid", "Nat", "nat@nat.com", "nat-key", "a-token"}}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

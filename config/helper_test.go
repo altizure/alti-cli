@@ -39,7 +39,7 @@ func Test_uniqueProfile(t *testing.T) {
 		args args
 		want []Profile
 	}{
-		{"simple", args{[]Profile{{"id1", "n1", "k1", "t1"}, {"id2", "n1", "k2", "t2"}, {"id1", "n1", "k1", "t1"}}}, []Profile{{"id1", "n1", "k1", "t1"}, {"id2", "n1", "k2", "t2"}}},
+		{"simple", args{[]Profile{{"id1", "n1", "e1", "k1", "t1"}, {"id2", "n1", "e1", "k2", "t2"}, {"id1", "n1", "e1", "k1", "t1"}}}, []Profile{{"id1", "n1", "e1", "k1", "t1"}, {"id2", "n1", "e1", "k2", "t2"}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
