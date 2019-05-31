@@ -21,6 +21,7 @@ import (
 var model string
 var ip string
 var port string
+var timeout int
 
 // importModelCmd represents the importModel command
 var importModelCmd = &cobra.Command{
@@ -82,6 +83,19 @@ var importModelCmd = &cobra.Command{
 		errors.Must(err)
 		log.Printf("SHA1: %s\n", checksum)
 
+		// get filesize for timeout
+		size, err := file.Filesize(model)
+		errors.Must(err)
+		mb := file.BytesToMB(size)
+		log.Printf("Size: %.2f MB\n", mb)
+		if timeout == 0 {
+			// assume speed is at least 1 MegaByte
+			timeout = int(mb)
+			if timeout < 60 {
+				timeout = 60
+			}
+		}
+
 		// register model
 		if method == service.DirectUploadMethod {
 			im, err := gql.RegisterModelURL(proj.ID, directURL, filename, checksum)
@@ -106,8 +120,9 @@ var importModelCmd = &cobra.Command{
 			}()
 
 			var state string
+			log.Printf("Client will be timeout in %d seconds\n", timeout)
 			select {
-			case <-time.After(time.Minute * 1):
+			case <-time.After(time.Second * time.Duration(timeout)):
 				log.Printf("Client timeout.")
 				return
 			case state = <-stateC:
@@ -122,6 +137,7 @@ func init() {
 	importModelCmd.Flags().StringVarP(&id, "id", "p", id, "Project id")
 	importModelCmd.Flags().StringVarP(&model, "file", "f", model, "File path of model zip file.")
 	importModelCmd.Flags().StringVarP(&method, "method", "m", method, "Desired method of upload: 'direct' or 's3'")
+	importModelCmd.Flags().IntVarP(&timeout, "timeout", "t", timeout, "Timeout of checking direct upload state in seconds")
 	importModelCmd.Flags().StringVar(&ip, "ip", ip, "IP address of ad-hoc local server for direct upload.")
 	importModelCmd.Flags().StringVar(&port, "port", port, "Port of ad-hoc local server for direct upload.")
 	importModelCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more info of operation")
