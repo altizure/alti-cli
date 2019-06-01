@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jackytck/alti-cli/cloud"
 	"github.com/jackytck/alti-cli/errors"
-	"github.com/jackytck/alti-cli/file"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/service"
 	"github.com/jackytck/alti-cli/web"
@@ -77,58 +77,22 @@ var importModelCmd = &cobra.Command{
 			os.Exit(1)
 		}()
 
-		// compute checksum
-		log.Printf("Computing checksum: %q...\n", filename)
-		checksum, err := file.Sha1sum(model)
-		errors.Must(err)
-		log.Printf("SHA1: %s\n", checksum)
-
-		// get filesize for timeout
-		size, err := file.Filesize(model)
-		errors.Must(err)
-		mb := file.BytesToMB(size)
-		log.Printf("Size: %.2f MB\n", mb)
-		if timeout == 0 {
-			// assume speed is at least 1 MegaByte
-			timeout = int(mb)
-			if timeout < 60 {
-				timeout = 60
-			}
+		// register + upload
+		mru := cloud.ModelRegUploader{
+			Method:    method,
+			PID:       proj.ID,
+			ModelPath: model,
+			Filename:  filename,
+			DirectURL: directURL,
+			Verbose:   verbose,
+		}
+		err := mru.Run()
+		if err != nil {
+			log.Printf(err.Error())
+			return
 		}
 
-		// register model
-		if method == service.DirectUploadMethod {
-			im, err := gql.RegisterModelURL(proj.ID, directURL, filename, checksum)
-			errors.Must(err)
-			log.Printf("Registered model with state: %q\n", im.State)
-
-			// check if ready
-			stateC := make(chan string)
-
-			go func() {
-				log.Println("Checking state...")
-				for {
-					p, err := gql.Project(proj.ID)
-					errors.Must(err)
-					s := p.ImportedState
-					if s != "Pending" {
-						stateC <- s
-						return
-					}
-					time.Sleep(time.Second * 1)
-				}
-			}()
-
-			var state string
-			log.Printf("Client will be timeout in %d seconds\n", timeout)
-			select {
-			case <-time.After(time.Second * time.Duration(timeout)):
-				log.Printf("Client timeout.")
-				return
-			case state = <-stateC:
-				log.Printf("Model is in state: %q\n", state)
-			}
-		}
+		log.Println("Successfully registered and uplaoded!")
 	},
 }
 
