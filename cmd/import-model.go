@@ -77,7 +77,7 @@ var importModelCmd = &cobra.Command{
 			os.Exit(1)
 		}()
 
-		// register + upload
+		// register + upload + state check
 		mru := cloud.ModelRegUploader{
 			Method:    method,
 			PID:       proj.ID,
@@ -86,13 +86,13 @@ var importModelCmd = &cobra.Command{
 			DirectURL: directURL,
 			Verbose:   verbose,
 		}
-		err := mru.Run()
+		state, err := mru.Run()
 		if err != nil {
 			log.Printf(err.Error())
 			return
 		}
 
-		log.Println("Successfully registered and uplaoded!")
+		log.Printf("Successfully registered and uplaoded in state: %q!\n", state)
 	},
 }
 

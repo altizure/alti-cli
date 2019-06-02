@@ -22,44 +22,58 @@ type ModelRegUploader struct {
 }
 
 // Run starts the registration and uploading process.
-func (mru *ModelRegUploader) Run() error {
+// Return the state of imported model.
+func (mru *ModelRegUploader) Run() (string, error) {
 	switch mru.Method {
 	case service.DirectUploadMethod:
 		return mru.directUpload()
 	case "s3":
 		return mru.s3Upload()
 	}
-	return nil
+	return "", errors.ErrUploadMethodInvalid
 }
 
-func (mru *ModelRegUploader) directUpload() error {
+// directUpload registers the model via direct upload method and query its state
+// change until timeout. Return the state of project.
+func (mru *ModelRegUploader) directUpload() (string, error) {
+	// sha1sum
 	checksum, err := mru.checksum()
 	if err != nil {
-		return err
-	}
-	timeout, err := mru.directTimeout()
-	if err != nil {
-		return err
+		return "", err
 	}
 
 	// register model
 	im, err := gql.RegisterModelURL(mru.PID, mru.DirectURL, mru.Filename, checksum)
 	if err != nil {
-		return err
+		return "", err
 	}
 	log.Printf("Registered model with state: %q\n", im.State)
 
-	// @TODO: refactor state checking
-	// check if ready
+	return mru.checkState()
+}
+
+func (mru *ModelRegUploader) s3Upload() (string, error) {
+	// @TODO
+	return "", errors.ErrNotImplemented
+}
+
+// checkState checks if the model state is changed from Pending until timeout.
+func (mru *ModelRegUploader) checkState() (string, error) {
+	timeout, err := mru.directTimeout()
+	if err != nil {
+		return "", err
+	}
+
 	stateC := make(chan string)
 
+	// check per second
 	go func() {
 		log.Println("Checking state...")
 		for {
 			p, err := gql.Project(mru.PID)
 			errors.Must(err)
 			s := p.ImportedState
-			if s != "Pending" {
+			if s != service.Pending {
 				stateC <- s
 				return
 			}
@@ -71,18 +85,10 @@ func (mru *ModelRegUploader) directUpload() error {
 	log.Printf("Client will be timeout in %d seconds\n", timeout)
 	select {
 	case <-time.After(time.Second * timeout):
-		log.Printf("Client timeout.")
-		return errors.ErrClientTimeout
+		return service.Pending, errors.ErrClientTimeout
 	case state = <-stateC:
-		log.Printf("Model is in state: %q\n", state)
+		return state, nil
 	}
-
-	return nil
-}
-
-func (mru *ModelRegUploader) s3Upload() error {
-	// @TODO
-	return errors.ErrNotImplemented
 }
 
 // checksum computes the SHA1 sum.
