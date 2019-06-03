@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/jackytck/alti-cli/errors"
+	"github.com/jackytck/alti-cli/file"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/text"
 	"github.com/jackytck/alti-cli/web"
@@ -146,6 +147,21 @@ func CheckFile(f string) CheckFn {
 		if _, err := os.Stat(f); os.IsNotExist(err) {
 			logger("Could not found file: %q", f)
 			return err
+		}
+		return nil
+	}
+}
+
+// CheckZip checks if the file is a zip.
+func CheckZip(f string) CheckFn {
+	return func(logger LogFn) error {
+		isZip, err := file.IsZipFile(f)
+		if err != nil {
+			return err
+		}
+		if !isZip {
+			logger("Not a zip file: %q", f)
+			return errors.ErrFileNotZip
 		}
 		return nil
 	}

@@ -61,6 +61,18 @@ func IsImageFile(img string) (bool, error) {
 	return false, nil
 }
 
+// IsZipFile tells if the file is a zip file.
+func IsZipFile(f string) (bool, error) {
+	ext, err := GuessFileType(f)
+	if err != nil {
+		return false, err
+	}
+	if ext == "application/zip" {
+		return true, nil
+	}
+	return false, nil
+}
+
 // GuessFileType guesses the type of file.
 func GuessFileType(file string) (string, error) {
 	buff := make([]byte, 512)

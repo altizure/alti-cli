@@ -44,6 +44,7 @@ var importModelCmd = &cobra.Command{
 			service.CheckUploadMethod("model", method, ip, port),
 			service.CheckPID("model", id),
 			service.CheckFile(model),
+			service.CheckZip(model),
 		); err != nil {
 			log.Println(err)
 			return

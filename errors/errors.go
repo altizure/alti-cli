@@ -25,6 +25,8 @@ const (
 	ErrImgNotFound ProjectError = "project: image not found"
 	// ErrFileNotImage is returned when a file is not a supported image.
 	ErrFileNotImage FileError = "file: not image"
+	// ErrFileNotZip is returned when a file is not a zip file.
+	ErrFileNotZip FileError = "file: not zip"
 	// ErrFilesize is returned when the filesize of a file could not be determined.
 	ErrFilesize FileError = "file: unknown filesize"
 	// ErrFileImageDim is returned when the dimension of an image could not be determined.
