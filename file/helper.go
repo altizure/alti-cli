@@ -4,7 +4,10 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"image"
+	"io/ioutil"
+	"math"
 	"regexp"
 	// for image.DecodeConfig
 	_ "image/jpeg"
@@ -162,4 +165,56 @@ func WalkFiles(done <-chan struct{}, root string, skip string) (<-chan string, <
 	}()
 
 	return paths, errc
+}
+
+// SplitFile splits the file into parts and put it in the outDir.
+// Each part would have chunkSize number of bytes.
+// If chunkSize is larger than filesize, do nothing.
+// If chunkSize is non-positive, will reset to 100 MB.
+// Return filenames of parts.
+func SplitFile(file, outDir string, chunkSize int64) ([]string, error) {
+	if chunkSize <= 0 {
+		chunkSize = 100 * (1 << 20) // 100MB
+	}
+
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	baseName := filepath.Base(file)
+
+	stat, err := f.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	size := stat.Size()
+	if chunkSize > size || baseName == "" {
+		return nil, nil
+	}
+
+	var partNames []string
+	totalParts := uint64(math.Ceil(float64(size) / float64(chunkSize)))
+
+	for i := uint64(0); i < totalParts; i++ {
+		partSize := chunkSize
+		if i == totalParts-1 {
+			partSize = size % chunkSize
+		}
+		buf := make([]byte, partSize)
+		f.Read(buf)
+
+		partName := fmt.Sprintf("%s.part.%d", baseName, i+1)
+		partPath := fmt.Sprintf("%s/%s", outDir, partName)
+
+		err := ioutil.WriteFile(partPath, buf, 0644)
+		if err != nil {
+			return nil, err
+		}
+		partNames = append(partNames, partName)
+	}
+
+	return partNames, nil
 }
