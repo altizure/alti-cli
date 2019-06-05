@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"math"
 	"regexp"
+
 	// for image.DecodeConfig
 	_ "image/jpeg"
 	_ "image/png"
@@ -197,6 +198,7 @@ func SplitFile(file, outDir string, chunkSize int64) ([]string, error) {
 
 	var partNames []string
 	totalParts := uint64(math.Ceil(float64(size) / float64(chunkSize)))
+	digit := int(math.Ceil(math.Log(float64(totalParts)) / math.Log(26)))
 
 	for i := uint64(0); i < totalParts; i++ {
 		partSize := chunkSize
@@ -206,7 +208,7 @@ func SplitFile(file, outDir string, chunkSize int64) ([]string, error) {
 		buf := make([]byte, partSize)
 		f.Read(buf)
 
-		partName := fmt.Sprintf("%s.part.%d", baseName, i+1)
+		partName := fmt.Sprintf("%s.part.%0*d", baseName, digit, i+1)
 		partPath := fmt.Sprintf("%s/%s", outDir, partName)
 
 		err := ioutil.WriteFile(partPath, buf, 0644)

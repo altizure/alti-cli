@@ -1,6 +1,8 @@
 package file
 
 import (
+	"bufio"
+	"bytes"
 	"image"
 	"image/color"
 	"image/draw"
@@ -8,9 +10,13 @@ import (
 	_ "image/jpeg"
 	"image/png"
 	_ "image/png"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/jackytck/alti-cli/rand"
 )
 
 const testImgDir = "test/data/imgs/"
@@ -336,5 +342,51 @@ func TestBytesToMB(t *testing.T) {
 				t.Errorf("BytesToMB() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestSplitFile(t *testing.T) {
+	original, err := rand.Bytes(1024)
+	if err != nil {
+		t.Error(err)
+	}
+
+	tmpDir, err := ioutil.TempDir("", "")
+	if err != nil {
+		t.Error(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	data := filepath.Join(tmpDir, "data")
+	err = ioutil.WriteFile(data, original, 0644)
+	if err != nil {
+		t.Error(err)
+	}
+
+	parts, err := SplitFile(data, tmpDir, 10)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var joined []byte
+	for _, p := range parts {
+		path := filepath.Join(tmpDir, p)
+		f, err := os.Open(path)
+		if err != nil {
+			t.Error(err)
+		}
+		bytes := make([]byte, 10)
+		buffer := bufio.NewReader(f)
+		n, err := buffer.Read(bytes)
+		if err != nil {
+			t.Error(err)
+		}
+		joined = append(joined, bytes[:n]...)
+		f.Close()
+	}
+
+	equal := bytes.Equal(original, joined)
+	if !equal {
+		t.Errorf("Bytes are not equal\nGot %v\nWant %v", joined, original)
 	}
 }
