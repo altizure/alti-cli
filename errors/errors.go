@@ -53,6 +53,8 @@ const (
 	ErrOSSUploaderNotFound UploadError = "upload: oss uploader not found"
 	// ErrImgMutateState is returned when the image state could not be mutated.
 	ErrImgMutateState UploadError = "upload: cannot not mutate image state"
+	// ErrModelMutateState is returned when the model state could not be mutated.
+	ErrModelMutateState UploadError = "upload: cannot not mutate model state"
 	// ErrModelReg is returned when a model could not be registered for uploading.
 	ErrModelReg UploadError = "upload: cannot register upload model"
 	// ErrClientQuery is returned when the input gql query file is not found.
