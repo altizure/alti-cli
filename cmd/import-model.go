@@ -22,6 +22,7 @@ var model string
 var ip string
 var port string
 var timeout int
+var partsDir string
 
 // importModelCmd represents the importModel command
 var importModelCmd = &cobra.Command{
@@ -80,12 +81,14 @@ var importModelCmd = &cobra.Command{
 
 		// register + upload + state check
 		mru := cloud.ModelRegUploader{
-			Method:    method,
-			PID:       proj.ID,
-			ModelPath: model,
-			Filename:  filename,
-			DirectURL: directURL,
-			Verbose:   verbose,
+			Method:       method,
+			PID:          proj.ID,
+			ModelPath:    model,
+			Filename:     filename,
+			DirectURL:    directURL,
+			Bucket:       bucket,
+			MultipartDir: partsDir,
+			Verbose:      verbose,
 		}
 		state, err := mru.Run()
 		if err != nil {
@@ -105,6 +108,8 @@ func init() {
 	importModelCmd.Flags().IntVarP(&timeout, "timeout", "t", timeout, "Timeout of checking direct upload state in seconds")
 	importModelCmd.Flags().StringVar(&ip, "ip", ip, "IP address of ad-hoc local server for direct upload.")
 	importModelCmd.Flags().StringVar(&port, "port", port, "Port of ad-hoc local server for direct upload.")
+	importModelCmd.Flags().StringVarP(&bucket, "bucket", "b", bucket, "Desired bucket to upload for method: 's3'")
+	importModelCmd.Flags().StringVarP(&partsDir, "parts", "d", partsDir, "Directory of 7z splitted multiparts.")
 	importModelCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more info of operation")
 	importModelCmd.MarkFlagRequired("id")
 	importModelCmd.MarkFlagRequired("file")

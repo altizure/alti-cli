@@ -4,8 +4,22 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/file"
 )
+
+// PutS3 is a helper func to put to s3.
+func PutS3(localPath, url string) error {
+	res, err2 := PutFile(localPath, url)
+	if err2 != nil {
+		return err2
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return errors.ErrS3Error
+	}
+	return nil
+}
 
 // PutFile puts the local file specified in filepath to the remote url
 // via http PUT.
