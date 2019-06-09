@@ -22,7 +22,6 @@ var model string
 var ip string
 var port string
 var timeout int
-var partsDir string
 
 // importModelCmd represents the importModel command
 var importModelCmd = &cobra.Command{
@@ -38,17 +37,34 @@ var importModelCmd = &cobra.Command{
 			}
 		}()
 
-		// pre-checks
+		// pre-checks general
 		if err := service.Check(
 			nil,
 			service.CheckAPIServer(),
 			service.CheckUploadMethod("model", method, ip, port),
 			service.CheckPID("model", id),
 			service.CheckFile(model),
-			service.CheckZip(model),
 		); err != nil {
 			log.Println(err)
 			return
+		}
+
+		// determine if single or multipart upload
+		var partsDir string
+		if err := service.CheckDir(model)(log.Printf); err == nil {
+			partsDir = model
+			model = ""
+		}
+
+		// pre-checks for single upload
+		if model != "" {
+			if err := service.Check(
+				nil,
+				service.CheckZip(model),
+			); err != nil {
+				log.Println(err)
+				return
+			}
 		}
 
 		// get project
@@ -103,13 +119,12 @@ var importModelCmd = &cobra.Command{
 func init() {
 	importCmd.AddCommand(importModelCmd)
 	importModelCmd.Flags().StringVarP(&id, "id", "p", id, "Project id")
-	importModelCmd.Flags().StringVarP(&model, "file", "f", model, "File path of model zip file.")
+	importModelCmd.Flags().StringVarP(&model, "file", "f", model, "File path of model zip file or directory of multiparts zip.")
 	importModelCmd.Flags().StringVarP(&method, "method", "m", method, "Desired method of upload: 'direct' or 's3'")
 	importModelCmd.Flags().IntVarP(&timeout, "timeout", "t", timeout, "Timeout of checking direct upload state in seconds")
 	importModelCmd.Flags().StringVar(&ip, "ip", ip, "IP address of ad-hoc local server for direct upload.")
 	importModelCmd.Flags().StringVar(&port, "port", port, "Port of ad-hoc local server for direct upload.")
 	importModelCmd.Flags().StringVarP(&bucket, "bucket", "b", bucket, "Desired bucket to upload for method: 's3'")
-	importModelCmd.Flags().StringVarP(&partsDir, "parts", "d", partsDir, "Directory of 7z splitted multiparts.")
 	importModelCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more info of operation")
 	importModelCmd.MarkFlagRequired("id")
 	importModelCmd.MarkFlagRequired("file")
