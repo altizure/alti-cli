@@ -152,6 +152,18 @@ func CheckFile(f string) CheckFn {
 	}
 }
 
+// CheckDir checks if the file is a directory.
+func CheckDir(d string) CheckFn {
+	return func(logger LogFn) error {
+		if fi, err := os.Stat(d); err == nil {
+			if fi.Mode().IsDir() {
+				return nil
+			}
+		}
+		return errors.ErrFileNotDir
+	}
+}
+
 // CheckZip checks if the file is a zip.
 func CheckZip(f string) CheckFn {
 	return func(logger LogFn) error {
