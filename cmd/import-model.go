@@ -84,17 +84,6 @@ var importModelCmd = &cobra.Command{
 			directURL = fmt.Sprintf("%s/%s", baseURL, filename)
 		}
 
-		// capture ctrl+c
-		cc := make(chan os.Signal)
-		signal.Notify(cc, os.Interrupt, syscall.SIGTERM)
-		go func() {
-			<-cc
-			fmt.Println()
-			serDone()
-			log.Println("Bye!")
-			os.Exit(1)
-		}()
-
 		// register + upload + state check
 		mru := cloud.ModelRegUploader{
 			Method:       method,
@@ -106,6 +95,21 @@ var importModelCmd = &cobra.Command{
 			MultipartDir: partsDir,
 			Verbose:      verbose,
 		}
+
+		// capture and handle ctrl+c
+		cc := make(chan os.Signal)
+		signal.Notify(cc, os.Interrupt, syscall.SIGTERM)
+		go func() {
+			<-cc
+			fmt.Println()
+			if serDone != nil {
+				serDone()
+			}
+			mru.Done()
+			log.Println("Bye!")
+			os.Exit(1)
+		}()
+
 		state, err := mru.Run()
 		if err != nil {
 			log.Printf(err.Error())

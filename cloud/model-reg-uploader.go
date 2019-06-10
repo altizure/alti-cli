@@ -24,6 +24,7 @@ type ModelRegUploader struct {
 	MultipartDir string // dir storing the 7zip multiparts
 	Timeout      int
 	Verbose      bool
+	tmpDir       string // for storing newly created multipart files
 }
 
 // Run starts the registration and uploading process.
@@ -36,6 +37,16 @@ func (mru *ModelRegUploader) Run() (string, error) {
 		return mru.s3Upload()
 	}
 	return "", errors.ErrUploadMethodInvalid
+}
+
+// Done cleanups this uploader if user wants to terminate early.
+func (mru *ModelRegUploader) Done() error {
+	if mru.tmpDir != "" {
+		err := os.RemoveAll(mru.tmpDir)
+		log.Printf("Removed %q\n", mru.tmpDir)
+		return err
+	}
+	return nil
 }
 
 // directUpload registers the model via direct upload method and query its state
@@ -60,7 +71,6 @@ func (mru *ModelRegUploader) directUpload() (string, error) {
 // s3Upload uploads to s3 via a single zip or multipart way of uploading.
 func (mru *ModelRegUploader) s3Upload() (string, error) {
 	if mru.MultipartDir != "" {
-		// return mru.s3UploadMulti()
 		return mru.s3UploadMulti7z()
 	}
 	return mru.s3UploadSingle()
@@ -68,14 +78,23 @@ func (mru *ModelRegUploader) s3Upload() (string, error) {
 
 // s3UploadMulti uploads each multipart of a obj zip to s3.
 // Each part could be concatenated in raw binary form.
+// @TODO: tell server it is a simple binary split
 func (mru *ModelRegUploader) s3UploadMulti() (string, error) {
-	parts, err := file.SplitFile(mru.ModelPath, "/tmp", 1024*200)
+	tmpDir, err := ioutil.TempDir("", "")
+	if err != nil {
+		return "", err
+	}
+	mru.tmpDir = tmpDir
+	log.Printf("Created dir %q for storing parts\n", tmpDir)
+	defer mru.Done()
+
+	parts, err := file.SplitFile(mru.ModelPath, tmpDir, 0)
 	if err != nil {
 		return "", err
 	}
 
 	// a. register each part
-	err = mru.uploadParts("/tmp", parts, false)
+	err = mru.uploadParts(tmpDir, parts, true)
 	if err != nil {
 		return "", err
 	}
@@ -140,11 +159,19 @@ func (mru *ModelRegUploader) uploadParts(baseDir string, parts []string, removeP
 }
 
 // s3UploadSingle uploads a single obj zip to s3.
-// @TODO: precheck if file is bigger than 5GB
 func (mru *ModelRegUploader) s3UploadSingle() (string, error) {
 	if mru.Verbose {
 		log.Printf("Uploading %q\n", mru.Filename)
 	}
+	size, err := mru.filesize()
+	if err != nil {
+		return "", err
+	}
+	if size > 5*1024 {
+		log.Printf("Filesize (%.2f MB) is bigger than 5GB", size)
+		return mru.s3UploadMulti()
+	}
+
 	_, url, err := gql.RegisterModelS3(mru.PID, mru.Bucket, mru.Filename)
 	if err != nil {
 		return "", err

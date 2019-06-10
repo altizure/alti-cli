@@ -191,12 +191,12 @@ func SplitFile(file, outDir string, chunkSize int64) ([]string, error) {
 		return nil, err
 	}
 
+	var partNames []string
 	size := stat.Size()
 	if chunkSize > size || baseName == "" {
-		return nil, nil
+		return partNames, nil
 	}
 
-	var partNames []string
 	totalParts := uint64(math.Ceil(float64(size) / float64(chunkSize)))
 	digit := int(math.Ceil(math.Log(float64(totalParts)) / math.Log(26)))
 
