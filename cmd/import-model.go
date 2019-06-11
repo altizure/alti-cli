@@ -84,6 +84,25 @@ var importModelCmd = &cobra.Command{
 			directURL = fmt.Sprintf("%s/%s", baseURL, filename)
 		}
 
+		// set bucket
+		if method == service.S3UploadMethod {
+			if bucket == "" {
+				b, err2 := gql.SuggestedBucket("model", method)
+				if err2 != nil {
+					panic(err2)
+				}
+				bucket = b
+			} else {
+				b, buckets, err2 := gql.QueryBucket("model", method, bucket)
+				if err2 != nil {
+					log.Printf("Valid buckets are: %q\n", buckets)
+					return
+				}
+				bucket = b
+			}
+			log.Printf("Bucket %q is chosen", bucket)
+		}
+
 		// register + upload + state check
 		mru := cloud.ModelRegUploader{
 			Method:       method,

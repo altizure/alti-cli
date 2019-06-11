@@ -167,6 +167,9 @@ func (mru *ModelRegUploader) s3UploadSingle() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if mru.Verbose {
+		log.Printf("Size: %.2f MB\n", size)
+	}
 	if size > 5*1024 {
 		log.Printf("Filesize (%.2f MB) is bigger than 5GB", size)
 		return mru.s3UploadMulti()
@@ -212,7 +215,7 @@ func (mru *ModelRegUploader) checkState() (string, error) {
 			p, err := gql.Project(mru.PID)
 			errors.Must(err)
 			s := p.ImportedState
-			if s != service.Pending {
+			if s != service.Pending && s != service.Ready {
 				stateC <- s
 				return
 			}
@@ -252,9 +255,6 @@ func (mru *ModelRegUploader) filesize() (float64, error) {
 		return 0, err
 	}
 	mb := file.BytesToMB(size)
-	if mru.Verbose {
-		log.Printf("Size: %.2f MB\n", mb)
-	}
 	return mb, nil
 }
 
