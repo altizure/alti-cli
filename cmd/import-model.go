@@ -112,6 +112,7 @@ var importModelCmd = &cobra.Command{
 			DirectURL:    directURL,
 			Bucket:       bucket,
 			MultipartDir: partsDir,
+			Timeout:      timeout,
 			Verbose:      verbose,
 		}
 

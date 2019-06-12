@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"context"
 	"encoding/csv"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -15,9 +13,10 @@ import (
 	"github.com/c2h5oh/datasize"
 	"github.com/jackytck/alti-cli/cloud"
 	"github.com/jackytck/alti-cli/db"
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/file"
 	"github.com/jackytck/alti-cli/gql"
-	"github.com/jackytck/alti-cli/text"
+	"github.com/jackytck/alti-cli/service"
 	"github.com/jackytck/alti-cli/types"
 	"github.com/jackytck/alti-cli/web"
 	"github.com/spf13/cobra"
@@ -44,39 +43,52 @@ var importImageCmd = &cobra.Command{
 			}
 		}()
 
-		// check api server
-		mode := gql.ActiveSystemMode()
-		if mode != "Normal" {
-			log.Printf("API server is in %q mode.\n", mode)
-			log.Println("Nothing could be uploaded at the moment!")
+		// pre-checks general
+		method = strings.ToLower(method)
+		if err := service.Check(
+			nil,
+			service.CheckAPIServer(),
+			service.CheckUploadMethod("image", method, ip, port),
+			service.CheckPID("image", id),
+			service.CheckDir(dir),
+		); err != nil {
+			log.Println(err)
 			return
 		}
 
-		// check cloud
-		if method != "" && strings.ToLower(method) != directUpload {
-			supMethods := gql.SupportedCloud("", "", "image")
-			if sm := text.BestMatch(supMethods, method, ""); sm == "" {
-				log.Printf("Upload method: %q is not supported!\n", method)
-				m := len(supMethods)
-				switch m {
-				case 0:
-					log.Println("No supported mehtod is found! You could only use 'direct' upload!")
-				case 1:
-					log.Printf("Only %q upload is supported!", supMethods[0])
-				default:
-					log.Printf("Supported upload methods are: %q!", supMethods)
+		// get pid
+		p, _ := gql.SearchProjectID(id, true)
+
+		// setup direct upload server
+		var serDone func()
+		var baseURL string
+		if method == service.DirectUploadMethod {
+			bu, done, err := web.StartLocalServer(dir, ip, port, false)
+			errors.Must(err)
+			defer done()
+			serDone = done
+			baseURL = bu
+		}
+
+		// set bucket
+		if method == "s3" || method == "oss" {
+			log.Printf("Using %s to upload\n", method)
+			if bucket == "" {
+				b, err2 := gql.SuggestedBucket("image", method)
+				if err2 != nil {
+					panic(err2)
 				}
-				return
+				bucket = b
+			} else {
+				b, buckets, err2 := gql.QueryBucket("image", method, bucket)
+				if err2 != nil {
+					log.Printf("Valid buckets are: %q\n", buckets)
+					return
+				}
+				bucket = b
 			}
+			log.Printf("Bucket %q is chosen", bucket)
 		}
-
-		// check pid
-		p, err := gql.SearchProjectID(id, true)
-		if err != nil {
-			fmt.Println("Project could not be found! Error:", err)
-			return
-		}
-		log.Printf("Importing to %q with pid: %q...\n", p.Name, p.ID)
 
 		log.Printf("Checking %s...\n", dir)
 
@@ -132,6 +144,7 @@ var importImageCmd = &cobra.Command{
 		go func() {
 			<-cc
 			cleanupDB()
+			serDone()
 			fmt.Println()
 			log.Println("Bye!")
 			os.Exit(1)
@@ -212,57 +225,6 @@ var importImageCmd = &cobra.Command{
 			}
 		}
 
-		// check direct upload
-		var baseURL string
-		if method == "" || method == directUpload {
-			method = directUpload
-			var localServer *http.Server
-			var port int
-			log.Println("Checking direct upload...")
-			pu, _, err2 := web.PreferedLocalURL(verbose)
-			baseURL = ""
-			if err2 != nil {
-				log.Println("Client is invisible. Direct upload is not supported!")
-				log.Println("Using S3.")
-				method = "s3"
-			} else {
-				log.Printf("Direct upload is supported over %q!\n", pu.Hostname())
-
-				// setup local web server
-				s := web.Server{Directory: dir, Address: pu.Hostname() + ":"}
-				localServer, port, err = s.ServeStatic(verbose)
-				if err != nil {
-					panic(err)
-				}
-				baseURL = fmt.Sprintf("http://%s:%d", pu.Hostname(), port)
-				log.Printf("Serving files at %s\n", baseURL)
-
-				defer func() {
-					if err = localServer.Shutdown(context.TODO()); err != nil {
-						panic(err)
-					}
-				}()
-			}
-		}
-		if method == "s3" || method == "oss" {
-			log.Printf("Using %s to upload\n", method)
-			if bucket == "" {
-				b, err2 := gql.SuggestedBucket("image", method)
-				if err2 != nil {
-					panic(err2)
-				}
-				bucket = b
-			} else {
-				b, buckets, err2 := gql.QueryBucket("image", method, bucket)
-				if err2 != nil {
-					log.Printf("Valid buckets are: %q\n", buckets)
-					return
-				}
-				bucket = b
-			}
-			log.Printf("Bucket %q is chosen", bucket)
-		}
-
 		// read from local db, register and upload
 		imgc, errc := db.AllImage(localDB)
 		ruRes := make(chan db.Image)
@@ -320,7 +282,7 @@ var importImageCmd = &cobra.Command{
 			Images:  imgc,
 			Done:    done,
 			Result:  checkerRes,
-			Timeout: time.Minute,
+			Timeout: time.Minute * time.Duration(timeout),
 		}
 		checker.Run(thread)
 
@@ -387,10 +349,14 @@ func init() {
 	importImageCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
 	importImageCmd.Flags().StringVarP(&report, "report", "r", report, "Path of csv upload report output")
 	importImageCmd.Flags().StringVarP(&method, "method", "m", method, "Desired method of upload: 'direct', 's3' or 'oss'")
+	importImageCmd.Flags().IntVarP(&timeout, "timeout", "t", timeout, "Timeout of checking upload state in seconds")
+	importImageCmd.Flags().StringVar(&ip, "ip", ip, "IP address of ad-hoc local server for direct upload.")
+	importImageCmd.Flags().StringVar(&port, "port", port, "Port of ad-hoc local server for direct upload.")
 	importImageCmd.Flags().StringVarP(&bucket, "bucket", "b", bucket, "Desired bucket to upload for method: 's3' or 'oss'")
 	importImageCmd.Flags().BoolVarP(&assumeYes, "assumeyes", "y", assumeYes, "Assume yes; assume that the answer to any question which would be asked is yes")
 	importImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	importImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores x 4")
 	importImageCmd.MarkFlagRequired("id")
 	importImageCmd.MarkFlagRequired("dir")
+	importImageCmd.MarkFlagRequired("method")
 }
