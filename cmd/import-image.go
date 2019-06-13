@@ -44,7 +44,7 @@ var importImageCmd = &cobra.Command{
 		}()
 
 		// pre-checks general
-		method = strings.ToLower(method)
+		method = service.SuggestUploadMethod(method, "image")
 		if err := service.Check(
 			nil,
 			service.CheckAPIServer(),
@@ -358,5 +358,4 @@ func init() {
 	importImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores x 4")
 	importImageCmd.MarkFlagRequired("id")
 	importImageCmd.MarkFlagRequired("dir")
-	importImageCmd.MarkFlagRequired("method")
 }
