@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
 
@@ -38,6 +37,7 @@ var importModelCmd = &cobra.Command{
 		}()
 
 		// pre-checks general
+		method = service.SuggestUploadMethod(method, "model")
 		if err := service.Check(
 			nil,
 			service.CheckAPIServer(),
@@ -71,7 +71,6 @@ var importModelCmd = &cobra.Command{
 		proj, _ := gql.SearchProjectID(id, true)
 
 		// setup direct upload server
-		method = strings.ToLower(method)
 		var serDone func()
 		var baseURL, directURL string
 		filename := filepath.Base(model)
@@ -85,21 +84,13 @@ var importModelCmd = &cobra.Command{
 		}
 
 		// set bucket
-		if method == service.S3UploadMethod {
-			if bucket == "" {
-				b, err2 := gql.SuggestedBucket("model", method)
-				if err2 != nil {
-					panic(err2)
-				}
-				bucket = b
-			} else {
-				b, buckets, err2 := gql.QueryBucket("model", method, bucket)
-				if err2 != nil {
-					log.Printf("Valid buckets are: %q\n", buckets)
-					return
-				}
-				bucket = b
-			}
+		b, err := service.SuggestBucket(method, bucket, "model")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		bucket = b
+		if bucket != "" {
 			log.Printf("Bucket %q is chosen", bucket)
 		}
 

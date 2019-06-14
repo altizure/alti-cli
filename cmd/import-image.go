@@ -71,28 +71,18 @@ var importImageCmd = &cobra.Command{
 		}
 
 		// set bucket
-		if method == "s3" || method == "oss" {
-			log.Printf("Using %s to upload\n", method)
-			if bucket == "" {
-				b, err2 := gql.SuggestedBucket("image", method)
-				if err2 != nil {
-					panic(err2)
-				}
-				bucket = b
-			} else {
-				b, buckets, err2 := gql.QueryBucket("image", method, bucket)
-				if err2 != nil {
-					log.Printf("Valid buckets are: %q\n", buckets)
-					return
-				}
-				bucket = b
-			}
+		b, err := service.SuggestBucket(method, bucket, "image")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		bucket = b
+		if bucket != "" {
 			log.Printf("Bucket %q is chosen", bucket)
 		}
 
-		log.Printf("Checking %s...\n", dir)
-
 		// stats
+		log.Printf("Checking %s...\n", dir)
 		var totalGP float64
 		var totalImg int
 		var totalByte datasize.ByteSize
