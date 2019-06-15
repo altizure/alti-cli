@@ -2,12 +2,13 @@ package gql
 
 import (
 	"context"
+	"time"
 
 	"github.com/machinebox/graphql"
 )
 
 // Version gets the current version of api server.
-func Version(endpoint, key string) string {
+func Version(endpoint, key string) (string, time.Duration) {
 	client := graphql.NewClient(endpoint + "/graphql")
 
 	req := graphql.NewRequest(`
@@ -21,14 +22,16 @@ func Version(endpoint, key string) string {
 
 	ctx := context.Background()
 	var res versionsRes
+	start := time.Now()
 	if err := client.Run(ctx, req, &res); err != nil {
-		return "Offline"
+		return "Offline", 0
 	}
-	return res.Versions.Api
+	elapsed := time.Since(start)
+	return res.Versions.API, elapsed
 }
 
 type versionsRes struct {
 	Versions struct {
-		Api string
+		API string
 	}
 }

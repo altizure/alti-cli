@@ -39,6 +39,7 @@ var accountCmd = &cobra.Command{
 				var super, sales bool
 				var iCloud, mCloud []string
 				var version string
+				var resTime time.Duration
 
 				go func() {
 					mode = gql.CheckSystemMode(v.Endpoint, p.Key)
@@ -61,7 +62,7 @@ var accountCmd = &cobra.Command{
 					wg.Done()
 				}()
 				go func() {
-					version = gql.Version(v.Endpoint, p.Key)
+					version, resTime = gql.Version(v.Endpoint, p.Key)
 					wg.Done()
 				}()
 
@@ -71,7 +72,7 @@ var accountCmd = &cobra.Command{
 				if bson.IsObjectIdHex(p.Name) {
 					nameOrEmail = p.Email
 				}
-				r := []string{p.ID, v.Endpoint, nameOrEmail, mode, "", "", "", "", "", ""}
+				r := []string{p.ID, v.Endpoint, nameOrEmail, mode, "", "", "", "", "", "", ""}
 				if config.Active == p.ID {
 					r[4] = "Active"
 				}
@@ -84,6 +85,7 @@ var accountCmd = &cobra.Command{
 				r[7] = strings.Join(iCloud, ",")
 				r[8] = strings.Join(mCloud, ",")
 				r[9] = version
+				r[10] = resTime.String()
 				accounts = append(accounts, r)
 			}
 		}
@@ -91,7 +93,7 @@ var accountCmd = &cobra.Command{
 
 		// render
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"ID", "Endpoint", "Username/Email", "Status", "Select", "Sales", "Super", "Image Cloud", "Model Cloud", "Version"})
+		table.SetHeader([]string{"ID", "Endpoint", "Username/Email", "Status", "Select", "Sales", "Super", "Image Cloud", "Model Cloud", "Version", "Response Time"})
 		table.AppendBulk(accounts)
 		table.Render()
 	},
