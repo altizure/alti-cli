@@ -33,11 +33,11 @@ var accountCmd = &cobra.Command{
 		for _, v := range config.Scopes {
 			for _, p := range v.Profiles {
 				var wg sync.WaitGroup
-				wg.Add(5)
+				wg.Add(6)
 
 				var mode string
 				var super, sales bool
-				var cloud []string
+				var iCloud, mCloud []string
 				var version string
 
 				go func() {
@@ -53,7 +53,11 @@ var accountCmd = &cobra.Command{
 					wg.Done()
 				}()
 				go func() {
-					cloud = gql.SupportedCloud(v.Endpoint, p.Key, "image")
+					iCloud = gql.SupportedCloud(v.Endpoint, p.Key, "image")
+					wg.Done()
+				}()
+				go func() {
+					mCloud = gql.SupportedCloud(v.Endpoint, p.Key, "model")
 					wg.Done()
 				}()
 				go func() {
@@ -67,7 +71,7 @@ var accountCmd = &cobra.Command{
 				if bson.IsObjectIdHex(p.Name) {
 					nameOrEmail = p.Email
 				}
-				r := []string{p.ID, v.Endpoint, nameOrEmail, mode, "", "", "", "", ""}
+				r := []string{p.ID, v.Endpoint, nameOrEmail, mode, "", "", "", "", "", ""}
 				if config.Active == p.ID {
 					r[4] = "Active"
 				}
@@ -77,8 +81,9 @@ var accountCmd = &cobra.Command{
 				if super {
 					r[6] = "Yes"
 				}
-				r[7] = strings.Join(cloud, ",")
-				r[8] = version
+				r[7] = strings.Join(iCloud, ",")
+				r[8] = strings.Join(mCloud, ",")
+				r[9] = version
 				accounts = append(accounts, r)
 			}
 		}
@@ -86,7 +91,7 @@ var accountCmd = &cobra.Command{
 
 		// render
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"ID", "Endpoint", "Username/Email", "Status", "Select", "Sales", "Super", "Image Upload Cloud", "Version"})
+		table.SetHeader([]string{"ID", "Endpoint", "Username/Email", "Status", "Select", "Sales", "Super", "Image Cloud", "Model Cloud", "Version"})
 		table.AppendBulk(accounts)
 		table.Render()
 	},
