@@ -345,48 +345,61 @@ func TestBytesToMB(t *testing.T) {
 	}
 }
 
-func TestSplitFile(t *testing.T) {
-	original, err := rand.Bytes(1024)
+func TestSplitMerge(t *testing.T) {
+	size := 1024
+	original, err := rand.Bytes(size)
 	if err != nil {
 		t.Error(err)
 	}
-
 	tmpDir, err := ioutil.TempDir("", "")
 	if err != nil {
 		t.Error(err)
 	}
 	defer os.RemoveAll(tmpDir)
 
-	data := filepath.Join(tmpDir, "data")
-	err = ioutil.WriteFile(data, original, 0644)
-	if err != nil {
-		t.Error(err)
-	}
-
-	parts, err := SplitFile(data, tmpDir, 10)
-	if err != nil {
-		t.Error(err)
-	}
-
-	var joined []byte
-	for _, p := range parts {
-		path := filepath.Join(tmpDir, p)
-		f, err := os.Open(path)
+	var parts []string
+	t.Run("Split", func(t *testing.T) {
+		data := filepath.Join(tmpDir, "data")
+		err = ioutil.WriteFile(data, original, 0644)
 		if err != nil {
 			t.Error(err)
 		}
-		bytes := make([]byte, 10)
+
+		parts, err = SplitFile(data, tmpDir, 10)
+		if err != nil {
+			t.Error(err)
+		}
+	})
+
+	t.Run("Merge", func(t *testing.T) {
+		var paths []string
+		for _, p := range parts {
+			paths = append(paths, filepath.Join(tmpDir, p))
+		}
+		merged := filepath.Join(tmpDir, "merged")
+		n, err := MergeFile(paths, merged)
+		if err != nil {
+			t.Error(err)
+		}
+		if n != size {
+			t.Errorf("Number of bytes written is incorrect\nGot %v\nWant %d\n", n, size)
+		}
+
+		f, err := os.Open(merged)
+		if err != nil {
+			t.Error(err)
+		}
+		bs := make([]byte, n)
 		buffer := bufio.NewReader(f)
-		n, err := buffer.Read(bytes)
+		_, err = buffer.Read(bs)
 		if err != nil {
 			t.Error(err)
 		}
-		joined = append(joined, bytes[:n]...)
 		f.Close()
-	}
 
-	equal := bytes.Equal(original, joined)
-	if !equal {
-		t.Errorf("Bytes are not equal\nGot %v\nWant %v", joined, original)
-	}
+		equal := bytes.Equal(original, bs)
+		if !equal {
+			t.Errorf("Bytes are not equal\nGot %v\nWant %v", bs, original)
+		}
+	})
 }
