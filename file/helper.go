@@ -1,6 +1,7 @@
 package file
 
 import (
+	"bufio"
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
@@ -219,4 +220,40 @@ func SplitFile(file, outDir string, chunkSize int64) ([]string, error) {
 	}
 
 	return partNames, nil
+}
+
+// MergeFile merges file parts into one single binary.
+// It returns the number of bytes written and an error, if any.
+func MergeFile(parts []string, output string) (int, error) {
+	var merged []byte
+	for _, p := range parts {
+		f, err := os.Open(p)
+		if err != nil {
+			return 0, err
+		}
+		stat, err := f.Stat()
+		if err != nil {
+			return 0, err
+		}
+		bytes := make([]byte, stat.Size())
+		buffer := bufio.NewReader(f)
+		n, err := buffer.Read(bytes)
+		if err != nil {
+			return 0, err
+		}
+		merged = append(merged, bytes[:n]...)
+		f.Close()
+	}
+
+	// write back
+	f, err := os.Create(output)
+	if err != nil {
+		return 0, err
+	}
+	n, err := f.Write(merged)
+	if err != nil {
+		return 0, err
+	}
+
+	return n, nil
 }
