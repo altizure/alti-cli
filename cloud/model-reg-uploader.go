@@ -100,7 +100,7 @@ func (mru *ModelRegUploader) s3UploadMulti() (string, error) {
 	}
 
 	// c. signal completing multipart upload
-	return gql.DoneModelUpload(mru.PID)
+	return gql.DoneModelUpload(mru.PID, true)
 }
 
 func (mru *ModelRegUploader) s3UploadMulti7z() (string, error) {
@@ -119,7 +119,7 @@ func (mru *ModelRegUploader) s3UploadMulti7z() (string, error) {
 	}
 
 	// c. signal completing multipart upload
-	return gql.DoneModelUpload(mru.PID)
+	return gql.DoneModelUpload(mru.PID, false)
 }
 
 // uploadParts registers and uploads each part to s3.

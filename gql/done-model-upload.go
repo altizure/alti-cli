@@ -9,15 +9,16 @@ import (
 )
 
 // DoneModelUpload signals the completion of (multipart) model upload.
+// Args merge tell if to merge the multiparts first.
 // Return the state of the project.
-func DoneModelUpload(pid string) (string, error) {
+func DoneModelUpload(pid string, merge bool) (string, error) {
 	config := config.Load()
 	active := config.GetActive()
 	client := graphql.NewClient(active.Endpoint + "/graphql")
 
 	req := graphql.NewRequest(`
-		mutation ($pid: ID!) {
-		  doneModelUpload(id: $pid) {
+		mutation ($pid: ID!, $merge: Boolean) {
+		  doneModelUpload(id: $pid, merge: $merge) {
 		    id
 		    importedState
 		  }
@@ -28,6 +29,7 @@ func DoneModelUpload(pid string) (string, error) {
 
 	// set variables
 	req.Var("pid", pid)
+	req.Var("merge", merge)
 
 	// define a Context for the request
 	ctx := context.Background()

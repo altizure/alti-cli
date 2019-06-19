@@ -52,14 +52,14 @@ func RegisterModelS3(pid, bucket, filename string) (*types.Model, string, error)
 		return nil, "", errors.ErrModelReg
 	}
 
-	img := types.Model{
+	m := types.Model{
 		ID:       res.UploadModelS3.File.ID,
 		State:    res.UploadModelS3.File.State,
 		Name:     res.UploadModelS3.File.Name,
 		Filename: res.UploadModelS3.File.Filename,
 	}
 
-	return &img, url, nil
+	return &m, url, nil
 }
 
 type regModelS3Res struct {

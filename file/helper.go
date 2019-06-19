@@ -199,7 +199,7 @@ func SplitFile(file, outDir string, chunkSize int64) ([]string, error) {
 	}
 
 	totalParts := uint64(math.Ceil(float64(size) / float64(chunkSize)))
-	digit := int(math.Ceil(math.Log(float64(totalParts)) / math.Log(26)))
+	digit := int(math.Ceil(math.Log10(float64(totalParts))))
 
 	for i := uint64(0); i < totalParts; i++ {
 		partSize := chunkSize
