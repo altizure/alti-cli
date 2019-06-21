@@ -7,6 +7,8 @@ const (
 	ErrNoConfig AppError = "app: no config"
 	// ErrNotLogin is returned when user is not login.
 	ErrNotLogin AppError = "app: not login"
+	// ErrErrorCodeInvalid is returned when the input altizure error code is invalid.
+	ErrErrorCodeInvalid AppError = "app: invalid error code"
 	// ErrProfileNotFound is returned when the queried profile is not found.
 	ErrProfileNotFound ConfigError = "config: profile not found"
 	// ErrProfileNotRemovable is returned when the default profile is chosen to be removed.
