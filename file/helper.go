@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image"
 	"io/ioutil"
+	"log"
 	"math"
 	"regexp"
 
@@ -174,7 +175,7 @@ func WalkFiles(done <-chan struct{}, root string, skip string) (<-chan string, <
 // If chunkSize is larger than filesize, do nothing.
 // If chunkSize is non-positive, will reset to 100 MB.
 // Return filenames of parts.
-func SplitFile(file, outDir string, chunkSize int64) ([]string, error) {
+func SplitFile(file, outDir string, chunkSize int64, verbose bool) ([]string, error) {
 	if chunkSize <= 0 {
 		chunkSize = 100 * (1 << 20) // 100MB
 	}
@@ -211,6 +212,10 @@ func SplitFile(file, outDir string, chunkSize int64) ([]string, error) {
 
 		partName := fmt.Sprintf("%s.part.%0*d", baseName, digit, i+1)
 		partPath := fmt.Sprintf("%s/%s", outDir, partName)
+
+		if verbose {
+			log.Printf("Writing %q\n", partName)
+		}
 
 		err := ioutil.WriteFile(partPath, buf, 0644)
 		if err != nil {

@@ -88,7 +88,7 @@ func (mru *ModelRegUploader) s3UploadMulti() (string, error) {
 	log.Printf("Created dir %q for storing parts\n", tmpDir)
 	defer mru.Done()
 
-	parts, err := file.SplitFile(mru.ModelPath, tmpDir, 0)
+	parts, err := file.SplitFile(mru.ModelPath, tmpDir, 0, mru.Verbose)
 	if err != nil {
 		return "", err
 	}
