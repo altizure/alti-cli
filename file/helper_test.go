@@ -365,7 +365,7 @@ func TestSplitMerge(t *testing.T) {
 			t.Error(err)
 		}
 
-		parts, err = SplitFile(data, tmpDir, 10)
+		parts, err = SplitFile(data, tmpDir, 10, false)
 		if err != nil {
 			t.Error(err)
 		}

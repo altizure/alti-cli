@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/jackytck/alti-cli/errors"
@@ -12,7 +14,7 @@ import (
 )
 
 var outDir string
-var chunkSize int64
+var chunkSize int64 = 100
 
 // splitCmd represents the split command
 var splitCmd = &cobra.Command{
@@ -44,8 +46,22 @@ var splitCmd = &cobra.Command{
 			return
 		}
 
+		// warn if too many parts
+		filesize, _ := file.Filesize(model)
+		chunkSize = chunkSize * (1 << 20) // 2^20, MB to B
+		numParts := filesize / int64(chunkSize)
+		if numParts > 100 {
+			var ans string
+			fmt.Printf("Continue to split into %d parts or not? (Y/N): ", numParts)
+			fmt.Scanln(&ans)
+			ans = strings.ToUpper(ans)
+			if ans != "Y" && ans != "YES" {
+				log.Println("Cancelled.")
+				return
+			}
+		}
+
 		// split
-		chunkSize = chunkSize * (1 << 20) // 2^20, B to MB
 		parts, err := file.SplitFile(model, outDir, chunkSize, verbose)
 		errors.Must(err)
 

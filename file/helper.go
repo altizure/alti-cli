@@ -206,6 +206,10 @@ func SplitFile(file, outDir string, chunkSize int64, verbose bool) ([]string, er
 		partSize := chunkSize
 		if i == totalParts-1 {
 			partSize = size % chunkSize
+			// evenly divide exactly
+			if partSize == 0 {
+				partSize = chunkSize
+			}
 		}
 		buf := make([]byte, partSize)
 		f.Read(buf)
