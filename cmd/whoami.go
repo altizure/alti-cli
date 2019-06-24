@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -21,9 +23,15 @@ var whoamiCmd = &cobra.Command{
 		}
 		if user.Username == "" {
 			fmt.Printf("You are not login in!\nLogin with 'alti-cli login'\n")
-		} else {
-			fmt.Printf("%s: %s\n", endpoint, user.Username)
+			return
 		}
+
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"Endpoint", "Username/Email", "Country", "Star", "Project", "Planet", "Fans", "Following", "Joined"})
+		row := []string{endpoint}
+		row = append(row, user.RowString()...)
+		table.Append(row)
+		table.Render()
 	},
 }
 

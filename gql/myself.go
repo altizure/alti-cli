@@ -24,6 +24,15 @@ func MySelf() (string, *types.User, error) {
 		      email
 		      name
 					username
+					country
+					stats {
+						star
+						project
+						planet
+						follower
+						following
+					}
+					joined
 				}
 	    }
 		}
@@ -49,20 +58,11 @@ func MySelf() (string, *types.User, error) {
 		return "", nil, errors.ErrNotLogin
 	}
 
-	u := types.User{
-		Email:    res.My.Self.Email,
-		Name:     res.My.Self.Name,
-		Username: res.My.Self.Username,
-	}
-	return active.Endpoint, &u, nil
+	return active.Endpoint, &res.My.Self, nil
 }
 
 type mySelfRes struct {
 	My struct {
-		Self struct {
-			Email    string
-			Name     string
-			Username string
-		}
+		Self types.User
 	}
 }
