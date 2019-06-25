@@ -48,21 +48,9 @@ func RegisterImageURL(pid, url, filename, checksum string) (*types.Image, error)
 		return nil, errors.ErrImgReg
 	}
 
-	img := types.Image{
-		ID:       res.UploadImageURL.ID,
-		State:    res.UploadImageURL.State,
-		Name:     res.UploadImageURL.Name,
-		Filename: res.UploadImageURL.Filename,
-	}
-
-	return &img, nil
+	return &res.UploadImageURL, nil
 }
 
 type regImgURLRes struct {
-	UploadImageURL struct {
-		ID       string
-		State    string
-		Name     string
-		Filename string
-	}
+	UploadImageURL types.Image
 }

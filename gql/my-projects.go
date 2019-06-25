@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 	"net/url"
-	"time"
 
 	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/errors"
@@ -74,25 +73,9 @@ func MyProjects(first, last int, before, after, search string) ([]types.Project,
 
 	var ret []types.Project
 	for _, e := range res.My.AllProjects.Edges {
-		n := e.Node
-		p := types.Project{
-			ID:          n.ID,
-			Name:        n.Name,
-			IsImported:  n.IsImported,
-			ProjectType: n.ProjectType,
-			NumImage:    n.NumImage,
-			GigaPixel:   n.GigaPixel,
-			TaskState:   n.TaskState,
-			Date:        n.Date,
-		}
-		ret = append(ret, p)
+		ret = append(ret, e.Node)
 	}
-	pi := types.PageInfo{
-		HasNextPage:     res.My.AllProjects.PageInfo.HasNextPage,
-		HasPreviousPage: res.My.AllProjects.PageInfo.HasPreviousPage,
-		StartCursor:     res.My.AllProjects.PageInfo.StartCursor,
-		EndCursor:       res.My.AllProjects.PageInfo.EndCursor,
-	}
+	pi := res.My.AllProjects.PageInfo
 	return ret, &pi, res.My.AllProjects.TotalCount, nil
 }
 
@@ -100,23 +83,9 @@ type myProjsRes struct {
 	My struct {
 		AllProjects struct {
 			TotalCount int
-			PageInfo   struct {
-				HasNextPage     bool
-				HasPreviousPage bool
-				StartCursor     string
-				EndCursor       string
-			}
-			Edges []struct {
-				Node struct {
-					ID          string
-					Name        string
-					IsImported  bool
-					ProjectType string
-					NumImage    int
-					GigaPixel   float64
-					TaskState   string
-					Date        time.Time
-				}
+			PageInfo   types.PageInfo
+			Edges      []struct {
+				Node types.Project
 			}
 		}
 	}

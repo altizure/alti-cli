@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 	"net/url"
-	"time"
 
 	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/errors"
@@ -51,36 +50,13 @@ func Project(id string) (*types.Project, error) {
 		}
 	}
 
-	r := res.Project
-	if r.ID == "" {
+	p := res.Project
+	if p.ID == "" {
 		return nil, errors.ErrProjNotFound
 	}
-
-	p := types.Project{
-		ID:            r.ID,
-		Name:          r.Name,
-		IsImported:    r.IsImported,
-		ImportedState: r.ImportedState,
-		ProjectType:   r.ProjectType,
-		NumImage:      r.NumImage,
-		GigaPixel:     r.GigaPixel,
-		TaskState:     r.TaskState,
-		Date:          r.Date,
-	}
-
 	return &p, nil
 }
 
 type projRes struct {
-	Project struct {
-		ID            string
-		Name          string
-		IsImported    bool
-		ImportedState string
-		ProjectType   string
-		NumImage      int
-		GigaPixel     float64
-		TaskState     string
-		Date          time.Time
-	}
+	Project types.Project
 }

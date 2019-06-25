@@ -2,7 +2,6 @@ package gql
 
 import (
 	"context"
-	"time"
 
 	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/errors"
@@ -45,32 +44,9 @@ func RemoveProject(pid string) (*types.Project, error) {
 	if id == "" {
 		return nil, errors.ErrProjRemove
 	}
-	return res.toProject(), nil
+	return &res.RemoveProject, nil
 }
 
 type removeProjRes struct {
-	RemoveProject struct {
-		ID          string
-		Name        string
-		IsImported  bool
-		ProjectType string
-		NumImage    int
-		GigaPixel   float64
-		TaskState   string
-		Date        time.Time
-	}
-}
-
-func (rp *removeProjRes) toProject() *types.Project {
-	r := rp.RemoveProject
-	return &types.Project{
-		ID:          r.ID,
-		Name:        r.Name,
-		IsImported:  r.IsImported,
-		ProjectType: r.ProjectType,
-		NumImage:    r.NumImage,
-		GigaPixel:   r.GigaPixel,
-		TaskState:   r.TaskState,
-		Date:        r.Date,
-	}
+	RemoveProject types.Project
 }

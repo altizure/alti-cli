@@ -49,29 +49,15 @@ func ProjectImage(pid, iid string) (*types.Image, error) {
 		}
 	}
 
-	r := res.Project.Image
-	if r.State == "" {
+	i := res.Project.Image
+	if i.State == "" {
 		return nil, errors.ErrImgNotFound
-	}
-
-	i := types.Image{
-		ID:       r.ID,
-		State:    r.State,
-		Name:     r.Name,
-		Filename: r.Filename,
-		Error:    r.Error,
 	}
 	return &i, nil
 }
 
 type projImgRes struct {
 	Project struct {
-		Image struct {
-			ID       string
-			State    string
-			Name     string
-			Filename string
-			Error    []string
-		}
+		Image types.Image
 	}
 }

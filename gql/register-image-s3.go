@@ -54,24 +54,12 @@ func RegisterImageS3(pid, bucket, filename, imageType, checksum string) (*types.
 		return nil, "", errors.ErrImgReg
 	}
 
-	img := types.Image{
-		ID:       res.UploadImageS3.Image.ID,
-		State:    res.UploadImageS3.Image.State,
-		Name:     res.UploadImageS3.Image.Name,
-		Filename: res.UploadImageS3.Image.Filename,
-	}
-
-	return &img, url, nil
+	return &res.UploadImageS3.Image, url, nil
 }
 
 type regImgS3Res struct {
 	UploadImageS3 struct {
 		URL   string
-		Image struct {
-			ID       string
-			State    string
-			Name     string
-			Filename string
-		}
+		Image types.Image
 	}
 }

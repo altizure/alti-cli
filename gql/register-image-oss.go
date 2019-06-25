@@ -118,14 +118,7 @@ func RegisterImageOSS(pid, bucket, filename, imageType, checksum string) (*types
 		return nil, errors.ErrImgReg
 	}
 
-	img := types.Image{
-		ID:       res.UploadImageOSS.Image.ID,
-		State:    res.UploadImageOSS.Image.State,
-		Name:     res.UploadImageOSS.Image.Name,
-		Filename: res.UploadImageOSS.Image.Filename,
-	}
-
-	return &img, nil
+	return &res.UploadImageOSS.Image, nil
 }
 
 type stsRes struct {
@@ -136,11 +129,6 @@ type stsRes struct {
 
 type regImgOSSRes struct {
 	UploadImageOSS struct {
-		Image struct {
-			ID       string
-			State    string
-			Name     string
-			Filename string
-		}
+		Image types.Image
 	}
 }

@@ -48,21 +48,9 @@ func RegisterModelURL(pid, url, filename, checksum string) (*types.ImportedModel
 		return nil, errors.ErrModelReg
 	}
 
-	model := types.ImportedModel{
-		ID:       res.UploadModelURL.ID,
-		State:    res.UploadModelURL.State,
-		Name:     res.UploadModelURL.Name,
-		Filename: res.UploadModelURL.Filename,
-	}
-
-	return &model, nil
+	return &res.UploadModelURL, nil
 }
 
 type regModelURLRes struct {
-	UploadModelURL struct {
-		ID       string
-		State    string
-		Name     string
-		Filename string
-	}
+	UploadModelURL types.ImportedModel
 }
