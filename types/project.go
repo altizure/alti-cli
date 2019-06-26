@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/olekukonko/tablewriter"
@@ -19,11 +20,12 @@ type Project struct {
 	GigaPixel     float64
 	TaskState     string
 	Date          time.Time
+	CloudPath     []CloudPath
 }
 
 func (p Project) String() string {
-	pat := "ID: %s\tName: %s\tIsImported: %v\tProjectType: %s\tNumImage: %d\tGigaPixel: %.2f\tTaskState: %s"
-	return fmt.Sprintf(pat, p.ID, p.Name, p.IsImported, p.ProjectType, p.NumImage, p.GigaPixel, p.TaskState)
+	pat := "ID: %s\tName: %s\tIsImported: %v\tProjectType: %s\tNumImage: %d\tGigaPixel: %.2f\tTaskState: %s\tCloud: %v"
+	return fmt.Sprintf(pat, p.ID, p.Name, p.IsImported, p.ProjectType, p.NumImage, p.GigaPixel, p.TaskState, strings.Join(p.Cloud(), ", "))
 }
 
 // ProjectHeaderString gives a row of string for the table header.
@@ -36,8 +38,18 @@ func ProjectHeaderString() []string {
 		"Num Image",
 		"Giga-Pixel",
 		"Task State",
+		"Cloud",
 		"Date",
 	}
+}
+
+// Cloud returns the cloud keys of the project.
+func (p Project) Cloud() []string {
+	var ret []string
+	for _, c := range p.CloudPath {
+		ret = append(ret, c.Key)
+	}
+	return ret
 }
 
 // RowString gives a row of string for the table output.
@@ -50,6 +62,7 @@ func (p Project) RowString() []string {
 		fmt.Sprintf("%d", p.NumImage),
 		fmt.Sprintf("%.2f", p.GigaPixel),
 		p.TaskState,
+		strings.Join(p.Cloud(), ", "),
 		p.Date.Format("2006-01-02 15:04:05"),
 	}
 }

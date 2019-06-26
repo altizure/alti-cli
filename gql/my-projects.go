@@ -38,6 +38,9 @@ func MyProjects(first, last int, before, after, search string) ([]types.Project,
 							gigaPixel
 							taskState
 							date
+							cloudPath {
+								key
+							}
 						}
 					}
 				}

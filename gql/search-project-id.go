@@ -19,9 +19,9 @@ func SearchProjectID(id string, myProj bool) (*types.Project, error) {
 	// make a request
 	req := graphql.NewRequest(`
 		query ($id: String, $limit:Int, $myProj: Boolean) {
-		  search {
-		    projectID(id: $id, limit: $limit, myProject: $myProj) {
-		      id
+			search {
+				projectID(id: $id, limit: $limit, myProject: $myProj) {
+					id
 					name
 					isImported
 					projectType
@@ -29,8 +29,11 @@ func SearchProjectID(id string, myProj bool) (*types.Project, error) {
 					gigaPixel
 					taskState
 					date
-		    }
-		  }
+					cloudPath {
+						key
+					}
+				}
+			}
 		}
 	`)
 	req.Var("id", id)

@@ -27,6 +27,9 @@ func RemoveProject(pid string) (*types.Project, error) {
 				gigaPixel
 				taskState
 				date
+				cloudPath {
+					key
+				}
 			}
 		}
 	`)
