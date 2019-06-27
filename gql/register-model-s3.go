@@ -19,15 +19,15 @@ func RegisterModelS3(pid, bucket, filename string) (*types.Model, string, error)
 	// make a request
 	req := graphql.NewRequest(`
 		mutation ($id: ID!, $bucket: BucketS3Model!, $filename: String!) {
-		  uploadModelS3(id: $id, bucket: $bucket, filename: $filename) {
-		    url
-		    file {
-		      id
-		      state
-		      name
-		      filename
-		    }
-		  }
+			uploadModelS3(id: $id, bucket: $bucket, filename: $filename) {
+				url
+				file {
+					id
+					state
+					name
+					filename
+				}
+			}
 		}
 	`)
 	req.Header.Set("key", active.Key)

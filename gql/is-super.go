@@ -12,7 +12,7 @@ func IsSuper(endpoint, key, token string) bool {
 
 	req := graphql.NewRequest(`
 		{
-		  hello
+			hello
 		}
 	`)
 	req.Header.Set("key", key)

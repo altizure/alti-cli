@@ -18,12 +18,12 @@ func RegisterImageURL(pid, url, filename, checksum string) (*types.Image, error)
 	// make a request
 	req := graphql.NewRequest(`
 		mutation ($pid: ID!, $url: String!, $filename: String, $checksum: String) {
-		  uploadImageURL(pid: $pid, url: $url, filename: $filename, checksum: $checksum) {
-		    id
+			uploadImageURL(pid: $pid, url: $url, filename: $filename, checksum: $checksum) {
+				id
 				state
 				name
 				filename
-		  }
+			}
 		}
 	`)
 	req.Header.Set("key", active.Key)

@@ -20,10 +20,10 @@ func HasImage(pid, checksum string) (bool, error) {
 	// make a request
 	req := graphql.NewRequest(`
 		mutation hasImage($pid: ID!, $checksum: String!) {
-		  hasImage(pid: $pid, checksum: $checksum) {
-		    id
-		    state
-		  }
+			hasImage(pid: $pid, checksum: $checksum) {
+				id
+				state
+			}
 		}
 	`)
 	req.Header.Set("key", active.Key)

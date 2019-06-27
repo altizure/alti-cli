@@ -12,9 +12,9 @@ func CheckSystemMode(endpoint, key string) string {
 
 	req := graphql.NewRequest(`
 		{
-		  support {
-		    systemMode
-		  }
+			support {
+				systemMode
+			}
 		}
 	`)
 	req.Header.Set("key", key)

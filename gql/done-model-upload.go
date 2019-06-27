@@ -18,10 +18,10 @@ func DoneModelUpload(pid string, merge bool) (string, error) {
 
 	req := graphql.NewRequest(`
 		mutation ($pid: ID!, $merge: Boolean) {
-		  doneModelUpload(id: $pid, merge: $merge) {
-		    id
-		    importedState
-		  }
+			doneModelUpload(id: $pid, merge: $merge) {
+				id
+				importedState
+			}
 		}
 	`)
 	req.Header.Set("key", active.Key)

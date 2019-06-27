@@ -30,13 +30,13 @@ func GetErrorCodeInfo(code, lang string) (*ErrorCodeInfo, error) {
 
 	req := graphql.NewRequest(`
 		query ($code: PROJECT_ERROR_CODE, $lang: LOCALE_TYPE) {
-		  support {
-		    errorCodeInfo(code: $code, lang: $lang) {
-		      code
-		      description
-		      solution
-		    }
-		  }
+			support {
+				errorCodeInfo(code: $code, lang: $lang) {
+					code
+					description
+					solution
+				}
+			}
 		}
 	`)
 	req.Header.Set("key", active.Key)

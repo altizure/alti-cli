@@ -13,9 +13,9 @@ func Version(endpoint, key string) (string, time.Duration) {
 
 	req := graphql.NewRequest(`
 		{
-		  versions {
-		    api
-		  }
+			versions {
+				api
+			}
 		}
 	`)
 	req.Header.Set("key", key)

@@ -31,12 +31,12 @@ func imageBucketSuggestion(cloud string) (string, error) {
 	// make a request
 	req := graphql.NewRequest(`
 		{
-		  getGeoIPInfo {
-		    nearestBuckets {
-		      cloud
-		      bucket
-		    }
-		  }
+			getGeoIPInfo {
+				nearestBuckets {
+					cloud
+					bucket
+				}
+			}
 		}
 	`)
 	req.Header.Set("key", active.Key)
@@ -68,12 +68,12 @@ func modelBucketSuggestion(cloud string) (string, error) {
 	// make a request
 	req := graphql.NewRequest(`
 		{
-		  getGeoIPInfo {
-		    nearestModelBuckets {
-		      cloud
-		      bucket
-		    }
-		  }
+			getGeoIPInfo {
+				nearestModelBuckets {
+					cloud
+					bucket
+				}
+			}
 		}
 	`)
 	req.Header.Set("key", active.Key)

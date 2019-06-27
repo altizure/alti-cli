@@ -18,12 +18,12 @@ func RegisterModelURL(pid, url, filename, checksum string) (*types.ImportedModel
 	// make a request
 	req := graphql.NewRequest(`
 		mutation ($pid: ID!, $url: String!, $filename: String, $checksum: String) {
-		  uploadModelURL(pid: $pid, url: $url, filename: $filename, checksum: $checksum) {
-		    id
+			uploadModelURL(pid: $pid, url: $url, filename: $filename, checksum: $checksum) {
+				id
 				state
 				name
 				filename
-		  }
+			}
 		}
 	`)
 	req.Header.Set("key", active.Key)

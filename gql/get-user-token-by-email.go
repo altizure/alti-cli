@@ -14,7 +14,7 @@ func GetUserTokenByEmail(endpoint, appKey, email, password string, fresh bool) (
 	// make a request
 	req := graphql.NewRequest(`
 		mutation ($email: String!, $password: String!) {
-		  getUserToken(email: $email, password: $password, fresh: false)
+			getUserToken(email: $email, password: $password, fresh: false)
 		}
 	`)
 	req.Header.Set("key", appKey)
