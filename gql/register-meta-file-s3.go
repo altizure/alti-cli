@@ -49,7 +49,7 @@ func RegisterMetaFileS3(pid, bucket, filename string) (*types.MetaFile, string, 
 	mid := res.UploadMetaFileS3.File.ID
 	url := res.UploadMetaFileS3.URL
 	if mid == "" || url == "" {
-		return nil, "", errors.ErrModelReg
+		return nil, "", errors.ErrMetaReg
 	}
 
 	return &res.UploadMetaFileS3.File, url, nil

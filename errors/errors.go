@@ -61,6 +61,8 @@ const (
 	ErrModelMutateState UploadError = "upload: cannot not mutate model state"
 	// ErrModelReg is returned when a model could not be registered for uploading.
 	ErrModelReg UploadError = "upload: cannot register upload model"
+	// ErrMetaReg is returned when a meta file could not be registered for uploading.
+	ErrMetaReg UploadError = "upload: cannot register meta file"
 	// ErrClientQuery is returned when the input gql query file is not found.
 	ErrClientQuery ClientError = "client: query file not found"
 	// ErrClientVar is returned when the input gql variable file is not found.
