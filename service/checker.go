@@ -125,7 +125,7 @@ func CheckDirectUploadIPPort(ip, port string, logger LogFn) error {
 }
 
 // CheckPID checks if the pid of the right kind exists.
-// kind is "image" or "model".
+// kind is "image", "model" or "meta".
 func CheckPID(kind, pid string) CheckFn {
 	return func(logger LogFn) error {
 		p, err := gql.SearchProjectID(pid, true)
@@ -133,9 +133,20 @@ func CheckPID(kind, pid string) CheckFn {
 			logger("Project could not be found! Error:", err)
 			return err
 		}
-		if kind == "image" && p.IsImported || kind == "model" && !p.IsImported {
+		notFound := func() error {
 			logger("%q project could nont be found!", kind)
 			return errors.ErrProjNotFound
+		}
+		switch kind {
+		case "image":
+		case "meta":
+			if p.IsImported {
+				return notFound()
+			}
+		case "model":
+			if !p.IsImported {
+				return notFound()
+			}
 		}
 		return nil
 	}
