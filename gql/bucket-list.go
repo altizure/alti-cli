@@ -20,11 +20,14 @@ var bucketType = map[string]map[string]string{
 		"s3":    "BucketS3Model",
 		"minio": "BucketMinioModel",
 	},
+	"meta": {
+		"s3": "BucketS3",
+	},
 }
 
 // QueryBucket infers the exact bucket name from query string bucket.
-// 'kind' is 'image' or 'model'.
-// 'cloud' is 's3', 'oss' or 'minio'.
+// kind is "image", "model" or "meta".
+// cloud is "s3", "oss" or "minio".
 func QueryBucket(kind, cloud, bucket string) (string, []string, error) {
 	list, err := BucketList(kind, cloud)
 	if err != nil {
@@ -38,8 +41,8 @@ func QueryBucket(kind, cloud, bucket string) (string, []string, error) {
 }
 
 // BucketList returns a list of available buckets supported by the api server.
-// 'kind' is 'image' or 'model'.
-// 'cloud' is 's3', 'oss' or 'minio'.
+// kind is "image", "model" or "meta".
+// cloud is "s3", "oss" or "minio".
 func BucketList(kind, cloud string) ([]string, error) {
 	var ret []string
 

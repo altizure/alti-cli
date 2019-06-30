@@ -41,6 +41,18 @@ var importMetaCmd = &cobra.Command{
 		// get project
 		proj, _ := gql.SearchProjectID(id, true)
 
+		// set bucket
+		method = "s3"
+		b, err := service.SuggestBucket(method, bucket, "meta")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		bucket = b
+		if bucket != "" {
+			log.Printf("Bucket %q is chosen", bucket)
+		}
+
 		log.Printf("TODO: Uploading meta: %q to project: %q...\n", meta, proj.Name)
 	},
 }

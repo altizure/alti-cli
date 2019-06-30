@@ -10,11 +10,12 @@ import (
 )
 
 // SuggestedBucket returns the nearest bucket from api server.
-// 'kind' is 'image' or 'model'.
-// 'cloud' is 's3', 'oss' or 'minio'.
+// kind is "image", "model" or "meta".
+// cloud is "s3", "oss" or "minio".
 func SuggestedBucket(kind, cloud string) (string, error) {
 	switch kind {
 	case "image":
+	case "meta":
 		return imageBucketSuggestion(cloud)
 	case "model":
 		return modelBucketSuggestion(cloud)

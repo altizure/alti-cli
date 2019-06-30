@@ -51,7 +51,7 @@ func SuggestUploadMethod(method, kind string) string {
 // SuggestBucket suggests the best bucket if it is not set.
 // And check if the bucket is valid if is set.
 // Prefer the geo closest and supported one.
-// kind is "image" or "model".
+// kind is "image", "model" or "meta".
 func SuggestBucket(method, bucket, kind string) (string, error) {
 	if method == DirectUploadMethod {
 		return "", nil
