@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"log"
+	"path/filepath"
 	"time"
 
+	"github.com/jackytck/alti-cli/cloud"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/service"
 	"github.com/spf13/cobra"
@@ -53,7 +55,29 @@ var importMetaCmd = &cobra.Command{
 			log.Printf("Bucket %q is chosen", bucket)
 		}
 
-		log.Printf("TODO: Uploading meta: %q to project: %q...\n", meta, proj.Name)
+		filename := filepath.Base(meta)
+		_, url, err := gql.RegisterMetaFileS3(proj.ID, bucket, filename)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		trial := 5
+		for i := 0; i < trial; i++ {
+			err = cloud.PutS3(meta, url)
+			if err == nil {
+				break
+			}
+			if verbose {
+				log.Printf("Retrying (x %d) upload to S3 for %q\n", i+1, meta)
+			}
+			time.Sleep(time.Second)
+		}
+		if err != nil {
+			return
+		}
+
+		log.Printf("TODO: Check meta: %q state...\n", meta)
 	},
 }
 
