@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/jackytck/alti-cli/errors"
@@ -185,6 +186,20 @@ func CheckZip(f string) CheckFn {
 		if !isZip {
 			logger("Not a zip file: %q", f)
 			return errors.ErrFileNotZip
+		}
+		return nil
+	}
+}
+
+// CheckFilenames checks if filenames are valid.
+func CheckFilenames(filePath string, allowed []string) CheckFn {
+	return func(logger LogFn) error {
+		filename := filepath.Base(filePath)
+		_, valid := text.Contains(allowed, filename)
+		if !valid {
+			logger("Filename: %q is invalid", filename)
+			logger("Filename must be one of: [%v]", strings.Join(allowed, ", "))
+			return errors.ErrMetaFilenameInvalid
 		}
 		return nil
 	}

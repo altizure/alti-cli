@@ -37,6 +37,8 @@ const (
 	ErrFileImageDim FileError = "file: unknown image dimension"
 	// ErrFileChecksum is returned when the checksum of a file could not be computed.
 	ErrFileChecksum FileError = "file: unknown checksum"
+	// ErrMetaFilenameInvalid is returned when the filename of meta file is invalid.
+	ErrMetaFilenameInvalid FileError = "file: invalid meta filename"
 	// ErrImgReg is returned when an image could not be registered for uploading.
 	ErrImgReg UploadError = "upload: cannot register upload image"
 	// ErrImgInvalid is returned when an image is regarded as invalid by the server.

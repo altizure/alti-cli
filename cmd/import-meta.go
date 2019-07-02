@@ -12,6 +12,7 @@ import (
 )
 
 var meta string
+var validNames = []string{"camera.txt", "pose.txt", "group.txt"}
 
 // importMetaCmd represents the meta command
 var importMetaCmd = &cobra.Command{
@@ -35,6 +36,7 @@ var importMetaCmd = &cobra.Command{
 			// service.CheckUploadMethod("meta", method, ip, port),
 			service.CheckPID("meta", id),
 			service.CheckFile(meta),
+			service.CheckFilenames(meta, validNames),
 		); err != nil {
 			log.Println(err)
 			return
