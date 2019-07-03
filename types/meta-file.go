@@ -10,6 +10,6 @@ type MetaFile struct {
 	Filename string
 	Filesize float64
 	Date     time.Time
-	Chucksum string
+	Checksum string
 	Error    []string
 }
