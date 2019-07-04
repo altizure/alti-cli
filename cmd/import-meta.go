@@ -1,8 +1,12 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 	"time"
 
 	"github.com/jackytck/alti-cli/cloud"
@@ -45,6 +49,9 @@ var importMetaCmd = &cobra.Command{
 		// get project
 		proj, _ := gql.SearchProjectID(id, true)
 
+		// @TODO: direct upload
+		var serDone func()
+
 		// set bucket
 		method = "s3"
 		b, err := service.SuggestBucket(method, bucket, "meta")
@@ -57,29 +64,38 @@ var importMetaCmd = &cobra.Command{
 			log.Printf("Bucket %q is chosen", bucket)
 		}
 
-		filename := filepath.Base(meta)
-		_, url, err := gql.RegisterMetaFileS3(proj.ID, bucket, filename)
+		// register + upload + state check
+		mru := cloud.MetaFileRegUploader{
+			Method:   method,
+			PID:      proj.ID,
+			MetaPath: meta,
+			Filename: filepath.Base(meta),
+			Bucket:   bucket,
+			Timeout:  timeout,
+			Verbose:  verbose,
+		}
+
+		// capture and handle ctrl+c
+		cc := make(chan os.Signal)
+		signal.Notify(cc, os.Interrupt, syscall.SIGTERM)
+		go func() {
+			<-cc
+			fmt.Println()
+			if serDone != nil {
+				serDone()
+			}
+			mru.Done()
+			log.Println("Bye!")
+			os.Exit(1)
+		}()
+
+		state, err := mru.Run()
 		if err != nil {
-			log.Println(err)
+			log.Printf(err.Error())
 			return
 		}
 
-		trial := 5
-		for i := 0; i < trial; i++ {
-			err = cloud.PutS3(meta, url)
-			if err == nil {
-				break
-			}
-			if verbose {
-				log.Printf("Retrying (x %d) upload to S3 for %q\n", i+1, meta)
-			}
-			time.Sleep(time.Second)
-		}
-		if err != nil {
-			return
-		}
-
-		log.Printf("TODO: Check meta: %q state...\n", meta)
+		log.Printf("Successfully registered and uplaoded in state: %q!\n", state)
 	},
 }
 

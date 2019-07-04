@@ -11,16 +11,16 @@ import (
 )
 
 // ProjectMetaFile return the info of a project meta file.
-func ProjectMetaFile(pid, iid string) (*types.MetaFile, error) {
+func ProjectMetaFile(pid, mid string) (*types.MetaFile, error) {
 	config := config.Load()
 	active := config.GetActive()
 	client := graphql.NewClient(active.Endpoint + "/graphql")
 
 	// make a request
 	req := graphql.NewRequest(`
-		query ($pid: ID!, $iid: ID!) {
+		query ($pid: ID!, $mid: ID!) {
 			project(id: $pid) {
-				metaFile(id: $iid) {
+				metaFile(id: $mid) {
 					id
 					state
 					name
@@ -34,7 +34,7 @@ func ProjectMetaFile(pid, iid string) (*types.MetaFile, error) {
 		}
 	`)
 	req.Var("pid", pid)
-	req.Var("iid", iid)
+	req.Var("mid", mid)
 	req.Header.Set("key", active.Key)
 	req.Header.Set("altitoken", active.Token)
 

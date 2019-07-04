@@ -78,7 +78,6 @@ func (mru *ModelRegUploader) s3Upload() (string, error) {
 
 // s3UploadMulti uploads each multipart of a obj zip to s3.
 // Each part could be concatenated in raw binary form.
-// @TODO: tell server it is a simple binary split
 func (mru *ModelRegUploader) s3UploadMulti() (string, error) {
 	tmpDir, err := ioutil.TempDir("", "")
 	if err != nil {
