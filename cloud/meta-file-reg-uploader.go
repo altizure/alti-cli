@@ -114,7 +114,7 @@ func (mru *MetaFileRegUploader) checkState() (string, error) {
 			m, err := gql.ProjectMetaFile(mru.PID, mru.MID)
 			errors.Must(err)
 			s := m.State
-			if s != service.Pending && s != service.Ready {
+			if s != service.Pending {
 				stateC <- s
 				return
 			}
