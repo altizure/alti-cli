@@ -16,7 +16,7 @@ import (
 )
 
 var meta string
-var validNames = []string{"camera.txt", "pose.txt", "group.txt"}
+var validNames = []string{"camera.txt", "pose.txt", "group.txt", "initial.xms", "initial.xms.zip"}
 
 // importMetaCmd represents the meta command
 var importMetaCmd = &cobra.Command{

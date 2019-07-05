@@ -106,13 +106,18 @@ func (mru *MetaFileRegUploader) checkState() (string, error) {
 	}
 
 	stateC := make(chan string)
+	var stateErr error
 
 	// check per second
 	go func() {
 		log.Println("Checking state...")
 		for {
 			m, err := gql.ProjectMetaFile(mru.PID, mru.MID)
-			errors.Must(err)
+			if err != nil {
+				stateErr = err
+				stateC <- ""
+				return
+			}
 			s := m.State
 			if s != service.Pending {
 				stateC <- s
@@ -128,6 +133,9 @@ func (mru *MetaFileRegUploader) checkState() (string, error) {
 	case <-time.After(time.Second * timeout):
 		return service.Pending, errors.ErrClientTimeout
 	case state = <-stateC:
+		if stateErr != nil {
+			return state, stateErr
+		}
 		return state, nil
 	}
 }

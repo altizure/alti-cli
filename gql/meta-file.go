@@ -54,7 +54,7 @@ func ProjectMetaFile(pid, mid string) (*types.MetaFile, error) {
 
 	m := res.Project.MetaFile
 	if m.State == "" {
-		return nil, errors.ErrMetaNotFound
+		return nil, errors.ErrMetaMisc
 	}
 	return &m, nil
 }
