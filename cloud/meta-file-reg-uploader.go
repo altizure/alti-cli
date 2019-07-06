@@ -26,6 +26,16 @@ type MetaFileRegUploader struct {
 // Run starts the registration and uploading process.
 // Return the state of imported meta file.
 func (mru *MetaFileRegUploader) Run() (string, error) {
+	// check existence
+	exists, err := mru.isUploaded()
+	if err != nil {
+		return "", err
+	}
+	if exists {
+		return "", errors.ErrMetaExisted
+	}
+
+	// upload
 	switch mru.Method {
 	case service.DirectUploadMethod:
 		return mru.directUpload()
@@ -38,6 +48,14 @@ func (mru *MetaFileRegUploader) Run() (string, error) {
 // Done cleanups this uploader if user wants to terminate early.
 func (mru *MetaFileRegUploader) Done() error {
 	return nil
+}
+
+func (mru *MetaFileRegUploader) isUploaded() (bool, error) {
+	hash, err := mru.checksum()
+	if err != nil {
+		return false, err
+	}
+	return gql.HasMetaFile(mru.PID, hash)
 }
 
 // directUpload registers the meta file via direct upload method and query its state

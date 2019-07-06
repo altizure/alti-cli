@@ -69,6 +69,8 @@ const (
 	ErrModelReg UploadError = "upload: cannot register upload model"
 	// ErrMetaReg is returned when a meta file could not be registered for uploading.
 	ErrMetaReg UploadError = "upload: cannot register meta file"
+	// ErrMetaExisted is returned when a duplicated meta file is attempted to upload.
+	ErrMetaExisted UploadError = "upload: meta file alreay existed"
 	// ErrClientQuery is returned when the input gql query file is not found.
 	ErrClientQuery ClientError = "client: query file not found"
 	// ErrClientVar is returned when the input gql variable file is not found.
