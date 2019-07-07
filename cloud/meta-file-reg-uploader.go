@@ -21,6 +21,7 @@ type MetaFileRegUploader struct {
 	Bucket    string
 	Timeout   int
 	Verbose   bool
+	checksum  string
 }
 
 // Run starts the registration and uploading process.
@@ -51,23 +52,17 @@ func (mru *MetaFileRegUploader) Done() error {
 }
 
 func (mru *MetaFileRegUploader) isUploaded() (bool, error) {
-	hash, err := mru.checksum()
+	hash, err := mru.computeChecksum()
 	if err != nil {
 		return false, err
 	}
+	mru.checksum = hash
 	return gql.HasMetaFile(mru.PID, hash)
 }
 
 // directUpload registers the meta file via direct upload method and query its state
 // change until timeout. Return the state of meta file.
 func (mru *MetaFileRegUploader) directUpload() (string, error) {
-	// sha1sum
-	checksum, err := mru.checksum()
-	log.Println("sha1", checksum)
-	if err != nil {
-		return "", err
-	}
-
 	// register model
 	// im, err := gql.RegisterModelURL(mru.PID, mru.DirectURL, mru.Filename, checksum)
 	// if err != nil {
@@ -76,6 +71,7 @@ func (mru *MetaFileRegUploader) directUpload() (string, error) {
 	// log.Printf("Registered model with state: %q\n", im.State)
 	//
 	// return mru.checkState()
+	time.Sleep(time.Minute)
 	return "", errors.ErrNotImplemented
 }
 
@@ -158,8 +154,8 @@ func (mru *MetaFileRegUploader) checkState() (string, error) {
 	}
 }
 
-// checksum computes the SHA1 sum.
-func (mru *MetaFileRegUploader) checksum() (string, error) {
+// computeChecksum computes the SHA1 sum.
+func (mru *MetaFileRegUploader) computeChecksum() (string, error) {
 	if mru.Verbose {
 		log.Printf("Computing checksum: %q...\n", mru.Filename)
 	}

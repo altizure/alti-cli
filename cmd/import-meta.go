@@ -10,8 +10,10 @@ import (
 	"time"
 
 	"github.com/jackytck/alti-cli/cloud"
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/service"
+	"github.com/jackytck/alti-cli/web"
 	"github.com/spf13/cobra"
 )
 
@@ -49,11 +51,20 @@ var importMetaCmd = &cobra.Command{
 		// get project
 		proj, _ := gql.SearchProjectID(id, true)
 
-		// @TODO: direct upload
+		// local server for direct upload
 		var serDone func()
+		var baseURL, directURL string
+		filename := filepath.Base(meta)
+		if method == service.DirectUploadMethod {
+			bu, done, err := web.StartLocalServer(filepath.Dir(meta), ip, port, false)
+			errors.Must(err)
+			defer done()
+			serDone = done
+			baseURL = bu
+			directURL = fmt.Sprintf("%s/%s", baseURL, filename)
+		}
 
 		// set bucket
-		method = "s3"
 		b, err := service.SuggestBucket(method, bucket, "meta")
 		if err != nil {
 			log.Println(err)
@@ -66,13 +77,14 @@ var importMetaCmd = &cobra.Command{
 
 		// register + upload + state check
 		mru := cloud.MetaFileRegUploader{
-			Method:   method,
-			PID:      proj.ID,
-			MetaPath: meta,
-			Filename: filepath.Base(meta),
-			Bucket:   bucket,
-			Timeout:  timeout,
-			Verbose:  verbose,
+			Method:    method,
+			PID:       proj.ID,
+			MetaPath:  meta,
+			Filename:  filename,
+			DirectURL: directURL,
+			Bucket:    bucket,
+			Timeout:   timeout,
+			Verbose:   verbose,
 		}
 
 		// capture and handle ctrl+c
