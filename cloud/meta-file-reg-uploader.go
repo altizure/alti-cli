@@ -63,16 +63,14 @@ func (mru *MetaFileRegUploader) isUploaded() (bool, error) {
 // directUpload registers the meta file via direct upload method and query its state
 // change until timeout. Return the state of meta file.
 func (mru *MetaFileRegUploader) directUpload() (string, error) {
-	// register model
-	// im, err := gql.RegisterModelURL(mru.PID, mru.DirectURL, mru.Filename, checksum)
-	// if err != nil {
-	// 	return "", err
-	// }
-	// log.Printf("Registered model with state: %q\n", im.State)
-	//
-	// return mru.checkState()
-	time.Sleep(time.Minute)
-	return "", errors.ErrNotImplemented
+	// register meta file
+	mf, err := gql.RegisterMetaURL(mru.PID, mru.DirectURL, mru.Filename, mru.checksum)
+	if err != nil {
+		return "", err
+	}
+	log.Printf("Registered meta with state: %q\n", mf.State)
+
+	return mru.checkState()
 }
 
 // s3Upload uploads to s3.
