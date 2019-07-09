@@ -68,6 +68,8 @@ func (mru *MetaFileRegUploader) directUpload() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	mru.MID = mf.ID
+
 	log.Printf("Registered meta with state: %q\n", mf.State)
 
 	return mru.checkState()
@@ -131,9 +133,17 @@ func (mru *MetaFileRegUploader) checkState() (string, error) {
 				return
 			}
 			s := m.State
-			if s != service.Pending {
-				stateC <- s
-				return
+			log.Println(s, mru.MID)
+			if mru.Method == service.DirectUploadMethod {
+				if s == service.Ready || s == service.Failed {
+					stateC <- s
+					return
+				}
+			} else {
+				if s != service.Pending {
+					stateC <- s
+					return
+				}
 			}
 			time.Sleep(time.Second * 1)
 		}
