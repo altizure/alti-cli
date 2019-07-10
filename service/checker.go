@@ -49,8 +49,13 @@ func CheckAPIServer() CheckFn {
 
 // CheckUploadMethod checks if the supplied upload method is suppored.
 // kind is 'image', 'model' or 'meta'
-func CheckUploadMethod(kind, method, ip, port string) CheckFn {
+// if skip is true, this check is skipped. This flag is supposed to be given by
+// function service.SuggestUploadMethod.
+func CheckUploadMethod(kind, method, ip, port string, skip bool) CheckFn {
 	return func(logger LogFn) error {
+		if skip {
+			return nil
+		}
 		if method == "" {
 			logger("No upload method is provided.")
 			return errors.ErrUploadMethodInvalid

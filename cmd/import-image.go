@@ -44,11 +44,11 @@ var importImageCmd = &cobra.Command{
 		}()
 
 		// pre-checks general
-		method = service.SuggestUploadMethod(method, "image")
+		meth, mOK := service.SuggestUploadMethod(method, "image")
 		if err := service.Check(
 			nil,
 			service.CheckAPIServer(),
-			service.CheckUploadMethod("image", method, ip, port),
+			service.CheckUploadMethod("image", meth, ip, port, mOK),
 			service.CheckPID("image", id),
 			service.CheckDir(dir),
 		); err != nil {
@@ -62,7 +62,7 @@ var importImageCmd = &cobra.Command{
 		// setup direct upload server
 		var serDone func()
 		var baseURL string
-		if method == service.DirectUploadMethod {
+		if meth == service.DirectUploadMethod {
 			bu, done, err := web.StartLocalServer(dir, ip, port, false)
 			errors.Must(err)
 			defer done()
@@ -71,7 +71,7 @@ var importImageCmd = &cobra.Command{
 		}
 
 		// set bucket
-		b, err := service.SuggestBucket(method, bucket, "image")
+		b, err := service.SuggestBucket(meth, bucket, "image")
 		if err != nil {
 			log.Println(err)
 			return
@@ -219,7 +219,7 @@ var importImageCmd = &cobra.Command{
 		imgc, errc := db.AllImage(localDB)
 		ruRes := make(chan db.Image)
 		ruDigester := cloud.ImageRegUploader{
-			Method:  method,
+			Method:  meth,
 			Bucket:  bucket,
 			BaseURL: baseURL,
 			Images:  imgc,
@@ -227,7 +227,7 @@ var importImageCmd = &cobra.Command{
 			Result:  ruRes,
 			Verbose: verbose,
 		}
-		if method == "oss" {
+		if meth == "oss" {
 			err2 := ruDigester.WithOSSUploader(p.ID)
 			if err2 != nil {
 				panic(err2)
@@ -243,7 +243,7 @@ var importImageCmd = &cobra.Command{
 					log.Printf("Registration failed: %q\n", img.Error)
 					regFailCnt++
 				} else {
-					if method == "direct" {
+					if meth == "direct" {
 						log.Printf("Registered %q\n", img.Filename)
 					} else {
 						log.Printf("Registered and uploaded %q\n", img.Filename)

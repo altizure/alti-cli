@@ -35,11 +35,11 @@ var importMetaCmd = &cobra.Command{
 		}()
 
 		// pre-checks general
-		method = service.SuggestUploadMethod(method, "meta")
+		meth, mOK := service.SuggestUploadMethod(method, "meta")
 		if err := service.Check(
 			nil,
 			service.CheckAPIServer(),
-			service.CheckUploadMethod("meta", method, ip, port),
+			service.CheckUploadMethod("meta", meth, ip, port, mOK),
 			service.CheckPID("meta", id),
 			service.CheckFile(meta),
 			service.CheckFilenames(meta, validNames),
@@ -55,7 +55,7 @@ var importMetaCmd = &cobra.Command{
 		var serDone func()
 		var baseURL, directURL string
 		filename := filepath.Base(meta)
-		if method == service.DirectUploadMethod {
+		if meth == service.DirectUploadMethod {
 			bu, done, err := web.StartLocalServer(filepath.Dir(meta), ip, port, false)
 			errors.Must(err)
 			defer done()
@@ -65,7 +65,7 @@ var importMetaCmd = &cobra.Command{
 		}
 
 		// set bucket
-		b, err := service.SuggestBucket(method, bucket, "meta")
+		b, err := service.SuggestBucket(meth, bucket, "meta")
 		if err != nil {
 			log.Println(err)
 			return
@@ -77,7 +77,7 @@ var importMetaCmd = &cobra.Command{
 
 		// register + upload + state check
 		mru := cloud.MetaFileRegUploader{
-			Method:    method,
+			Method:    meth,
 			PID:       proj.ID,
 			MetaPath:  meta,
 			Filename:  filename,

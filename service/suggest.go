@@ -11,18 +11,17 @@ import (
 // SuggestUploadMethod suggests the best upload method if it is not set.
 // Prefer direct upload over s3 over oss.
 // kind is "image" or "model" or "meta".
-// Return "direct", "s3", "oss", ""
-func SuggestUploadMethod(method, kind string) string {
+// Return suggested method: "direct", "s3", "oss", ""
+// and if it is suggested or not. If this is false, further checking is needed.
+func SuggestUploadMethod(method, kind string) (string, bool) {
 	if method != "" {
-		return strings.ToLower(method)
+		return strings.ToLower(method), false
 	}
 
-	silent := func(string, ...interface{}) {}
-
 	// check direct upload
-	err := CheckDirectUpload(false, silent)
+	err := CheckDirectUpload(false, nil)
 	if err == nil {
-		return "direct"
+		return "direct", true
 	}
 
 	// check s3
@@ -38,14 +37,14 @@ func SuggestUploadMethod(method, kind string) string {
 	}
 
 	if hasS3 {
-		return "s3"
+		return "s3", true
 	}
 
 	if hasOSS {
-		return "oss"
+		return "oss", true
 	}
 
-	return ""
+	return "", false
 }
 
 // SuggestBucket suggests the best bucket if it is not set.

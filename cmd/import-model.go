@@ -37,11 +37,11 @@ var importModelCmd = &cobra.Command{
 		}()
 
 		// pre-checks general
-		method = service.SuggestUploadMethod(method, "model")
+		meth, mOK := service.SuggestUploadMethod(method, "model")
 		if err := service.Check(
 			nil,
 			service.CheckAPIServer(),
-			service.CheckUploadMethod("model", method, ip, port),
+			service.CheckUploadMethod("model", meth, ip, port, mOK),
 			service.CheckPID("model", id),
 			service.CheckFile(model),
 		); err != nil {
@@ -74,7 +74,7 @@ var importModelCmd = &cobra.Command{
 		var serDone func()
 		var baseURL, directURL string
 		filename := filepath.Base(model)
-		if method == service.DirectUploadMethod {
+		if meth == service.DirectUploadMethod {
 			bu, done, err := web.StartLocalServer(filepath.Dir(model), ip, port, false)
 			errors.Must(err)
 			defer done()
@@ -84,7 +84,7 @@ var importModelCmd = &cobra.Command{
 		}
 
 		// set bucket
-		b, err := service.SuggestBucket(method, bucket, "model")
+		b, err := service.SuggestBucket(meth, bucket, "model")
 		if err != nil {
 			log.Println(err)
 			return
@@ -96,7 +96,7 @@ var importModelCmd = &cobra.Command{
 
 		// register + upload + state check
 		mru := cloud.ModelRegUploader{
-			Method:       method,
+			Method:       meth,
 			PID:          proj.ID,
 			ModelPath:    model,
 			Filename:     filename,
