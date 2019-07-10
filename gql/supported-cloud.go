@@ -8,6 +8,7 @@ import (
 )
 
 // SupportedCloud queries for the supported cloud of the given endpoint.
+// kind is "image" or "model" or "meta".
 func SupportedCloud(endpoint, key, kind string) []string {
 	if endpoint == "" || key == "" {
 		config := config.Load()

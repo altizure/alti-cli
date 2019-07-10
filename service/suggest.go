@@ -10,7 +10,7 @@ import (
 
 // SuggestUploadMethod suggests the best upload method if it is not set.
 // Prefer direct upload over s3 over oss.
-// kind is "image" or "model".
+// kind is "image" or "model" or "meta".
 // Return "direct", "s3", "oss", ""
 func SuggestUploadMethod(method, kind string) string {
 	if method != "" {

@@ -35,11 +35,11 @@ var importMetaCmd = &cobra.Command{
 		}()
 
 		// pre-checks general
-		// method = service.SuggestUploadMethod(method, "meta")
+		method = service.SuggestUploadMethod(method, "meta")
 		if err := service.Check(
 			nil,
 			service.CheckAPIServer(),
-			// service.CheckUploadMethod("meta", method, ip, port),
+			service.CheckUploadMethod("meta", method, ip, port),
 			service.CheckPID("meta", id),
 			service.CheckFile(meta),
 			service.CheckFilenames(meta, validNames),

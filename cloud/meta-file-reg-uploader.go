@@ -133,7 +133,9 @@ func (mru *MetaFileRegUploader) checkState() (string, error) {
 				return
 			}
 			s := m.State
-			log.Println(s, mru.MID)
+			if mru.Verbose {
+				log.Println(s)
+			}
 			if mru.Method == service.DirectUploadMethod {
 				if s == service.Ready || s == service.Failed {
 					stateC <- s
