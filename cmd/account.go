@@ -32,8 +32,6 @@ var accountCmd = &cobra.Command{
 		config := config.Load()
 		for _, v := range config.Scopes {
 			for _, p := range v.Profiles {
-				var wg sync.WaitGroup
-				wg.Add(6)
 
 				var mode string
 				var super, sales bool
@@ -41,32 +39,35 @@ var accountCmd = &cobra.Command{
 				var version string
 				var resTime time.Duration
 
-				go func() {
-					mode = gql.CheckSystemMode(v.Endpoint, p.Key)
-					wg.Done()
-				}()
-				go func() {
-					sales = gql.IsSales(v.Endpoint, p.Key, p.Token)
-					wg.Done()
-				}()
-				go func() {
-					super = gql.IsSuper(v.Endpoint, p.Key, p.Token)
-					wg.Done()
-				}()
-				go func() {
-					iCloud = gql.SupportedCloud(v.Endpoint, p.Key, "image")
-					wg.Done()
-				}()
-				go func() {
-					mCloud = gql.SupportedCloud(v.Endpoint, p.Key, "model")
-					wg.Done()
-				}()
-				go func() {
-					version, resTime = gql.Version(v.Endpoint, p.Key)
-					wg.Done()
-				}()
+				mode = gql.CheckSystemModeWithTimeout(v.Endpoint, p.Key, time.Second*time.Duration(timeout))
 
-				wg.Wait()
+				if mode == "Normal" {
+					var wg sync.WaitGroup
+					wg.Add(5)
+
+					go func() {
+						sales = gql.IsSales(v.Endpoint, p.Key, p.Token)
+						wg.Done()
+					}()
+					go func() {
+						super = gql.IsSuper(v.Endpoint, p.Key, p.Token)
+						wg.Done()
+					}()
+					go func() {
+						iCloud = gql.SupportedCloud(v.Endpoint, p.Key, "image")
+						wg.Done()
+					}()
+					go func() {
+						mCloud = gql.SupportedCloud(v.Endpoint, p.Key, "model")
+						wg.Done()
+					}()
+					go func() {
+						version, resTime = gql.Version(v.Endpoint, p.Key)
+						wg.Done()
+					}()
+
+					wg.Wait()
+				}
 
 				nameOrEmail := p.Name
 				if bson.IsObjectIdHex(p.Name) {
@@ -115,4 +116,5 @@ func (e byEndpoint) Less(i, j int) bool {
 
 func init() {
 	rootCmd.AddCommand(accountCmd)
+	accountCmd.Flags().IntVarP(&timeout, "timeout", "t", 3, "Timeout of checking api server state in seconds")
 }

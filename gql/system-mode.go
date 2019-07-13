@@ -2,9 +2,26 @@ package gql
 
 import (
 	"context"
+	"time"
 
 	"github.com/machinebox/graphql"
 )
+
+// CheckSystemModeWithTimeout checks the api server with network timeout.
+func CheckSystemModeWithTimeout(endpoint, key string, timeout time.Duration) string {
+	modeCh := make(chan string)
+
+	go func() {
+		modeCh <- CheckSystemMode(endpoint, key)
+	}()
+
+	select {
+	case <-time.After(timeout):
+		return "Timeout"
+	case mode := <-modeCh:
+		return mode
+	}
+}
 
 // CheckSystemMode checks if the api server is in Normal, ReadOnly or Offline mode.
 func CheckSystemMode(endpoint, key string) string {
