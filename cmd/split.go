@@ -55,7 +55,7 @@ var splitCmd = &cobra.Command{
 			fmt.Printf("Continue to split into %d parts or not? (Y/N): ", numParts)
 			fmt.Scanln(&ans)
 			ans = strings.ToUpper(ans)
-			if ans != "Y" && ans != "YES" {
+			if ans != "Y" && ans != service.Yes {
 				log.Println("Cancelled.")
 				return
 			}

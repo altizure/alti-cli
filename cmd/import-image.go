@@ -209,7 +209,7 @@ var importImageCmd = &cobra.Command{
 		} else {
 			fmt.Scanln(&ans)
 			ans = strings.ToUpper(ans)
-			if ans != "Y" && ans != "YES" {
+			if ans != "Y" && ans != service.Yes {
 				log.Println("Cancelled.")
 				return
 			}

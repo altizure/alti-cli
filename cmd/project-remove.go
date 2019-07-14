@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/service"
 	"github.com/jackytck/alti-cli/types"
 	"github.com/spf13/cobra"
 )
@@ -34,7 +35,7 @@ var projRemoveCmd = &cobra.Command{
 			fmt.Printf("Warning: Project: %q is not empty. It has %d image%s. Are you sure? (Y/N): ", p.Name, p.NumImage, s)
 			fmt.Scanln(&ans)
 			ans = strings.ToUpper(ans)
-			if ans != "Y" && ans != "YES" {
+			if ans != "Y" && ans != service.Yes {
 				fmt.Println("Cancelled.")
 				return
 			}

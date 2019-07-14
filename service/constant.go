@@ -17,3 +17,6 @@ const Ready = "Ready"
 
 // Failed represents the image or model or meta failed state.
 const Failed = "Failed"
+
+// Yes represents an answer of yes.
+const Yes = "YES"
