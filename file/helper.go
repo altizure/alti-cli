@@ -83,10 +83,10 @@ func IsZipFile(f string) (bool, error) {
 func GuessFileType(file string) (string, error) {
 	buff := make([]byte, 512)
 	f, err := os.Open(file)
-	defer f.Close()
 	if err != nil {
 		return "", err
 	}
+	defer f.Close()
 	f.Read(buff)
 	return http.DetectContentType(buff), nil
 }
@@ -94,10 +94,10 @@ func GuessFileType(file string) (string, error) {
 // Sha1sum computes the sha1sum of the file.
 func Sha1sum(file string) (string, error) {
 	f, err := os.Open(file)
-	defer f.Close()
 	if err != nil {
 		return "", err
 	}
+	defer f.Close()
 	h := sha1.New()
 	if _, err := io.Copy(h, f); err != nil {
 		return "", err

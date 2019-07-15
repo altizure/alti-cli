@@ -22,8 +22,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const directUpload = "direct"
-
 var method string
 var bucket string
 var report string
@@ -243,7 +241,7 @@ var importImageCmd = &cobra.Command{
 					log.Printf("Registration failed: %q\n", img.Error)
 					regFailCnt++
 				} else {
-					if meth == "direct" {
+					if meth == service.DirectUploadMethod {
 						log.Printf("Registered %q\n", img.Filename)
 					} else {
 						log.Printf("Registered and uploaded %q\n", img.Filename)

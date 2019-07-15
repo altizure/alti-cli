@@ -103,7 +103,7 @@ var importMetaCmd = &cobra.Command{
 
 		state, err := mru.Run()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Println(err.Error())
 			return
 		}
 

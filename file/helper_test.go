@@ -35,8 +35,7 @@ func run(m *testing.M) int {
 	os.Mkdir("test/data/other", os.ModePerm)
 
 	// create test imgs
-	var im draw.Image
-	im = image.NewRGBA(image.Rectangle{Max: image.Point{X: testImgWidth, Y: testImgHeight}})
+	var im draw.Image = image.NewRGBA(image.Rectangle{Max: image.Point{X: testImgWidth, Y: testImgHeight}})
 	im = fibGradient(im)
 	f, err := os.Create(testImgDir + "nat.jpg")
 	if err != nil {

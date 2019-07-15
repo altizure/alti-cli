@@ -19,7 +19,7 @@ func IsSuper(endpoint, key, token string) bool {
 	req.Header.Set("altitoken", token)
 
 	ctx := context.Background()
-	var res isSalesRes
+	var res isSuperRes
 	if err := client.Run(ctx, req, &res); err != nil {
 		return false
 	}

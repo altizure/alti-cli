@@ -7,6 +7,10 @@ alti-cli-linux: *.go */*.go
 dev: *.go */*.go
 	go build -race -o alti-cli
 
+lint:
+	golint ./...
+	golangci-lint run
+
 all: alti-cli alti-cli-linux
 
 clean:
