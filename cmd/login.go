@@ -96,7 +96,8 @@ var loginCmd = &cobra.Command{
 			Key:      appKey,
 			Token:    token,
 		}
-		conf.AddProfile(p)
+		err = conf.AddProfile(p)
+		errors.Must(err)
 		err = conf.Save()
 		errors.Must(err)
 

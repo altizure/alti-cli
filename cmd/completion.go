@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +23,7 @@ var completionCmd = &cobra.Command{
 Then restart shell.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		rootCmd.GenBashCompletion(os.Stdout)
+		errors.Must(rootCmd.GenBashCompletion(os.Stdout))
 	},
 }
 

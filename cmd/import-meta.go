@@ -96,7 +96,7 @@ var importMetaCmd = &cobra.Command{
 			if serDone != nil {
 				serDone()
 			}
-			mru.Done()
+			errors.Must(mru.Done())
 			log.Println("Bye!")
 			os.Exit(1)
 		}()

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jackytck/alti-cli/config"
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +27,8 @@ command to switch to that, e.g. 'alti-cli account use ID'`,
 			return
 		}
 		config.Active = p.ID
-		config.Save()
+		err = config.Save()
+		errors.Must(err)
 		a := config.GetActive()
 		fmt.Printf("Using: %s: %s\n", a.Endpoint, a.Name)
 	},

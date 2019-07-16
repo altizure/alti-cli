@@ -306,13 +306,13 @@ var importImageCmd = &cobra.Command{
 		if report != "" {
 			log.Println("Generating csv upload report...")
 			out, err := os.Create(report)
-			if err != nil {
-				panic(err)
-			}
+			errors.Must(err)
+
 			defer out.Close()
 			writer := csv.NewWriter(out)
 
-			writer.Write([]string{"Filename", "State", "Error"})
+			err = writer.Write([]string{"Filename", "State", "Error"})
+			errors.Must(err)
 			imgc, errc = db.AllImage(localDB)
 			for img := range imgc {
 				err = writer.Write([]string{img.Filename, img.State, img.Error})
