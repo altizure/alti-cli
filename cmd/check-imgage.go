@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/c2h5oh/datasize"
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/file"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -112,5 +113,5 @@ func init() {
 	checkImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	checkImageCmd.Flags().BoolVarP(&printTable, "table", "t", printTable, "Output all of the found images in table format")
 	checkImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores x 4")
-	checkImageCmd.MarkFlagRequired("dir")
+	errors.Must(checkImageCmd.MarkFlagRequired("dir"))
 }

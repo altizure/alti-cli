@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -38,7 +39,7 @@ var newReconCmd = &cobra.Command{
 func init() {
 	projNewCmd.AddCommand(newReconCmd)
 	newReconCmd.Flags().StringVarP(&name, "name", "n", name, "Project name")
-	newReconCmd.MarkFlagRequired("name")
 	newReconCmd.Flags().StringVarP(&projType, "projectType", "p", projType, "free, pro")
 	newReconCmd.Flags().StringVarP(&visibility, "visibility", "v", visibility, "public, unlisted, private")
+	errors.Must(newReconCmd.MarkFlagRequired("name"))
 }

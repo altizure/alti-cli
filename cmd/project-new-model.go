@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -36,8 +37,8 @@ var newModelCmd = &cobra.Command{
 func init() {
 	projNewCmd.AddCommand(newModelCmd)
 	newModelCmd.Flags().StringVarP(&name, "name", "n", name, "Project name")
-	newModelCmd.MarkFlagRequired("name")
 	newModelCmd.Flags().StringVarP(&projType, "projectType", "p", projType, "free, pro")
 	newModelCmd.Flags().StringVarP(&modelType, "modelType", "m", modelType, "CAD, PHOTOGRAMMETRY, PTCLOUD")
 	newModelCmd.Flags().StringVarP(&visibility, "visibility", "v", visibility, "public, unlisted, private")
+	errors.Must(newModelCmd.MarkFlagRequired("name"))
 }

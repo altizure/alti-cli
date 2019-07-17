@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/types"
 	"github.com/spf13/cobra"
@@ -28,5 +29,5 @@ var projInspectCmd = &cobra.Command{
 func init() {
 	projectCmd.AddCommand(projInspectCmd)
 	projInspectCmd.Flags().StringVarP(&id, "id", "p", id, "(Partial) Project id")
-	projInspectCmd.MarkFlagRequired("id")
+	errors.Must(projInspectCmd.MarkFlagRequired("id"))
 }

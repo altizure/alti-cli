@@ -79,6 +79,6 @@ func init() {
 	splitCmd.Flags().StringVarP(&outDir, "out", "o", outDir, "File path of output dir.")
 	splitCmd.Flags().Int64VarP(&chunkSize, "size", "s", chunkSize, "Chunk size in mega bytes. Default to 100 MB.")
 	splitCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more info of operation")
-	splitCmd.MarkFlagRequired("file")
-	splitCmd.MarkFlagRequired("out")
+	errors.Must(splitCmd.MarkFlagRequired("file"))
+	errors.Must(splitCmd.MarkFlagRequired("out"))
 }

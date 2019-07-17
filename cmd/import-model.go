@@ -141,6 +141,6 @@ func init() {
 	importModelCmd.Flags().StringVar(&port, "port", port, "Port of ad-hoc local server for direct upload.")
 	importModelCmd.Flags().StringVarP(&bucket, "bucket", "b", bucket, "Desired bucket to upload for method: 's3'")
 	importModelCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more info of operation")
-	importModelCmd.MarkFlagRequired("id")
-	importModelCmd.MarkFlagRequired("file")
+	errors.Must(importModelCmd.MarkFlagRequired("id"))
+	errors.Must(importModelCmd.MarkFlagRequired("file"))
 }

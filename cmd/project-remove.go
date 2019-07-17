@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/service"
 	"github.com/jackytck/alti-cli/types"
@@ -56,5 +57,5 @@ var projRemoveCmd = &cobra.Command{
 func init() {
 	projectCmd.AddCommand(projRemoveCmd)
 	projRemoveCmd.Flags().StringVarP(&id, "id", "p", id, "Project (partial) id")
-	projRemoveCmd.MarkFlagRequired("id")
+	errors.Must(projRemoveCmd.MarkFlagRequired("id"))
 }

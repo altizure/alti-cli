@@ -121,6 +121,6 @@ func init() {
 	importMetaCmd.Flags().StringVar(&port, "port", port, "Port of ad-hoc local server for direct upload.")
 	importMetaCmd.Flags().StringVarP(&bucket, "bucket", "b", bucket, "Desired bucket to upload for method: 's3'")
 	importMetaCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more info of operation")
-	importMetaCmd.MarkFlagRequired("id")
-	importMetaCmd.MarkFlagRequired("file")
+	errors.Must(importMetaCmd.MarkFlagRequired("id"))
+	errors.Must(importMetaCmd.MarkFlagRequired("file"))
 }

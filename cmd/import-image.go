@@ -344,6 +344,6 @@ func init() {
 	importImageCmd.Flags().BoolVarP(&assumeYes, "assumeyes", "y", assumeYes, "Assume yes; assume that the answer to any question which would be asked is yes")
 	importImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 	importImageCmd.Flags().IntVarP(&thread, "thread", "n", thread, "Number of threads to process, default is number of cores x 4")
-	importImageCmd.MarkFlagRequired("id")
-	importImageCmd.MarkFlagRequired("dir")
+	errors.Must(importImageCmd.MarkFlagRequired("id"))
+	errors.Must(importImageCmd.MarkFlagRequired("dir"))
 }
