@@ -40,13 +40,15 @@ func (mru *ModelRegUploader) Run() (string, error) {
 }
 
 // Done cleanups this uploader if user wants to terminate early.
-func (mru *ModelRegUploader) Done() error {
+func (mru *ModelRegUploader) Done() {
 	if mru.tmpDir != "" {
 		err := os.RemoveAll(mru.tmpDir)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 		log.Printf("Removed %q\n", mru.tmpDir)
-		return err
 	}
-	return nil
 }
 
 // directUpload registers the model via direct upload method and query its state

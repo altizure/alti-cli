@@ -33,7 +33,7 @@ var moreCmd = &cobra.Command{
 			table.Render()
 		}()
 		errors.Must(err)
-		clear()
+		errors.Must(clear())
 		fmt.Printf("Totals: %d (Next: n or Space or Enter. Previous: p. Exit: q or Esc.)\n", total)
 		table.Render()
 		if !page.HasNextPage {
@@ -48,14 +48,14 @@ var moreCmd = &cobra.Command{
 			case curPage+1 < maxPage && (evt.Ch == 'n' || evt.Key == tb.KeySpace || evt.Key == tb.KeyEnter):
 				page, _, table, err = next(page.EndCursor)
 				errors.Must(err)
-				clear()
+				errors.Must(clear())
 				table.Render()
 				curPage++
 				fmt.Printf("Page: %d/%d\n", curPage+1, maxPage)
 			case curPage > 0 && evt.Ch == 'p':
 				page, _, table, err = prev(page.StartCursor)
 				errors.Must(err)
-				clear()
+				errors.Must(clear())
 				table.Render()
 				curPage--
 				fmt.Printf("Page: %d/%d\n", curPage+1, maxPage)
@@ -66,9 +66,16 @@ var moreCmd = &cobra.Command{
 	},
 }
 
-func clear() {
-	tb.Clear(tb.ColorWhite, tb.ColorBlack)
-	tb.Flush()
+func clear() error {
+	err := tb.Clear(tb.ColorWhite, tb.ColorBlack)
+	if err != nil {
+		return err
+	}
+	err = tb.Flush()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func next(cur string) (*types.PageInfo, int, *tablewriter.Table, error) {

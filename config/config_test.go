@@ -3,6 +3,8 @@ package config
 import (
 	"reflect"
 	"testing"
+
+	"github.com/jackytck/alti-cli/errors"
 )
 
 func TestLoad(t *testing.T) {
@@ -84,21 +86,21 @@ func TestConfig_GetProfile(t *testing.T) {
 
 func TestConfig_AddProfile(t *testing.T) {
 	c := Load()
-	c.AddProfile(APoint{
+	errors.Must(c.AddProfile(APoint{
 		Endpoint: "http://127.0.0.1:8082",
 		Key:      "nat-key-1",
 		Token:    "nat-token-1",
-	})
-	c.AddProfile(APoint{
+	}))
+	errors.Must(c.AddProfile(APoint{
 		Endpoint: "http://127.0.0.1:8082",
 		Key:      "nat-key-1",
-	})
-	c.AddProfile(APoint{
+	}))
+	errors.Must(c.AddProfile(APoint{
 		Endpoint: "http://127.0.0.1:8082",
 		Key:      "nat-key-1",
 		Token:    "nat-token-2",
-	})
-	c.ClearActiveToken(false)
+	}))
+	errors.Must(c.ClearActiveToken(false))
 	want := 2
 	if got := len(c.Scopes["http://127*0*0*1:8082"].Profiles); got != want {
 		t.Errorf("Profile size = %v, want %v", got, want)

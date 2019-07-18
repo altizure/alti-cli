@@ -16,6 +16,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/rand"
 )
 
@@ -31,8 +32,8 @@ func TestMain(m *testing.M) {
 
 func run(m *testing.M) int {
 	// create test dirs
-	os.MkdirAll("test/data/imgs", os.ModePerm)
-	os.Mkdir("test/data/other", os.ModePerm)
+	errors.Must(os.MkdirAll("test/data/imgs", os.ModePerm))
+	errors.Must(os.Mkdir("test/data/other", os.ModePerm))
 
 	// create test imgs
 	var im draw.Image = image.NewRGBA(image.Rectangle{Max: image.Point{X: testImgWidth, Y: testImgHeight}})
@@ -61,7 +62,8 @@ func run(m *testing.M) int {
 	if err != nil {
 		panic(err)
 	}
-	f.WriteString("2.71828182845904523536028747135266249775724709369995957496696")
+	_, err = f.WriteString("2.71828182845904523536028747135266249775724709369995957496696")
+	errors.Must(err)
 	f.Close()
 
 	// teardown

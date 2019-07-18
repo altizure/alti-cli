@@ -180,7 +180,10 @@ func (c Config) RemoveProfile(id string, save bool) (*APoint, error) {
 
 	// d. save
 	if save {
-		c.Save()
+		err := c.Save()
+		if err != nil {
+			return nil, err
+		}
 	}
 	return &ret, nil
 }

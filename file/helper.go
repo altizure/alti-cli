@@ -87,7 +87,10 @@ func GuessFileType(file string) (string, error) {
 		return "", err
 	}
 	defer f.Close()
-	f.Read(buff)
+	_, err = f.Read(buff)
+	if err != nil {
+		return "", err
+	}
 	return http.DetectContentType(buff), nil
 }
 
@@ -212,7 +215,10 @@ func SplitFile(file, outDir string, chunkSize int64, verbose bool) ([]string, er
 			}
 		}
 		buf := make([]byte, partSize)
-		f.Read(buf)
+		_, err := f.Read(buf)
+		if err != nil {
+			return nil, err
+		}
 
 		partName := fmt.Sprintf("%s.part.%0*d", baseName, digit, i+1)
 		partPath := fmt.Sprintf("%s/%s", outDir, partName)
@@ -221,7 +227,7 @@ func SplitFile(file, outDir string, chunkSize int64, verbose bool) ([]string, er
 			log.Printf("Writing %q\n", partName)
 		}
 
-		err := ioutil.WriteFile(partPath, buf, 0644)
+		err = ioutil.WriteFile(partPath, buf, 0644)
 		if err != nil {
 			return nil, err
 		}

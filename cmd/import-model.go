@@ -116,7 +116,7 @@ var importModelCmd = &cobra.Command{
 			if serDone != nil {
 				serDone()
 			}
-			errors.Must(mru.Done())
+			mru.Done()
 			log.Println("Bye!")
 			os.Exit(1)
 		}()
