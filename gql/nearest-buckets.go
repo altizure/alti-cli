@@ -15,6 +15,7 @@ import (
 func SuggestedBucket(kind, cloud string) (string, error) {
 	switch kind {
 	case "image":
+		fallthrough
 	case "meta":
 		return imageBucketSuggestion(cloud)
 	case "model":

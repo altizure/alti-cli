@@ -26,10 +26,13 @@ func SuggestUploadMethod(method, kind string) (string, bool) {
 
 	// check s3
 	sups := gql.SupportedCloud("", "", kind)
-	var hasS3, hasOSS bool
+	var hasS3, hasMinio, hasOSS bool
 	for _, s := range sups {
 		if s == "S3" {
 			hasS3 = true
+		}
+		if s == "MINIO" {
+			hasMinio = true
 		}
 		if s == "OSS" {
 			hasOSS = true
@@ -38,6 +41,10 @@ func SuggestUploadMethod(method, kind string) (string, bool) {
 
 	if hasS3 {
 		return "s3", true
+	}
+
+	if hasMinio {
+		return "minio", true
 	}
 
 	if hasOSS {

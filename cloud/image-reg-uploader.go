@@ -78,6 +78,8 @@ func (iru *ImageRegUploader) regUpload(img db.Image) db.Image {
 		return iru.directUpload(img)
 	case "s3":
 		return iru.s3Upload(img)
+	case "minio":
+		return iru.minioUpload(img)
 	case "oss":
 		return iru.ossUpload(img)
 	}
@@ -138,6 +140,59 @@ func (iru *ImageRegUploader) s3Upload(img db.Image) db.Image {
 		}
 		if iru.Verbose {
 			log.Printf("Retrying (x %d) upload to S3 for %q\n", i+1, img.Filename)
+		}
+		time.Sleep(time.Second)
+	}
+	if err != nil {
+		img.Error = err.Error()
+	}
+
+	return img
+}
+
+func (iru *ImageRegUploader) minioUpload(img db.Image) db.Image {
+	// a. register minio image
+	gqlImg, url, err := gql.RegisterImageMinio(img.PID, iru.Bucket, img.Filename, img.Filetype, img.Hash)
+	if err != nil {
+		img.Error = err.Error()
+		return img
+	}
+	img.IID = gqlImg.ID
+	img.State = gqlImg.State
+
+	// b. signal the start of upload
+	state, err := gql.StartImageUpload(img.IID)
+	if err != nil {
+		img.Error = err.Error()
+		return img
+	}
+	img.State = state
+
+	// c. upload to minio with retry
+	// helper func to put to minio
+	upload := func() error {
+		if iru.Verbose {
+			log.Printf("Uploading %q\n", img.Filename)
+		}
+		res, err2 := PutFile(img.LocalPath, url)
+		if err2 != nil {
+			return err2
+		}
+		defer res.Body.Close()
+		if res.StatusCode != http.StatusOK {
+			return errors.ErrS3Error
+		}
+		return nil
+	}
+
+	trial := 5
+	for i := 0; i < trial; i++ {
+		err = upload()
+		if err == nil {
+			break
+		}
+		if iru.Verbose {
+			log.Printf("Retrying (x %d) upload to Minio for %q\n", i+1, img.Filename)
 		}
 		time.Sleep(time.Second)
 	}
