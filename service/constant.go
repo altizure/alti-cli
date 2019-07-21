@@ -9,6 +9,12 @@ const DirectUploadMethod = "direct"
 // S3UploadMethod is the literal used in the arags of the import command.
 const S3UploadMethod = "s3"
 
+// MinioUploadMethod is the literal used in the arags of the import command.
+const MinioUploadMethod = "minio"
+
+// OSSUploadMethod is the literal used in the arags of the import command.
+const OSSUploadMethod = "oss"
+
 // Pending represents the image or model or meta pending state.
 const Pending = "Pending"
 

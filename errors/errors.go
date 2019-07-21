@@ -55,6 +55,8 @@ const (
 	ErrNoBucketSuggestion UploadError = "upload: no bucket suggestion"
 	// ErrS3Error is returned when file upload operation could not result in ok status code.
 	ErrS3Error UploadError = "upload: s3 error"
+	// ErrMinioError is returned when file upload operation could not result in ok status code.
+	ErrMinioError UploadError = "upload: minio error"
 	// ErrBucketInvalid is returned when the provided bucket is invalid.
 	ErrBucketInvalid UploadError = "upload: invalid bucket"
 	// ErrNOSTS is returned when a new STS could not be obtained.
