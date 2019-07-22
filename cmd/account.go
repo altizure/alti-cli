@@ -35,7 +35,7 @@ var accountCmd = &cobra.Command{
 
 				var mode string
 				var super, sales bool
-				var iCloud, mCloud []string
+				var iCloud, mCloud, metaCloud []string
 				var version string
 				var resTime time.Duration
 
@@ -43,7 +43,7 @@ var accountCmd = &cobra.Command{
 
 				if mode == "Normal" {
 					var wg sync.WaitGroup
-					wg.Add(5)
+					wg.Add(6)
 
 					go func() {
 						sales = gql.IsSales(v.Endpoint, p.Key, p.Token)
@@ -62,6 +62,10 @@ var accountCmd = &cobra.Command{
 						wg.Done()
 					}()
 					go func() {
+						metaCloud = gql.SupportedCloud(v.Endpoint, p.Key, "meta")
+						wg.Done()
+					}()
+					go func() {
 						version, resTime = gql.Version(v.Endpoint, p.Key)
 						wg.Done()
 					}()
@@ -73,7 +77,7 @@ var accountCmd = &cobra.Command{
 				if bson.IsObjectIdHex(p.Name) {
 					nameOrEmail = p.Email
 				}
-				r := []string{p.ID, v.Endpoint, nameOrEmail, mode, "", "", "", "", "", "", ""}
+				r := []string{p.ID, v.Endpoint, nameOrEmail, mode, "", "", "", "", "", "", "", ""}
 				if config.Active == p.ID {
 					r[4] = "Active"
 				}
@@ -85,8 +89,9 @@ var accountCmd = &cobra.Command{
 				}
 				r[7] = strings.Join(iCloud, ",")
 				r[8] = strings.Join(mCloud, ",")
-				r[9] = version
-				r[10] = resTime.String()
+				r[9] = strings.Join(metaCloud, ",")
+				r[10] = version
+				r[11] = resTime.String()
 				accounts = append(accounts, r)
 			}
 		}
@@ -94,7 +99,7 @@ var accountCmd = &cobra.Command{
 
 		// render
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"ID", "Endpoint", "Username/Email", "Status", "Select", "Sales", "Super", "Image Cloud", "Model Cloud", "Version", "Response Time"})
+		table.SetHeader([]string{"ID", "Endpoint", "Username/Email", "Status", "Select", "Sales", "Super", "Image Cloud", "Model Cloud", "Meta Cloud", "Version", "Response Time"})
 		table.AppendBulk(accounts)
 		table.Render()
 	},
