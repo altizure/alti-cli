@@ -13,6 +13,7 @@ import (
 var name string
 var projType = "free"
 var visibility = "public"
+var silent bool
 
 // newReconCmd represents the new command
 var newReconCmd = &cobra.Command{
@@ -26,6 +27,10 @@ var newReconCmd = &cobra.Command{
 			return
 		}
 
+		if silent {
+			fmt.Println(pid)
+			return
+		}
 		fmt.Println("Successfully created an empty project:")
 
 		table := tablewriter.NewWriter(os.Stdout)
@@ -41,5 +46,6 @@ func init() {
 	newReconCmd.Flags().StringVarP(&name, "name", "n", name, "Project name")
 	newReconCmd.Flags().StringVarP(&projType, "projectType", "p", projType, "free, pro")
 	newReconCmd.Flags().StringVarP(&visibility, "visibility", "v", visibility, "public, unlisted, private")
+	newReconCmd.Flags().BoolVarP(&silent, "silent", "s", silent, "Display the new project id only")
 	errors.Must(newReconCmd.MarkFlagRequired("name"))
 }
