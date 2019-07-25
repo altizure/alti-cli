@@ -15,6 +15,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+var actTimeout int
+
 // accountCmd represents the account command
 var accountCmd = &cobra.Command{
 	Use:   "account",
@@ -121,5 +123,5 @@ func (e byEndpoint) Less(i, j int) bool {
 
 func init() {
 	rootCmd.AddCommand(accountCmd)
-	accountCmd.Flags().IntVarP(&timeout, "timeout", "t", 3, "Timeout of checking api server state in seconds")
+	accountCmd.Flags().IntVarP(&actTimeout, "timeout", "t", 3, "Timeout of checking api server state in seconds")
 }
