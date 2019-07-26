@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/jackytck/alti-cli/errors"
@@ -34,9 +35,9 @@ func (mru *ModelRegUploader) Run() (string, error) {
 	case service.DirectUploadMethod:
 		return mru.directUpload()
 	case service.S3UploadMethod:
-		return mru.s3Upload()
+		fallthrough
 	case service.MinioUploadMethod:
-		return mru.minioUpload()
+		return mru.smUpload(mru.Method)
 	}
 	return "", errors.ErrUploadMethodInvalid
 }
@@ -72,26 +73,17 @@ func (mru *ModelRegUploader) directUpload() (string, error) {
 	return mru.checkState()
 }
 
-// s3Upload uploads to s3 via a single zip or multipart way of uploading.
-func (mru *ModelRegUploader) s3Upload() (string, error) {
+// smUpload uploads to s3 or minio via a single zip or multipart way of uploading.
+func (mru *ModelRegUploader) smUpload(method string) (string, error) {
 	if mru.MultipartDir != "" {
-		return mru.s3UploadMulti7z()
+		return mru.smUploadMulti7z(method)
 	}
-	return mru.s3UploadSingle()
+	return mru.smUploadSingle(method)
 }
 
-// minioUpload uploads to minio via a single zip or multipart way of uploading.
-func (mru *ModelRegUploader) minioUpload() (string, error) {
-	// @TODO
-	// if mru.MultipartDir != "" {
-	// 	return mru.minioUploadMulti7z()
-	// }
-	return mru.minioUploadSingle()
-}
-
-// s3UploadMulti uploads each multipart of a obj zip to s3.
+// smUploadMulti uploads each multipart of a obj zip to s3 or minio.
 // Each part could be concatenated in raw binary form.
-func (mru *ModelRegUploader) s3UploadMulti() (string, error) {
+func (mru *ModelRegUploader) smUploadMulti(method string) (string, error) {
 	tmpDir, err := ioutil.TempDir("", "")
 	if err != nil {
 		return "", err
@@ -106,7 +98,7 @@ func (mru *ModelRegUploader) s3UploadMulti() (string, error) {
 	}
 
 	// a. register each part
-	err = mru.uploadParts(tmpDir, parts, true)
+	err = mru.uploadParts(method, tmpDir, parts, true)
 	if err != nil {
 		return "", err
 	}
@@ -115,7 +107,8 @@ func (mru *ModelRegUploader) s3UploadMulti() (string, error) {
 	return gql.DoneModelUpload(mru.PID, true)
 }
 
-func (mru *ModelRegUploader) s3UploadMulti7z() (string, error) {
+// smUploadMulti7z uploads 7z multipart to s3 or minio.
+func (mru *ModelRegUploader) smUploadMulti7z(method string) (string, error) {
 	files, err := ioutil.ReadDir(mru.MultipartDir)
 	if err != nil {
 		return "", err
@@ -125,7 +118,7 @@ func (mru *ModelRegUploader) s3UploadMulti7z() (string, error) {
 	for _, f := range files {
 		parts = append(parts, f.Name())
 	}
-	err = mru.uploadParts(mru.MultipartDir, parts, false)
+	err = mru.uploadParts(method, mru.MultipartDir, parts, false)
 	if err != nil {
 		return "", err
 	}
@@ -137,13 +130,20 @@ func (mru *ModelRegUploader) s3UploadMulti7z() (string, error) {
 // uploadParts registers and uploads each part to s3.
 // baseDir is the dir that contains all the parts.
 // parts is the slice of filenames of each part.
-func (mru *ModelRegUploader) uploadParts(baseDir string, parts []string, removePart bool) error {
+func (mru *ModelRegUploader) uploadParts(method string, baseDir string, parts []string, removePart bool) error {
 	for _, p := range parts {
 		if mru.Verbose {
 			log.Printf("Uploading %q\n", p)
 		}
 		localPath := filepath.Join(baseDir, p)
-		_, url, err := gql.RegisterModelS3(mru.PID, mru.Bucket, p)
+		var url string
+		var err error
+		switch method {
+		case "s3":
+			_, url, err = gql.RegisterModelS3(mru.PID, mru.Bucket, p)
+		case "minio":
+			_, url, err = gql.RegisterModelMinio(mru.PID, mru.Bucket, p)
+		}
 		if err != nil {
 			return err
 		}
@@ -159,7 +159,7 @@ func (mru *ModelRegUploader) uploadParts(baseDir string, parts []string, removeP
 				break
 			}
 			if mru.Verbose {
-				log.Printf("Retrying (x %d) upload to S3 for %q\n", i+1, p)
+				log.Printf("Retrying (x %d) upload to %s for %q\n", i+1, strings.Title(method), p)
 			}
 			time.Sleep(time.Second)
 		}
@@ -170,8 +170,8 @@ func (mru *ModelRegUploader) uploadParts(baseDir string, parts []string, removeP
 	return nil
 }
 
-// s3UploadSingle uploads a single obj zip to s3.
-func (mru *ModelRegUploader) s3UploadSingle() (string, error) {
+// smUploadSingle uploads a single obj zip to s3 or minio.
+func (mru *ModelRegUploader) smUploadSingle(method string) (string, error) {
 	if mru.Verbose {
 		log.Printf("Uploading %q\n", mru.Filename)
 	}
@@ -184,10 +184,16 @@ func (mru *ModelRegUploader) s3UploadSingle() (string, error) {
 	}
 	if size > 5*1024 {
 		log.Printf("Filesize (%.2f MB) is bigger than 5GB", size)
-		return mru.s3UploadMulti()
+		return mru.smUploadMulti(method)
 	}
 
-	_, url, err := gql.RegisterModelS3(mru.PID, mru.Bucket, mru.Filename)
+	var url string
+	switch method {
+	case "s3":
+		_, url, err = gql.RegisterModelS3(mru.PID, mru.Bucket, mru.Filename)
+	case "minio":
+		_, url, err = gql.RegisterModelMinio(mru.PID, mru.Bucket, mru.Filename)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -200,49 +206,7 @@ func (mru *ModelRegUploader) s3UploadSingle() (string, error) {
 			break
 		}
 		if mru.Verbose {
-			log.Printf("Retrying (x %d) upload to S3 for %q\n", i+1, mru.Filename)
-		}
-		time.Sleep(time.Second)
-	}
-	if err != nil {
-		return "", err
-	}
-
-	return mru.checkState()
-}
-
-// s3UploadSingle uploads a single obj zip to s3.
-func (mru *ModelRegUploader) minioUploadSingle() (string, error) {
-	if mru.Verbose {
-		log.Printf("Uploading %q\n", mru.Filename)
-	}
-	size, err := mru.filesize()
-	if err != nil {
-		return "", err
-	}
-	if mru.Verbose {
-		log.Printf("Size: %.2f MB\n", size)
-	}
-	if size > 5*1024 {
-		log.Printf("Filesize (%.2f MB) is bigger than 5GB", size)
-		// return mru.minioUploadMulti()
-		return "", errors.ErrNotImplemented
-	}
-
-	_, url, err := gql.RegisterModelMinio(mru.PID, mru.Bucket, mru.Filename)
-	if err != nil {
-		return "", err
-	}
-
-	// b. upload to s3 with retry
-	trial := 5
-	for i := 0; i < trial; i++ {
-		err = PutS3(mru.ModelPath, url)
-		if err == nil {
-			break
-		}
-		if mru.Verbose {
-			log.Printf("Retrying (x %d) upload to Minio for %q\n", i+1, mru.Filename)
+			log.Printf("Retrying (x %d) upload to %s for %q\n", i+1, strings.Title(method), mru.Filename)
 		}
 		time.Sleep(time.Second)
 	}
