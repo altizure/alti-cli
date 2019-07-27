@@ -41,7 +41,7 @@ var accountCmd = &cobra.Command{
 				var version string
 				var resTime time.Duration
 
-				mode = gql.CheckSystemModeWithTimeout(v.Endpoint, p.Key, time.Second*time.Duration(timeout))
+				mode = gql.CheckSystemModeWithTimeout(v.Endpoint, p.Key, time.Second*time.Duration(actTimeout))
 
 				if mode == "Normal" {
 					var wg sync.WaitGroup
