@@ -32,6 +32,18 @@ func SearchProjectID(id string, myProj bool) (*types.Project, error) {
 					cloudPath {
 						key
 					}
+					downloads {
+						totalCount
+						edges {
+							node {
+								state
+								name
+								size
+								mtime
+								link
+							}
+						}
+					}
 				}
 			}
 		}

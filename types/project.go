@@ -21,6 +21,7 @@ type Project struct {
 	TaskState     string
 	Date          time.Time
 	CloudPath     []CloudPath
+	Downloads     DownloadsConnection
 }
 
 func (p Project) String() string {
