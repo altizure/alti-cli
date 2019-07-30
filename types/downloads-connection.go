@@ -14,7 +14,7 @@ type DownloadsConnection struct {
 type Downloadable struct {
 	State string
 	Name  string
-	Size  float64
+	Size  int64
 	Mtime time.Time
 	Link  string
 }
