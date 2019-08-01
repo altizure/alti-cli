@@ -47,6 +47,16 @@ alti-cli project new recon -n 'test new proj'
 * -n: project name, e.g. 'test new proj'
 * -s: output project id only
 
+### Check local images
+```bash
+alti-cli check image -d ~/myimg -v -t -s .small -n 10
+```
+* -d: image directory, e.g. ~/myimg
+* -v: verbose
+* -t: table format
+* -s: directory to skip, e.g. .small
+* -n: number of threads, default is number of cores
+
 ### Import Image
 ```bash
 alti-cli import image -d ~/myimg -s .small -p 5d37e -r upload.csv -v -m s3 -y
@@ -57,6 +67,7 @@ alti-cli import image -d ~/myimg -s .small -p 5d37e -r upload.csv -v -m s3 -y
 * -r: name of report, e.g. upload.csv (not required)
 * -v: verbose
 * -m: upload method (skip this flag to auto detect best method)
+* -n: number of threads, default is number of cores
 * -y: auto accept
 
 ### Inspect Project
