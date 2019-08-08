@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackytck/alti-cli/config"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -41,6 +42,7 @@ func ProjectHeaderString() []string {
 		"Task State",
 		"Cloud",
 		"Date",
+		"Model Link",
 	}
 }
 
@@ -54,7 +56,13 @@ func (p Project) Cloud() []string {
 }
 
 // RowString gives a row of string for the table output.
-func (p Project) RowString() []string {
+func (p Project) RowString(endPoint string) []string {
+	base := ""
+	if strings.Contains(endPoint, "altizure") {
+		base = strings.Replace(endPoint, "api", "www", 1)
+	} else if strings.Contains(endPoint, "8082") {
+		base = strings.Replace(endPoint, "8082", "8091", 1)
+	}
 	return []string{
 		p.ID,
 		p.Name,
@@ -65,15 +73,19 @@ func (p Project) RowString() []string {
 		p.TaskState,
 		strings.Join(p.Cloud(), ", "),
 		p.Date.Format("2006-01-02 15:04:05"),
+		fmt.Sprintf("%s/project-model?pid=%v", base, p.ID),
 	}
 }
 
 // ProjectsToTable transforms slice of projects into a table.
 func ProjectsToTable(ps []Project, w io.Writer) *tablewriter.Table {
+	config := config.Load()
+	active := config.GetActive()
+
 	table := tablewriter.NewWriter(w)
 	table.SetHeader(ProjectHeaderString())
 	for _, p := range ps {
-		table.Append(p.RowString())
+		table.Append(p.RowString(active.Endpoint))
 	}
 	return table
 }
