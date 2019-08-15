@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/jackytck/alti-cli)](https://goreportcard.com/report/github.com/jackytck/alti-cli)
+
 ### Install or Update
 ```bash
 go get -u github.com/jackytck/alti-cli
