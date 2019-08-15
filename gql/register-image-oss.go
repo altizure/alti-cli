@@ -76,7 +76,7 @@ func GetSTS(pid, bucket string) (*types.STS, error) {
 }
 
 // RegisterImageOSS registers an OSS image, without getting the STS creds.
-// Return the registerd image.
+// Return the registered image.
 func RegisterImageOSS(pid, bucket, filename, imageType, checksum string) (*types.Image, error) {
 	config := config.Load()
 	active := config.GetActive()

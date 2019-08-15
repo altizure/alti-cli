@@ -106,7 +106,7 @@ func CheckDirectUpload(verbose bool, logger LogFn) error {
 		logger = log.Printf
 	}
 	logger("Checking direct upload...")
-	pu, _, err := web.PreferedLocalURL(verbose)
+	pu, _, err := web.PreferredLocalURL(verbose)
 	if err != nil {
 		logger("Client is invisible. Direct upload is not supported!")
 		return err

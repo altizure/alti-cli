@@ -23,9 +23,9 @@ import (
 func StartLocalServer(dir, ip, port string, verbose bool) (string, func(), error) {
 	var address string
 
-	// use prefered ip if not provided
+	// use preferred ip if not provided
 	if ip == "" {
-		pu, _, err := PreferedLocalURL(verbose)
+		pu, _, err := PreferredLocalURL(verbose)
 		if err != nil {
 			return "", nil, err
 		}
@@ -158,9 +158,9 @@ type netCheckResult struct {
 	visibility bool
 }
 
-// PreferedLocalURL returns visible url in following preference:
+// PreferredLocalURL returns visible url in following preference:
 // non-localhost > localhost url.
-func PreferedLocalURL(verbose bool) (*url.URL, map[string]bool, error) {
+func PreferredLocalURL(verbose bool) (*url.URL, map[string]bool, error) {
 	checks, err := CheckVisibility(verbose)
 	if err != nil {
 		return nil, nil, err
