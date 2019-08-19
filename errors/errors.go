@@ -73,6 +73,8 @@ const (
 	ErrMetaReg UploadError = "upload: cannot register meta file"
 	// ErrMetaExisted is returned when a duplicated meta file is attempted to upload.
 	ErrMetaExisted UploadError = "upload: meta file alreay existed"
+	// ErrTaskStop is returned when a task could not be stopped
+	ErrTaskStop TaskError = "task: task could not be stopped"
 	// ErrClientQuery is returned when the input gql query file is not found.
 	ErrClientQuery ClientError = "client: query file not found"
 	// ErrClientVar is returned when the input gql variable file is not found.
@@ -120,6 +122,13 @@ func (e FileError) Error() string {
 type UploadError string
 
 func (e UploadError) Error() string {
+	return string(e)
+}
+
+// TaskError is the task related error.
+type TaskError string
+
+func (e TaskError) Error() string {
 	return string(e)
 }
 
