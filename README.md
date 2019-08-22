@@ -84,6 +84,11 @@ alti-cli myproj
 alti-cli project start -p 5d37e0
 ```
 
+### Stop Reconstruction
+```bash
+alti-cli project stop -p 5d37e0
+```
+
 ### Download Results (pro project only)
 ```bash
 alti-cli project download -p 5d37e -y

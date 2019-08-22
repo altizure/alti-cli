@@ -37,14 +37,12 @@ func StopReconstruction(pid string) (*types.Task, error) {
 	if err := client.Run(ctx, req, &res); err != nil {
 		return nil, err
 	}
-	if res.StopReconstruction.Task.ID == "" {
+	if res.StopReconstruction.ID == "" {
 		return nil, errors.ErrTaskStop
 	}
-	return &res.StopReconstruction.Task, nil
+	return &res.StopReconstruction, nil
 }
 
 type stopReconRes struct {
-	StopReconstruction struct {
-		Task types.Task
-	}
+	StopReconstruction types.Task
 }
