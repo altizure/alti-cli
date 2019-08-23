@@ -3,6 +3,7 @@ package gql
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/types"
@@ -14,6 +15,13 @@ func StartReconstruction(pid string) (*types.Task, error) {
 	config := config.Load()
 	active := config.GetActive()
 	client := graphql.NewClient(active.Endpoint + "/graphql")
+
+	// @TODO: start non-native task
+	taskTypes, err := EnumValues("TASK_TYPE")
+	if err != nil {
+		return nil, err
+	}
+	log.Println(taskTypes)
 
 	// make a request
 	req := graphql.NewRequest(`
@@ -43,9 +51,9 @@ func StartReconstruction(pid string) (*types.Task, error) {
 	if err := client.Run(ctx, req, &res); err != nil {
 		return nil, err
 	}
-	err := res.StartReconstructionWithError.Error
-	if err.Message != "" {
-		return nil, errors.New(err.Message)
+	err2 := res.StartReconstructionWithError.Error
+	if err2.Message != "" {
+		return nil, errors.New(err2.Message)
 	}
 	return &res.StartReconstructionWithError.Task, nil
 }
