@@ -3,12 +3,16 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/text"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
+
+var taskType = "Native"
 
 // startReconCmd represents the start reconstruction command
 var startReconCmd = &cobra.Command{
@@ -22,7 +26,18 @@ var startReconCmd = &cobra.Command{
 			return
 		}
 
-		t, err := gql.StartReconstruction(p.ID)
+		validTypes, err := gql.EnumValues("TASK_TYPE")
+		if err != nil {
+			panic(err)
+		}
+		tt := text.BestMatch(validTypes, taskType, "")
+		if tt == "" {
+			fmt.Printf("Unknown task type: %q\n", taskType)
+			fmt.Printf("Valid task types are: %q.\n", strings.Join(validTypes, ", "))
+			return
+		}
+
+		t, err := gql.StartReconstruction(p.ID, tt)
 		if err != nil {
 			fmt.Printf("Error: %q\n", err.Error())
 			return
@@ -42,5 +57,6 @@ var startReconCmd = &cobra.Command{
 func init() {
 	projectCmd.AddCommand(startReconCmd)
 	startReconCmd.Flags().StringVarP(&id, "id", "p", id, "Project (partial) id")
+	startReconCmd.Flags().StringVarP(&taskType, "type", "t", taskType, "Task type, default: Native")
 	errors.Must(startReconCmd.MarkFlagRequired("id"))
 }
