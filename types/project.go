@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jackytck/alti-cli/config"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -56,13 +55,7 @@ func (p Project) Cloud() []string {
 }
 
 // RowString gives a row of string for the table output.
-func (p Project) RowString(endPoint string) []string {
-	base := ""
-	if strings.Contains(endPoint, "altizure") {
-		base = strings.Replace(endPoint, "api", "www", 1)
-	} else if strings.Contains(endPoint, "8082") {
-		base = strings.Replace(endPoint, "8082", "8091", 1)
-	}
+func (p Project) RowString(webDomain string) []string {
 	return []string{
 		p.ID,
 		p.Name,
@@ -73,19 +66,16 @@ func (p Project) RowString(endPoint string) []string {
 		p.TaskState,
 		strings.Join(p.Cloud(), ", "),
 		p.Date.Format("2006-01-02 15:04:05"),
-		fmt.Sprintf("%s/project-model?pid=%v", base, p.ID),
+		fmt.Sprintf("%s/project-model?pid=%v", webDomain, p.ID),
 	}
 }
 
 // ProjectsToTable transforms slice of projects into a table.
-func ProjectsToTable(ps []Project, w io.Writer) *tablewriter.Table {
-	config := config.Load()
-	active := config.GetActive()
-
+func ProjectsToTable(ps []Project, webDomain string, w io.Writer) *tablewriter.Table {
 	table := tablewriter.NewWriter(w)
 	table.SetHeader(ProjectHeaderString())
 	for _, p := range ps {
-		table.Append(p.RowString(active.Endpoint))
+		table.Append(p.RowString(webDomain))
 	}
 	return table
 }

@@ -21,7 +21,7 @@ var myprojInspectCmd = &cobra.Command{
 			fmt.Println("Project could not be found! Error:", err)
 			return
 		}
-		table := types.ProjectsToTable([]types.Project{*p}, os.Stdout)
+		table := types.ProjectsToTable([]types.Project{*p}, gql.WebEndpoint(), os.Stdout)
 		table.Render()
 	},
 }

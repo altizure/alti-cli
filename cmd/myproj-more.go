@@ -92,7 +92,7 @@ func get(first, last int, before, after string) (*types.PageInfo, int, *tablewri
 		fmt.Println(msg)
 		return nil, 0, nil, err
 	}
-	table := types.ProjectsToTable(projs, os.Stdout)
+	table := types.ProjectsToTable(projs, gql.WebEndpoint(), os.Stdout)
 	return page, total, table, nil
 }
 

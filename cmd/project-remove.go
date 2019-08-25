@@ -49,7 +49,7 @@ var projRemoveCmd = &cobra.Command{
 		}
 
 		fmt.Println("Successfully removed project:")
-		table := types.ProjectsToTable([]types.Project{*p}, os.Stdout)
+		table := types.ProjectsToTable([]types.Project{*p}, gql.WebEndpoint(), os.Stdout)
 		table.Render()
 	},
 }

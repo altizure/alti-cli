@@ -34,7 +34,7 @@ var myprojCmd = &cobra.Command{
 			fmt.Println(msg)
 			return
 		}
-		table := types.ProjectsToTable(projs, os.Stdout)
+		table := types.ProjectsToTable(projs, gql.WebEndpoint(), os.Stdout)
 		table.Render()
 		fmt.Printf("Total: %d\n", total)
 		if page.HasNextPage {

@@ -3,9 +3,21 @@ package gql
 import (
 	"context"
 
+	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/types"
 	"github.com/machinebox/graphql"
 )
+
+// WebEndpoint returns the current active web domain.
+func WebEndpoint() string {
+	config := config.Load()
+	active := config.GetActive()
+	ep, err := Endpoints(active.Endpoint, active.Key)
+	if err != nil {
+		return ""
+	}
+	return ep.Web
+}
 
 // Endpoints gets the endpoints of altizure servers.
 func Endpoints(endpoint, key string) (*types.Endpoints, error) {
