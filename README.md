@@ -35,6 +35,17 @@ alti-cli account use XXXXXX
 ```
 * XXXXXX is the account ID
 
+### Current active user
+```bash
+alti-cli whoami
+
++--------------------------+----------------+---------------+------+---------+--------+------+-----------+---------------------+
+|         ENDPOINT         | USERNAME/EMAIL |    COUNTRY    | STAR | PROJECT | PLANET | FANS | FOLLOWING |       JOINED        |
++--------------------------+----------------+---------------+------+---------+--------+------+-----------+---------------------+
+| https://api.altizure.com | jacky          | Hong_Kong_SAR |    1 |      95 |      2 |    2 |         4 | 2015-08-21 09:33:07 |
++--------------------------+----------------+---------------+------+---------+--------+------+-----------+---------------------+
+```
+
 ### New Project
 ```bash
 alti-cli project new recon -n 'test new proj'
@@ -50,6 +61,7 @@ alti-cli project new recon -n 'test new proj'
 * -s: output project id only
 
 ### Check local images
+Check all images of a given directory locally. Get stats of number of GP, dimensions and invalid images, etc.
 ```bash
 alti-cli check image -d ~/myimg -v -t -s .small -n 10
 ```
@@ -83,6 +95,8 @@ alti-cli myproj
 ```bash
 alti-cli project start -p 5d37e0
 ```
+
+* -t: task type: `Native` (default), `GCP`, `DMT`, `SFM`, `Dense`, `GCPValidate`, `RetextureLOD`, `ConvertCAD`, `ConvertPG`, `ConvertPTCLOUD`
 
 ### Stop Reconstruction
 ```bash
