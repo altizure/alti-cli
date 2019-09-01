@@ -7,6 +7,9 @@ alti-cli-linux: *.go */*.go
 dev: *.go */*.go
 	go build -race -o alti-cli
 
+dep:
+	GOOS=windows go get -u github.com/spf13/cobra
+
 lint:
 	golint ./...
 	golangci-lint run

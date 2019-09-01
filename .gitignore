@@ -24,5 +24,6 @@ _testmain.go
 *.prof
 
 # binary
+dist
 alti-cli
 alti-cli-linux
