@@ -214,6 +214,8 @@ func (mru *ModelRegUploader) smUploadSingle(method string) (string, error) {
 		return "", err
 	}
 
+	gql.DoneModelUpload(mru.PID, false)
+
 	return mru.checkState()
 }
 
