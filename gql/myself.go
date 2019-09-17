@@ -25,6 +25,12 @@ func MySelf() (string, *types.User, error) {
 		      name
 					username
 					country
+					balance
+					freeGPQuota
+					membershipState
+					developer {
+						status
+					}
 					stats {
 						star
 						project

@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/types"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -26,10 +27,13 @@ var whoamiCmd = &cobra.Command{
 			return
 		}
 
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Endpoint", "Username/Email", "Country", "Star", "Project", "Planet", "Fans", "Following", "Joined"})
+		header := []string{"Endpoint"}
 		row := []string{endpoint}
+		header = append(header, types.UserHeaderString()...)
 		row = append(row, user.RowString()...)
+
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader(header)
 		table.Append(row)
 		table.Render()
 	},
