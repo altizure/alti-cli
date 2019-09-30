@@ -5,7 +5,6 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/jackytck/alti-cli/config"
@@ -30,49 +29,20 @@ var accountCmd = &cobra.Command{
 		}()
 
 		// prepare account list
+		timeout := time.Second * time.Duration(actTimeout)
 		var accounts [][]string
 		config := config.Load()
 		for _, v := range config.Scopes {
 			for _, p := range v.Profiles {
-
-				var mode string
-				var super, sales bool
-				var iCloud, mCloud, metaCloud []string
-				var version string
-				var resTime time.Duration
-
-				mode = gql.CheckSystemModeWithTimeout(v.Endpoint, p.Key, time.Second*time.Duration(actTimeout))
+				var mode = gql.CheckSystemModeWithTimeout(v.Endpoint, p.Key, timeout)
+				var info gql.AccountInfo
+				var err error
 
 				if mode == "Normal" {
-					var wg sync.WaitGroup
-					wg.Add(6)
-
-					go func() {
-						sales = gql.IsSales(v.Endpoint, p.Key, p.Token)
-						wg.Done()
-					}()
-					go func() {
-						super = gql.IsSuper(v.Endpoint, p.Key, p.Token)
-						wg.Done()
-					}()
-					go func() {
-						iCloud = gql.SupportedCloud(v.Endpoint, p.Key, "image")
-						wg.Done()
-					}()
-					go func() {
-						mCloud = gql.SupportedCloud(v.Endpoint, p.Key, "model")
-						wg.Done()
-					}()
-					go func() {
-						metaCloud = gql.SupportedCloud(v.Endpoint, p.Key, "meta")
-						wg.Done()
-					}()
-					go func() {
-						version, resTime = gql.Version(v.Endpoint, p.Key)
-						wg.Done()
-					}()
-
-					wg.Wait()
+					info, err = gql.GetAccountInfoTimeout(v.Endpoint, p.Key, p.Token, timeout)
+				}
+				if err != nil {
+					mode = "Timeout"
 				}
 
 				nameOrEmail := p.Name
@@ -83,17 +53,17 @@ var accountCmd = &cobra.Command{
 				if config.Active == p.ID {
 					r[4] = "Active"
 				}
-				if sales {
+				if info.Sales {
 					r[5] = "Yes"
 				}
-				if super {
+				if info.Super {
 					r[6] = "Yes"
 				}
-				r[7] = strings.Join(iCloud, ",")
-				r[8] = strings.Join(mCloud, ",")
-				r[9] = strings.Join(metaCloud, ",")
-				r[10] = version
-				r[11] = resTime.String()
+				r[7] = strings.Join(info.ImageCloud, ",")
+				r[8] = strings.Join(info.ModelCloud, ",")
+				r[9] = strings.Join(info.MetaCloud, ",")
+				r[10] = info.Version
+				r[11] = info.ResponseTime.String()
 				accounts = append(accounts, r)
 			}
 		}
