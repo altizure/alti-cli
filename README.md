@@ -60,7 +60,7 @@ alti-cli project new recon -n 'test new proj'
 * -n: project name, e.g. 'test new proj'
 * -s: output project id only
 
-### Check local images
+### Check local images (without uploading)
 Check all images of a given directory locally. Get stats of number of GP, dimensions and invalid images, etc.
 ```bash
 alti-cli check image -d ~/myimg -v -t -s .small -n 10
@@ -83,6 +83,19 @@ alti-cli import image -d ~/myimg -s .small -p 5d37e -r upload.csv -v -m s3 -y
 * -m: upload method (skip this flag to auto detect best method)
 * -n: number of threads, default is number of cores
 * -y: auto accept
+
+### Import Meta file
+```bash
+alti-cli import meta -p 5d008 -v -f ~/test/pose.txt
+```
+* -b: desired bucket to upload
+* -f: path of meta file
+* -p: (partial) project id from aboved, e.g. 5d37e
+* -m: method of upload: 'direct' or 's3'
+* -t: timeout in second(s)
+* -ip: ip address of ad-hoc local server for direct upload
+* -port: port of ad-hoc local server for direct upload
+* -v: verbose
 
 ### Inspect Project
 ```bash
