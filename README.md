@@ -46,7 +46,7 @@ alti-cli whoami
 +--------------------------+----------------+---------------+------+---------+--------+------+-----------+---------------------+
 ```
 
-### New Project
+### New Project (reconstruction)
 ```bash
 alti-cli project new recon -n 'test new proj'
 
@@ -60,6 +60,11 @@ alti-cli project new recon -n 'test new proj'
 * -n: project name, e.g. 'test new proj'
 * -s: output project id only
 
+### New Project (imported model)
+```bash
+alti-cli project new model -n 'my obj model'
+```
+
 ### Check local images (without uploading)
 Check all images of a given directory locally. Get stats of number of GP, dimensions and invalid images, etc.
 ```bash
@@ -71,7 +76,7 @@ alti-cli check image -d ~/myimg -v -t -s .small -n 10
 * -s: directory to skip, e.g. .small
 * -n: number of threads, default is number of cores
 
-### Import Image
+### Import Image (reconstruction project)
 ```bash
 alti-cli import image -d ~/myimg -s .small -p 5d37e -r upload.csv -v -m s3 -y
 ```
@@ -84,7 +89,7 @@ alti-cli import image -d ~/myimg -s .small -p 5d37e -r upload.csv -v -m s3 -y
 * -n: number of threads, default is number of cores
 * -y: auto accept
 
-### Import Meta file
+### Import Meta file (reconstruction project)
 ```bash
 alti-cli import meta -p 5d008 -v -f ~/test/pose.txt
 ```
@@ -95,6 +100,17 @@ alti-cli import meta -p 5d008 -v -f ~/test/pose.txt
 * -t: timeout in second(s)
 * -ip: ip address of ad-hoc local server for direct upload
 * -port: port of ad-hoc local server for direct upload
+* -v: verbose
+
+### Import Model file (imported model project)
+```bash
+alti-cli import model -p 5d7b6b -v -f ~/test/bunny.obj
+```
+* -b: desired bucket to upload
+* -f: path of model zip file or directory of multiparts zip
+* -p: (partial) project id from aboved, e.g. 5d37e
+* -m: method of upload: 'direct' or 's3'
+* -t: timeout in second(s)
 * -v: verbose
 
 ### Inspect Project
