@@ -5,6 +5,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackytck/alti-cli/config"
@@ -29,43 +30,32 @@ var accountCmd = &cobra.Command{
 		}()
 
 		// prepare account list
+		cfg := config.Load()
 		timeout := time.Second * time.Duration(actTimeout)
-		var accounts [][]string
-		config := config.Load()
-		for _, v := range config.Scopes {
-			for _, p := range v.Profiles {
-				var mode = gql.CheckSystemModeWithTimeout(v.Endpoint, p.Key, timeout)
-				var info gql.AccountInfo
-				var err error
+		actCh := make(chan []string)
+		var wg sync.WaitGroup
+		wg.Add(cfg.Size())
 
-				if mode == "Normal" {
-					info, err = gql.GetAccountInfoTimeout(v.Endpoint, p.Key, p.Token, timeout)
-				}
-				if err != nil {
-					mode = "Timeout"
-				}
+		go func() {
+			defer func() {
+				close(actCh)
+			}()
+			wg.Wait()
+		}()
 
-				nameOrEmail := p.Name
-				if bson.IsObjectIdHex(p.Name) {
-					nameOrEmail = p.Email
-				}
-				r := []string{p.ID, v.Endpoint, nameOrEmail, mode, "", "", "", "", "", "", "", ""}
-				if config.Active == p.ID {
-					r[4] = "Active"
-				}
-				if info.Sales {
-					r[5] = "Yes"
-				}
-				if info.Super {
-					r[6] = "Yes"
-				}
-				r[7] = strings.Join(info.ImageCloud, ",")
-				r[8] = strings.Join(info.ModelCloud, ",")
-				r[9] = strings.Join(info.MetaCloud, ",")
-				r[10] = info.Version
-				r[11] = info.ResponseTime.String()
-				accounts = append(accounts, r)
+		for _, s := range cfg.Scopes {
+			for _, p := range s.Profiles {
+				go func(s config.Scope, p config.Profile) {
+					actCh <- getActRow(s, p, cfg.Active, timeout)
+					wg.Done()
+				}(s, p)
 			}
+		}
+
+		// aggregate all accounts
+		var accounts [][]string
+		for r := range actCh {
+			accounts = append(accounts, r)
 		}
 		sort.Sort(byEndpoint(accounts))
 
@@ -74,7 +64,46 @@ var accountCmd = &cobra.Command{
 		table.SetHeader([]string{"ID", "Endpoint", "Username/Email", "Status", "Select", "Sales", "Super", "Image Cloud", "Model Cloud", "Meta Cloud", "Version", "Response Time"})
 		table.AppendBulk(accounts)
 		table.Render()
+
+		// readme
+		log.Println("To switch account: Use: alti-cli account use ID")
 	},
+}
+
+func getActRow(s config.Scope, p config.Profile, activeID string, timeout time.Duration) []string {
+	var mode = gql.CheckSystemModeWithTimeout(s.Endpoint, p.Key, timeout)
+	var info gql.AccountInfo
+	var err error
+
+	if mode == "Normal" {
+		info, err = gql.GetAccountInfoTimeout(s.Endpoint, p.Key, p.Token, timeout)
+	}
+	if err != nil {
+		mode = "Timeout"
+	}
+
+	nameOrEmail := p.Name
+	if bson.IsObjectIdHex(p.Name) {
+		nameOrEmail = p.Email
+	}
+
+	r := []string{p.ID, s.Endpoint, nameOrEmail, mode, "", "", "", "", "", "", "", ""}
+	if p.ID == activeID {
+		r[4] = "Active"
+	}
+	if info.Sales {
+		r[5] = "Yes"
+	}
+	if info.Super {
+		r[6] = "Yes"
+	}
+	r[7] = strings.Join(info.ImageCloud, ",")
+	r[8] = strings.Join(info.ModelCloud, ",")
+	r[9] = strings.Join(info.MetaCloud, ",")
+	r[10] = info.Version
+	r[11] = info.ResponseTime.String()
+
+	return r
 }
 
 type byEndpoint [][]string
