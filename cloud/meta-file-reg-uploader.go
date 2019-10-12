@@ -40,8 +40,10 @@ func (mru *MetaFileRegUploader) Run() (string, error) {
 	switch mru.Method {
 	case service.DirectUploadMethod:
 		return mru.directUpload()
-	case "s3":
+	case service.S3UploadMethod:
 		return mru.s3Upload()
+	case service.MinioUploadMethod:
+		return mru.minioUpload()
 	}
 	return "", errors.ErrUploadMethodInvalid
 }
@@ -102,6 +104,43 @@ func (mru *MetaFileRegUploader) s3Upload() (string, error) {
 		}
 		if mru.Verbose {
 			log.Printf("Retrying (x %d) upload to S3 for %q\n", i+1, mru.Filename)
+		}
+		time.Sleep(time.Second)
+	}
+	if err != nil {
+		return "", err
+	}
+
+	return mru.checkState()
+}
+
+// minioUpload uploads to minio in AltiOne.
+func (mru *MetaFileRegUploader) minioUpload() (string, error) {
+	if mru.Verbose {
+		log.Printf("Uploading %q\n", mru.Filename)
+	}
+	size, err := mru.filesize()
+	if err != nil {
+		return "", err
+	}
+	if mru.Verbose {
+		log.Printf("Size: %.2f MB\n", size)
+	}
+	meta, url, err := gql.RegisterMetaFileMinio(mru.PID, mru.Bucket, mru.Filename)
+	if err != nil {
+		return "", err
+	}
+	mru.MID = meta.ID
+
+	// b. upload to minio with retry
+	trial := 5
+	for i := 0; i < trial; i++ {
+		err = PutS3(mru.MetaPath, url)
+		if err == nil {
+			break
+		}
+		if mru.Verbose {
+			log.Printf("Retrying (x %d) upload to Minio for %q\n", i+1, mru.Filename)
 		}
 		time.Sleep(time.Second)
 	}

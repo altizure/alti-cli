@@ -139,9 +139,9 @@ func (mru *ModelRegUploader) uploadParts(method string, baseDir string, parts []
 		var url string
 		var err error
 		switch method {
-		case "s3":
+		case service.S3UploadMethod:
 			_, url, err = gql.RegisterModelS3(mru.PID, mru.Bucket, p)
-		case "minio":
+		case service.MinioUploadMethod:
 			_, url, err = gql.RegisterModelMinio(mru.PID, mru.Bucket, p)
 		}
 		if err != nil {
@@ -189,9 +189,9 @@ func (mru *ModelRegUploader) smUploadSingle(method string) (string, error) {
 
 	var url string
 	switch method {
-	case "s3":
+	case service.S3UploadMethod:
 		_, url, err = gql.RegisterModelS3(mru.PID, mru.Bucket, mru.Filename)
-	case "minio":
+	case service.MinioUploadMethod:
 		_, url, err = gql.RegisterModelMinio(mru.PID, mru.Bucket, mru.Filename)
 	}
 	if err != nil {
