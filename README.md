@@ -20,6 +20,7 @@ alti-cli login -p
 * e.g. endpoint for private server: http://1.2.3.4:1234
 
 ### Network Test
+Check if direct upload is supported.
 ```bash
 alti-cli network
 ```
@@ -39,11 +40,12 @@ alti-cli account use XXXXXX
 ```bash
 alti-cli whoami
 
-+--------------------------+----------------+---------------+------+---------+--------+------+-----------+---------------------+
-|         ENDPOINT         | USERNAME/EMAIL |    COUNTRY    | STAR | PROJECT | PLANET | FANS | FOLLOWING |       JOINED        |
-+--------------------------+----------------+---------------+------+---------+--------+------+-----------+---------------------+
-| https://api.altizure.com | jacky          | Hong_Kong_SAR |    1 |      95 |      2 |    2 |         4 | 2015-08-21 09:33:07 |
-+--------------------------+----------------+---------------+------+---------+--------+------+-----------+---------------------+
++--------------------------+----------------+--------+----------+------------+---------------+------+---------+--------+------+-----------+---------------------+---------------+
+|         ENDPOINT         | USERNAME/EMAIL | COINS  | GP QUOTA | MEMBERSHIP | DEVELOPERSHIP | STAR | PROJECT | PLANET | FANS | FOLLOWING |       JOINED        |    COUNTRY    |
++--------------------------+----------------+--------+----------+------------+---------------+------+---------+--------+------+-----------+---------------------+---------------+
+| https://api.altizure.com | jacky          | 105.76 |     9.00 | ACTIVE     | ACTIVE        |    1 |     104 |      2 |    2 |         4 | 2015-08-21 09:33:07 | Hong_Kong_SAR |
++--------------------------+----------------+--------+----------+------------+---------------+------+---------+--------+------+-----------+---------------------+---------------+
+
 ```
 
 ### New Project (reconstruction)
@@ -63,6 +65,11 @@ alti-cli project new recon -n 'test new proj'
 ### New Project (imported model)
 ```bash
 alti-cli project new model -n 'my obj model'
+```
+
+### Remove Project (any kind)
+```bash
+alti-cli project remove -p '5d37e018bb7c6a0e17ffe9d1'
 ```
 
 ### Check local images (without uploading)
@@ -93,10 +100,10 @@ alti-cli import image -d ~/myimg -s .small -p 5d37e -r upload.csv -v -m s3 -y
 ```bash
 alti-cli import meta -p 5d008 -v -f ~/test/pose.txt
 ```
-* -b: desired bucket to upload
+* -b: desired bucket to upload (auto select if empty)
 * -f: path of meta file
 * -p: (partial) project id from aboved, e.g. 5d37e
-* -m: method of upload: 'direct' or 's3'
+* -m: method of upload: 'direct' or 's3' or 'minio' (based on supported cloud shown in `alti-cli account`)
 * -t: timeout in second(s)
 * -ip: ip address of ad-hoc local server for direct upload
 * -port: port of ad-hoc local server for direct upload
@@ -109,7 +116,7 @@ alti-cli import model -p 5d7b6b -v -f ~/test/bunny.obj
 * -b: desired bucket to upload
 * -f: path of model zip file or directory of multiparts zip
 * -p: (partial) project id from aboved, e.g. 5d37e
-* -m: method of upload: 'direct' or 's3'
+* -m: method of upload: 'direct' or 's3' or 'minio'
 * -t: timeout in second(s)
 * -v: verbose
 

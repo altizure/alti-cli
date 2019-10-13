@@ -82,7 +82,7 @@ func CheckUploadMethod(kind, method, ip, port string, skip bool) CheckFn {
 			return nil
 		}
 
-		// check s3 or oss
+		// check s3 or oss or minio
 		if sm := text.BestMatch(supMethods, method, ""); sm == "" {
 			logger("Upload method: %q is not supported!\n", method)
 			m := len(supMethods)

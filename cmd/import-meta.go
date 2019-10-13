@@ -115,7 +115,7 @@ func init() {
 	importCmd.AddCommand(importMetaCmd)
 	importMetaCmd.Flags().StringVarP(&id, "id", "p", id, "Project id")
 	importMetaCmd.Flags().StringVarP(&meta, "file", "f", model, "File path of meta file.")
-	importMetaCmd.Flags().StringVarP(&method, "method", "m", method, "Desired method of upload: 'direct' or 's3'")
+	importMetaCmd.Flags().StringVarP(&method, "method", "m", method, "Desired method of upload: 'direct' or 's3' or 'minio'")
 	importMetaCmd.Flags().IntVarP(&timeout, "timeout", "t", timeout, "Timeout of checking direct upload state in seconds")
 	importMetaCmd.Flags().StringVar(&ip, "ip", ip, "IP address of ad-hoc local server for direct upload.")
 	importMetaCmd.Flags().StringVar(&port, "port", port, "Port of ad-hoc local server for direct upload.")
