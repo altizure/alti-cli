@@ -19,15 +19,35 @@ func MySelf() (string, *types.User, error) {
 	// make a request
 	req := graphql.NewRequest(`
 		query {
-		  my {
-		    self {
-		      email
-		      name
+			my {
+				self {
+					email
+					name
 					username
 					country
 					balance
 					freeGPQuota
 					membershipState
+					membership {
+						state
+						planName
+						period
+						startDate
+						endDate
+						memberGPQuota
+						coinPerGP
+						coinPriceDiscount
+						assetStorage
+						visibility
+						coupon {
+							value
+							repeat
+							validMonth
+						}
+						modelPerProject
+						collaboratorQuota
+						forceWatermark
+					}
 					developer {
 						status
 					}
@@ -40,7 +60,7 @@ func MySelf() (string, *types.User, error) {
 					}
 					joined
 				}
-	    }
+			}
 		}
 	`)
 	req.Header.Set("key", active.Key)
