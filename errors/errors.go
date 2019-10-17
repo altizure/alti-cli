@@ -43,6 +43,8 @@ const (
 	ErrFileChecksum FileError = "file: unknown checksum"
 	// ErrMetaFilenameInvalid is returned when the filename of meta file is invalid.
 	ErrMetaFilenameInvalid FileError = "file: invalid meta filename"
+	// ErrModelFilenameInvalid is returned when the filename of model file is invalid.
+	ErrModelFilenameInvalid FileError = "file: invalid model filename"
 	// ErrImgReg is returned when an image could not be registered for uploading.
 	ErrImgReg UploadError = "upload: cannot register upload image"
 	// ErrImgInvalid is returned when an image is regarded as invalid by the server.

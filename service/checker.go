@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/jackytck/alti-cli/errors"
@@ -191,6 +192,18 @@ func CheckZip(f string) CheckFn {
 		if !isZip {
 			logger("Not a zip file: %q", f)
 			return errors.ErrFileNotZip
+		}
+		return nil
+	}
+}
+
+// CheckFilename checks if the filename matches with the regex.
+func CheckFilename(f string, r *regexp.Regexp) CheckFn {
+	return func(logger LogFn) error {
+		s := filepath.Base(f)
+		if !r.MatchString(s) {
+			logger("Invalid file name: %q", s)
+			return errors.ErrModelFilenameInvalid
 		}
 		return nil
 	}
