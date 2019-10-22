@@ -24,6 +24,7 @@ type User struct {
 		Following int // Number of users I am following
 	}
 	MembershipState string // NA, ACTIVE, SUSPENDED, TRIAL, EXPIRED, STOPPED
+	Membership      MembershipInfo
 	Developer       struct {
 		Status string // NA, UNDER_REVIEW, TRIAL, ACTIVE, INACTIVE, EXPIRED
 	}
