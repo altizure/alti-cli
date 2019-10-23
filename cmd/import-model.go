@@ -44,7 +44,7 @@ var importModelCmd = &cobra.Command{
 			service.CheckAPIServer(),
 			service.CheckUploadMethod("model", meth, ip, port, mOK),
 			service.CheckPID("model", id),
-			service.CheckFilename(model, regexp.MustCompile("^[a-zA-Z0-9\\._]*$")),
+			service.CheckFilename(model, regexp.MustCompile(`^[a-zA-Z0-9\._]*$`)),
 			service.CheckFile(model),
 		); err != nil {
 			log.Println(err)
