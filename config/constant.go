@@ -17,3 +17,18 @@ const DefaultEndpoint = "https://api.altizure.com"
 
 // DefaultProfileID is the default profile id.
 const DefaultProfileID = "default"
+
+// AltiEndpoint is the key of environment variable of endpoint.
+const AltiEndpoint = "ALTI_ENDPOINT"
+
+// AltiName is the key of environment variable of user name.
+const AltiName = "ALTI_NAME"
+
+// AltiEmail is the key of environment variable of user email.
+const AltiEmail = "ALTI_EMAIL"
+
+// AltiKey is the key of environment variable of app key.
+const AltiKey = "ALTI_KEY"
+
+// AltiToken is the key of environment variable of user token.
+const AltiToken = "ALTI_TOKEN"

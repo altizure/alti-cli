@@ -2,6 +2,7 @@ package config
 
 import (
 	"io/ioutil"
+	"os"
 	"path"
 
 	"github.com/jackytck/alti-cli/errors"
@@ -15,11 +16,14 @@ import (
 func DefaultConfig() Config {
 	m := map[string]Scope{}
 	m[DefaultScope] = Scope{
-		Endpoint: DefaultEndpoint,
+		Endpoint: EnvOrDefault(AltiEndpoint, DefaultEndpoint),
 		Profiles: []Profile{
 			{
-				ID:  "default",
-				Key: DefaultAppKey,
+				ID:    "default",
+				Name:  EnvOrDefault(AltiName, ""),
+				Email: EnvOrDefault(AltiEmail, ""),
+				Key:   EnvOrDefault(AltiKey, DefaultAppKey),
+				Token: EnvOrDefault(AltiToken, ""),
 			},
 		},
 	}
@@ -28,6 +32,15 @@ func DefaultConfig() Config {
 		Active: "default",
 	}
 	return c
+}
+
+// EnvOrDefault loads env var if any, otherwise reuturn default string.
+func EnvOrDefault(envKey, defaultVal string) string {
+	v := os.Getenv(envKey)
+	if v == "" {
+		return defaultVal
+	}
+	return v
 }
 
 // Load loads config from default path.
