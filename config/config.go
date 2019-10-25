@@ -12,6 +12,17 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// FromEnv loads config from env vars, and return if the config is valid.
+func FromEnv() (Config, bool) {
+	c := DefaultConfig()
+	s := c.Scopes[DefaultScope]
+	p := s.Profiles[0]
+	if s.Endpoint == "" || p.Key == "" || p.Token == "" {
+		return c, false
+	}
+	return c, true
+}
+
 // DefaultConfig returns the default endpoint and api key.
 func DefaultConfig() Config {
 	m := map[string]Scope{}
@@ -19,7 +30,7 @@ func DefaultConfig() Config {
 		Endpoint: EnvOrDefault(AltiEndpoint, DefaultEndpoint),
 		Profiles: []Profile{
 			{
-				ID:    "default",
+				ID:    DefaultProfileID,
 				Name:  EnvOrDefault(AltiName, ""),
 				Email: EnvOrDefault(AltiEmail, ""),
 				Key:   EnvOrDefault(AltiKey, DefaultAppKey),
@@ -43,8 +54,17 @@ func EnvOrDefault(envKey, defaultVal string) string {
 	return v
 }
 
-// Load loads config from default path.
+// Load loads config from env var first.
+// If not exists, load from default path.
+// If not found in default path, load from default config.
 func Load() Config {
+	// a. from env
+	ec, ok := FromEnv()
+	if ok {
+		return ec
+	}
+
+	// b. from ~/.altizure/config.yaml
 	var c Config
 	err := viper.Unmarshal(&c)
 	if err != nil || c.Scopes == nil {
