@@ -329,9 +329,9 @@ func (p Profile) Equal(o Profile) bool {
 
 // APoint represents the active endping and profile.
 type APoint struct {
-	Endpoint string `yaml:"endpoint"`
-	Name     string `yaml:"name"`
-	Email    string `yaml:"email"`
-	Key      string `yaml:"key"`
-	Token    string `yaml:"token"`
+	Endpoint string `yaml:"endpoint" json:"endpoint"`
+	Name     string `yaml:"name" json:"name"`
+	Email    string `yaml:"email" json:"email"`
+	Key      string `yaml:"key" json:"key"`
+	Token    string `yaml:"token" json:"token"`
 }
