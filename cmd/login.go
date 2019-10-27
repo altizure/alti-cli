@@ -13,6 +13,7 @@ import (
 )
 
 var byPhone bool
+var withKey bool
 
 // loginCmd represents the login command
 var loginCmd = &cobra.Command{
@@ -38,7 +39,7 @@ var loginCmd = &cobra.Command{
 
 		// b. api key
 		var appKey string
-		if u.Hostname() != config.DefaultHostName1 && u.Hostname() != config.DefaultHostName2 {
+		if withKey || u.Hostname() != config.DefaultHostName1 && u.Hostname() != config.DefaultHostName2 {
 			fmt.Printf("App Key: ")
 			fmt.Scanln(&appKey)
 		} else {
@@ -116,4 +117,5 @@ var loginCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(loginCmd)
 	loginCmd.Flags().BoolVarP(&byPhone, "phone", "p", byPhone, "Use verified phone number to login")
+	loginCmd.Flags().BoolVarP(&withKey, "key", "k", withKey, "Set specific app key instead of default.")
 }
