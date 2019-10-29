@@ -7,7 +7,7 @@ import (
 )
 
 // GetUserTokenBySuper gets the self-issued user token by superuser.
-func GetUserTokenBySuper(endpoint, appKey, email string) (string, error) {
+func GetUserTokenBySuper(endpoint, appKey, token, email string) (string, error) {
 	client := graphql.NewClient(endpoint + "/super")
 
 	req := graphql.NewRequest(`
@@ -16,6 +16,8 @@ func GetUserTokenBySuper(endpoint, appKey, email string) (string, error) {
 		}
 	`)
 	req.Header.Set("key", appKey)
+	req.Header.Set("altitoken", token)
+
 	req.Var("email", email)
 
 	ctx := context.Background()
