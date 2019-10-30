@@ -23,7 +23,7 @@ var whoamiCmd = &cobra.Command{
 			return
 		}
 		if user.Username == "" {
-			fmt.Printf("You are not login in!\nLogin with 'alti-cli login'\n")
+			fmt.Println(LoginHint)
 			return
 		}
 

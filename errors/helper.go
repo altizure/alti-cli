@@ -20,7 +20,7 @@ func MustGQL(err error, endpoint string) string {
 	case ErrNoConfig:
 		return fmt.Sprintf("Config not found.\nLogin with 'alti-cli login'")
 	case ErrNotLogin:
-		return fmt.Sprintf("You are not login in!\nLogin with 'alti-cli login'")
+		return fmt.Sprintf("You are not login in!\nLogin with 'alti-cli login' or\nSwith account with 'alti-cli account use XXX'")
 	case ErrOffline:
 		if endpoint == "" {
 			endpoint = "Endpoint"

@@ -29,6 +29,11 @@ var myprojCmd = &cobra.Command{
 			}
 		}()
 
+		if !IsLogin() {
+			fmt.Println(LoginHint)
+			return
+		}
+
 		projs, page, total, err := gql.MyProjects(pageCount, 0, "", "", search)
 		if msg := errors.MustGQL(err, ""); msg != "" {
 			fmt.Println(msg)
