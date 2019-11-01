@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/supergql"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -24,9 +24,7 @@ var tokenCmd = &cobra.Command{
 			fmt.Println("Not authorized.")
 			return
 		}
-		config := config.Load()
-		active := config.GetActive()
-		token, err := gql.GetUserTokenBySuper(active.Endpoint, active.Key, active.Token, email)
+		token, err := supergql.GetUserToken(email)
 		errors.Must(err)
 
 		if jsonOut {

@@ -4,7 +4,7 @@
 ```bash
 go get -u github.com/jackytck/alti-cli
 
-# auto-complete
+# bash auto-complete
 alti-cli help completion
 ```
 
@@ -15,6 +15,9 @@ alti-cli login
 
 # phone login (public api only)
 alti-cli login -p
+
+# login with specific key (e.g. your paid developer key)
+alti-cli login -k
 ```
 * Support public api-server, Altizure One and private api-server.
 * e.g. endpoint for private server: http://1.2.3.4:1234
@@ -210,3 +213,17 @@ $ alti-cli gql -q q.txt -k var.txt
 ```
 * -q: path of query or mutation file
 * -k: path of query variables file
+
+### Super tools
+
+#### Get user token
+```bash
+alti-cli super token -e 'nat@altizure.com'
+```
+* -e: user email
+
+#### Sync project to cloud
+```bash
+alti-cli super sync -p 5d7b6b
+```
+* -p: (partial) project id
