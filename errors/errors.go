@@ -29,6 +29,8 @@ const (
 	ErrMetaNotFound ProjectError = "project: meta file not found"
 	// ErrMetaMisc is returned when a meta file is invalid or duplicated.
 	ErrMetaMisc ProjectError = "project: meta file is invalid or duplicated"
+	// ErrReportProj is returned when a project could not be reported.
+	ErrReportProj ProjectError = "project: report error"
 	// ErrFileNotImage is returned when a file is not a supported image.
 	ErrFileNotImage FileError = "file: not image"
 	// ErrFileNotZip is returned when a file is not a zip file.
