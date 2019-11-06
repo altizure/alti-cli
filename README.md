@@ -28,6 +28,16 @@ Check if direct upload is supported.
 alti-cli network
 ```
 
+### Site Test
+Check if main browsing site is up.
+```bash
+alti-cli check site -v
+
+2019/11/06 14:56:45 Checking https://www.altizure.com...
+2019/11/06 14:56:45 Success with status code: 200
+2019/11/06 14:56:45 Took 637.822755ms
+```
+
 ### List Account
 ```bash
 alti-cli account
