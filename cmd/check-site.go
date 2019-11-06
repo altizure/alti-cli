@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -35,7 +36,9 @@ var checkSiteCmd = &cobra.Command{
 		}
 
 		url := gql.WebEndpoint()
-		log.Printf("Checking %s...\n", url)
+		if verbose {
+			log.Printf("Checking %s...\n", url)
+		}
 
 		ch := make(chan res)
 		go func() {
@@ -52,10 +55,16 @@ var checkSiteCmd = &cobra.Command{
 				return
 			}
 			if r.status != http.StatusOK {
-				log.Printf("Status is not OK: %v", r.status)
+				if verbose {
+					log.Printf("Status is not OK: %v", r.status)
+				}
 				return
 			}
-			log.Printf("Success with status code: %v", r.status)
+			if verbose {
+				log.Printf("Success with status code: %v", r.status)
+			} else {
+				fmt.Println("Success")
+			}
 		}
 	},
 }
@@ -68,4 +77,5 @@ type res struct {
 func init() {
 	checkCmd.AddCommand(checkSiteCmd)
 	checkSiteCmd.Flags().IntVarP(&timeout, "timeout", "t", 10, "Timeout of checking in seconds")
+	checkSiteCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more info of operation")
 }
