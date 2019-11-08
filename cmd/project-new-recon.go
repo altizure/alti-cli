@@ -14,6 +14,7 @@ var name string
 var projType = "free"
 var visibility = "public"
 var silent bool
+var newPID string
 
 // newReconCmd represents the new command
 var newReconCmd = &cobra.Command{
@@ -38,6 +39,8 @@ var newReconCmd = &cobra.Command{
 		r := []string{pid, name, projType, visibility}
 		table.Append(r)
 		table.Render()
+
+		newPID = pid
 	},
 }
 
