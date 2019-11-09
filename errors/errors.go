@@ -37,6 +37,8 @@ const (
 	ErrFileNotZip FileError = "file: not zip"
 	// ErrFileNotDir is returned when a file is not a directory.
 	ErrFileNotDir FileError = "file: not directory"
+	// ErrFileNotDirOrZip is returned when a file is not a directory and not a zip file.
+	ErrFileNotDirOrZip FileError = "file: not directory or zip"
 	// ErrFilesize is returned when the filesize of a file could not be determined.
 	ErrFilesize FileError = "file: unknown filesize"
 	// ErrFileImageDim is returned when the dimension of an image could not be determined.

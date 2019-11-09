@@ -31,6 +31,8 @@ var newModelCmd = &cobra.Command{
 		r := []string{pid, name, projType, modelType, visibility}
 		table.Append(r)
 		table.Render()
+
+		newPID = pid
 	},
 }
 

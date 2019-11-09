@@ -21,6 +21,10 @@ type CheckFn func(LogFn) error
 // LogFn represents a logger function. Same signature as log.Printf.
 type LogFn func(string, ...interface{})
 
+// QuietLog is a dummy func for logging nothing.
+func QuietLog(string, ...interface{}) {
+}
+
 // Check checks all of the passed in checker functions.
 func Check(logger LogFn, cs ...CheckFn) error {
 	if logger == nil {
@@ -166,6 +170,20 @@ func CheckFile(f string) CheckFn {
 		if _, err := os.Stat(f); os.IsNotExist(err) {
 			logger("Could not found file: %q", f)
 			return err
+		}
+		return nil
+	}
+}
+
+// CheckDirOrZip checks if the input is a directory or a zip file.
+func CheckDirOrZip(p string) CheckFn {
+	cd := CheckDir(p)
+	cz := CheckZip(p)
+	return func(logger LogFn) error {
+		e1 := cd(QuietLog)
+		e2 := cz(QuietLog)
+		if e1 != nil && e2 != nil {
+			return errors.ErrFileNotDirOrZip
 		}
 		return nil
 	}
