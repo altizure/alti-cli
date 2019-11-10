@@ -241,3 +241,25 @@ func CheckFilenames(filePath string, allowed []string) CheckFn {
 		return nil
 	}
 }
+
+// GetMetafilePaths gets all valid metafile paths in the root level of a directory.
+func GetMetafilePaths(dir string) ([]string, error) {
+	var ret []string
+
+	// check if dir exists
+	cd := CheckDir(dir)
+	err := cd(QuietLog)
+	if err != nil {
+		return ret, err
+	}
+
+	// find valid meta files
+	for _, name := range ValidMetafileNames {
+		p := filepath.Join(dir, name)
+		if file.IsFileExist(p) {
+			ret = append(ret, p)
+		}
+	}
+
+	return ret, nil
+}

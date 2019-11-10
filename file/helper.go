@@ -55,6 +55,14 @@ func GetImageSize(img string) (int, int, error) {
 	return i.Width, i.Height, nil
 }
 
+// IsFileExist checks if file exists.
+func IsFileExist(f string) bool {
+	if _, err := os.Stat(f); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
 // IsImageFile tells if the file is an image.
 func IsImageFile(img string) (bool, error) {
 	ext, err := GuessFileType(img)

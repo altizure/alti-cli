@@ -26,3 +26,6 @@ const Failed = "Failed"
 
 // Yes represents an answer of yes.
 const Yes = "YES"
+
+// ValidMetafileNames specifies the valid metafile names.
+var ValidMetafileNames = []string{"camera.txt", "pose.txt", "group.txt", "initial.xms", "initial.xms.zip"}
