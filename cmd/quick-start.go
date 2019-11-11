@@ -65,7 +65,15 @@ var quickCmd = &cobra.Command{
 			assumeYes = true
 			importImageCmd.Run(cmd, args)
 
-			// @TODO: 3b. import meta file
+			// 3b. import meta file
+			metafiles, _ := service.GetMetafilePaths(inputPath)
+			if len(metafiles) > 0 {
+				for i, f := range metafiles {
+					log.Printf("Detected metafile(%d/%d): %q\n", i+1, len(metafiles), f)
+					meta = f
+					importMetaCmd.Run(cmd, args)
+				}
+			}
 
 			// 4. start reconstruction task
 			startReconCmd.Run(cmd, args)
@@ -87,5 +95,6 @@ func init() {
 	quickCmd.Flags().StringVarP(&name, "name", "n", name, "Project name")
 	quickCmd.Flags().StringVarP(&projType, "projectType", "p", projType, "free, pro")
 	quickCmd.Flags().StringVarP(&modelType, "modelType", "m", modelType, "CAD, PHOTOGRAMMETRY, PTCLOUD")
+	quickCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
 	quickCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more info of operation")
 }
