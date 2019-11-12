@@ -22,6 +22,18 @@ alti-cli login -k
 * Support public api-server, Altizure One and private api-server.
 * e.g. endpoint for private server: http://1.2.3.4:1234
 
+### Quick start
+1. Put all images and meta files in a directory (e.g. /tmp/ust-test), or zipped obj (e.g. /tmp/bunny.zip)
+2. Call
+```bash
+# create project + upload (images/metafiles/model) + start task
+alti-cli quick -i /tmp/ust-test
+
+# Or a zip file of CAD obj
+alti-cli quick -i /tmp/bunny.zip
+```
+3. Done
+
 ### Network Test
 Check if direct upload is supported.
 ```bash
