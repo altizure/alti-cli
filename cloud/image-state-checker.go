@@ -59,6 +59,10 @@ func (isc *ImageStateChecker) Run(n int) int {
 // checkState checks the db image state via api, until state is changed to
 // 'Ready' or 'Invalid', or timeout in this client.
 func (isc *ImageStateChecker) checkState(img db.Image) db.Image {
+	// may already have error from ImageRegUploader
+	if img.Error != "" {
+		return img
+	}
 	imgCh := make(chan db.Image)
 
 	go func() {
