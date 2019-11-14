@@ -68,6 +68,7 @@ var quickCmd = &cobra.Command{
 			// 3b. import meta file
 			metafiles, _ := service.GetMetafilePaths(inputPath)
 			if len(metafiles) > 0 {
+				bucket = ""
 				for i, f := range metafiles {
 					log.Printf("Detected metafile(%d/%d): %q\n", i+1, len(metafiles), f)
 					meta = f

@@ -72,7 +72,7 @@ func SuggestBucket(method, bucket, kind string) (string, error) {
 
 	b, buckets, err := gql.QueryBucket(kind, method, bucket)
 	if err != nil {
-		e := fmt.Sprintf("Valid buckets are: %q\n", buckets)
+		e := fmt.Sprintf("Valid buckets are: %q. Your input: %q\n", buckets, bucket)
 		return "", errors.New(e)
 	}
 	return b, nil

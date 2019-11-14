@@ -15,9 +15,9 @@ import (
 func SuggestedBucket(kind, cloud string) (string, error) {
 	switch kind {
 	case "image":
-		fallthrough
-	case "meta":
 		return imageBucketSuggestion(cloud)
+	case "meta":
+		return metaBucketSuggestion(cloud)
 	case "model":
 		return modelBucketSuggestion(cloud)
 	}
@@ -49,6 +49,43 @@ func imageBucketSuggestion(cloud string) (string, error) {
 		return "", err
 	}
 	buks := res.GetGeoIPInfo.NearestBuckets
+	if len(buks) == 0 {
+		return "", errors.ErrNoBucketSuggestion
+	}
+
+	for _, b := range buks {
+		if strings.ToLower(b.Cloud) == strings.ToLower(cloud) {
+			return b.Bucket, nil
+		}
+	}
+	return "", errors.ErrNoBucketSuggestion
+}
+
+// metaBucketSuggestion returns the nearest meta bucket suggested by api.
+func metaBucketSuggestion(cloud string) (string, error) {
+	config := config.Load()
+	active := config.GetActive()
+	client := graphql.NewClient(active.Endpoint + "/graphql")
+
+	// make a request
+	req := graphql.NewRequest(`
+		{
+			getGeoIPInfo {
+				nearestMetaBuckets {
+					cloud
+					bucket
+				}
+			}
+		}
+	`)
+	req.Header.Set("key", active.Key)
+	ctx := context.Background()
+
+	var res nearMetaBuckRes
+	if err := client.Run(ctx, req, &res); err != nil {
+		return "", err
+	}
+	buks := res.GetGeoIPInfo.NearestMetaBuckets
 	if len(buks) == 0 {
 		return "", errors.ErrNoBucketSuggestion
 	}
@@ -101,6 +138,15 @@ func modelBucketSuggestion(cloud string) (string, error) {
 type nearImgBuckRes struct {
 	GetGeoIPInfo struct {
 		NearestBuckets []struct {
+			Cloud  string
+			Bucket string
+		}
+	}
+}
+
+type nearMetaBuckRes struct {
+	GetGeoIPInfo struct {
+		NearestMetaBuckets []struct {
 			Cloud  string
 			Bucket string
 		}
