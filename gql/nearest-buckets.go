@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/jackytck/alti-cli/config"
@@ -13,42 +14,37 @@ import (
 // kind is "image", "model" or "meta".
 // cloud is "s3", "oss" or "minio".
 func SuggestedBucket(kind, cloud string) (string, error) {
+	config := config.Load()
+	active := config.GetActive()
+	client := graphql.NewClient(active.Endpoint + "/graphql")
+
+	// make a request
+	req := graphql.NewRequest(fmt.Sprintf(`
+		{
+			getGeoIPInfo {
+				%s {
+					cloud
+					bucket
+				}
+			}
+		}
+	`, kindToQuery(kind)))
+	req.Header.Set("key", active.Key)
+	ctx := context.Background()
+
+	var res nearBucketRes
+	if err := client.Run(ctx, req, &res); err != nil {
+		return "", err
+	}
+	var buks []cloudBucket
 	switch kind {
 	case "image":
-		return imageBucketSuggestion(cloud)
+		buks = res.GetGeoIPInfo.NearestBuckets
 	case "meta":
-		return metaBucketSuggestion(cloud)
+		buks = res.GetGeoIPInfo.NearestMetaBuckets
 	case "model":
-		return modelBucketSuggestion(cloud)
+		buks = res.GetGeoIPInfo.NearestModelBuckets
 	}
-	return "", errors.ErrNoBucketSuggestion
-}
-
-// imageBucketSuggestion returns the nearest image bucket suggested by api.
-func imageBucketSuggestion(cloud string) (string, error) {
-	config := config.Load()
-	active := config.GetActive()
-	client := graphql.NewClient(active.Endpoint + "/graphql")
-
-	// make a request
-	req := graphql.NewRequest(`
-		{
-			getGeoIPInfo {
-				nearestBuckets {
-					cloud
-					bucket
-				}
-			}
-		}
-	`)
-	req.Header.Set("key", active.Key)
-	ctx := context.Background()
-
-	var res nearImgBuckRes
-	if err := client.Run(ctx, req, &res); err != nil {
-		return "", err
-	}
-	buks := res.GetGeoIPInfo.NearestBuckets
 	if len(buks) == 0 {
 		return "", errors.ErrNoBucketSuggestion
 	}
@@ -61,103 +57,29 @@ func imageBucketSuggestion(cloud string) (string, error) {
 	return "", errors.ErrNoBucketSuggestion
 }
 
-// metaBucketSuggestion returns the nearest meta bucket suggested by api.
-func metaBucketSuggestion(cloud string) (string, error) {
-	config := config.Load()
-	active := config.GetActive()
-	client := graphql.NewClient(active.Endpoint + "/graphql")
-
-	// make a request
-	req := graphql.NewRequest(`
-		{
-			getGeoIPInfo {
-				nearestMetaBuckets {
-					cloud
-					bucket
-				}
-			}
-		}
-	`)
-	req.Header.Set("key", active.Key)
-	ctx := context.Background()
-
-	var res nearMetaBuckRes
-	if err := client.Run(ctx, req, &res); err != nil {
-		return "", err
+// kindToQuery gives the sub-query of getGeoIPInfo of a given kind.
+// kind: "image", "meta" or "model"
+func kindToQuery(kind string) string {
+	switch kind {
+	case "image":
+		return "nearestBuckets"
+	case "meta":
+		return "nearestMetaBuckets"
+	case "model":
+		return "nearestModelBuckets"
 	}
-	buks := res.GetGeoIPInfo.NearestMetaBuckets
-	if len(buks) == 0 {
-		return "", errors.ErrNoBucketSuggestion
-	}
-
-	for _, b := range buks {
-		if strings.ToLower(b.Cloud) == strings.ToLower(cloud) {
-			return b.Bucket, nil
-		}
-	}
-	return "", errors.ErrNoBucketSuggestion
+	return ""
 }
 
-// modelBucketSuggestion returns the nearest model bucket suggested by api.
-func modelBucketSuggestion(cloud string) (string, error) {
-	config := config.Load()
-	active := config.GetActive()
-	client := graphql.NewClient(active.Endpoint + "/graphql")
-
-	// make a request
-	req := graphql.NewRequest(`
-		{
-			getGeoIPInfo {
-				nearestModelBuckets {
-					cloud
-					bucket
-				}
-			}
-		}
-	`)
-	req.Header.Set("key", active.Key)
-	ctx := context.Background()
-
-	var res nearModelBuckRes
-	if err := client.Run(ctx, req, &res); err != nil {
-		return "", err
-	}
-	buks := res.GetGeoIPInfo.NearestModelBuckets
-	if len(buks) == 0 {
-		return "", errors.ErrNoBucketSuggestion
-	}
-
-	for _, b := range buks {
-		if strings.ToLower(b.Cloud) == strings.ToLower(cloud) {
-			return b.Bucket, nil
-		}
-	}
-	return "", errors.ErrNoBucketSuggestion
-}
-
-type nearImgBuckRes struct {
+type nearBucketRes struct {
 	GetGeoIPInfo struct {
-		NearestBuckets []struct {
-			Cloud  string
-			Bucket string
-		}
+		NearestBuckets      []cloudBucket
+		NearestMetaBuckets  []cloudBucket
+		NearestModelBuckets []cloudBucket
 	}
 }
 
-type nearMetaBuckRes struct {
-	GetGeoIPInfo struct {
-		NearestMetaBuckets []struct {
-			Cloud  string
-			Bucket string
-		}
-	}
-}
-
-type nearModelBuckRes struct {
-	GetGeoIPInfo struct {
-		NearestModelBuckets []struct {
-			Cloud  string
-			Bucket string
-		}
-	}
+type cloudBucket struct {
+	Cloud  string
+	Bucket string
 }
