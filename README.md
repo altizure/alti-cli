@@ -121,6 +121,12 @@ alti-cli check image -d ~/myimg -v -t -s .small -n 10
 * -s: directory to skip, e.g. .small
 * -n: number of threads, default is number of cores
 
+### List buckets
+Buckets are used in the `import` command for specifying different geo endpoints for the upload process. Would be auto selected if not provided.
+```bash
+alti-cli list bucket
+```
+
 ### Import Image (reconstruction project)
 ```bash
 alti-cli import image -d ~/myimg -s .small -p 5d37e -r upload.csv -v -m s3 -y
