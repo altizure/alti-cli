@@ -30,7 +30,7 @@ func CoinsToMoney(coins float64, currency string) (float64, error) {
 	if err := client.Run(ctx, req, &res); err != nil {
 		return 0, err
 	}
-	return res.bank.coinsToMoney, nil
+	return res.Bank.CoinsToMoney, nil
 }
 
 // MoneyToCoins converts money into coins.
@@ -56,12 +56,12 @@ func MoneyToCoins(money float64, currency string) (float64, error) {
 	if err := client.Run(ctx, req, &res); err != nil {
 		return 0, err
 	}
-	return res.bank.moneyToCoins, nil
+	return res.Bank.MoneyToCoins, nil
 }
 
 type bankRes struct {
-	bank struct {
-		coinsToMoney float64
-		moneyToCoins float64
+	Bank struct {
+		CoinsToMoney float64
+		MoneyToCoins float64
 	}
 }

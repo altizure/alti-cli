@@ -188,6 +188,21 @@ alti-cli project stop -p 5d37e0
 alti-cli project download -p 5d37e -y
 ```
 
+### Bank
+Cash to coins
+```bash
+alti-cli bank tocoins -c 12
+
+USD12.00 could buy 1.02 coins
+```
+
+Coins to cash
+```bash
+alti-cli bank tocash -c 3
+
+3.00 coins could be bought by USD35.40
+```
+
 ### Arbitrary GQL (query + mutation)
 ```bash
 $ cat q.txt
