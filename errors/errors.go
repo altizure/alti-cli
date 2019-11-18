@@ -87,6 +87,8 @@ const (
 	ErrClientVar ClientError = "client: variable file not found"
 	// ErrClientVarInvalid is returned when the input gql variable file is not valid.
 	ErrClientVarInvalid ClientError = "client: variable file invalid"
+	// ErrCurrencyInvalid is returned when the provided currency is invalid.
+	ErrCurrencyInvalid ToolsError = "tools: invalid currency"
 )
 
 // AppError is the application specific error.
@@ -128,6 +130,13 @@ func (e FileError) Error() string {
 type UploadError string
 
 func (e UploadError) Error() string {
+	return string(e)
+}
+
+// ToolsError is the ultitliy related error.
+type ToolsError string
+
+func (e ToolsError) Error() string {
 	return string(e)
 }
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/service"
 	"github.com/spf13/cobra"
 )
 
@@ -18,12 +19,17 @@ var toCoinsCmd = &cobra.Command{
 	Short: "Convert cash to coins",
 	Long:  "Convert cash to coins in different currencies",
 	Run: func(cmd *cobra.Command, args []string) {
-		coins, err := gql.MoneyToCoins(cash, currency)
+		cur, err := service.SuggestCurrency(currency)
 		if err != nil {
 			log.Println(err)
 			return
 		}
-		fmt.Printf("%s%.2f could buy %.2f coins", currency, cash, coins)
+		coins, err := gql.MoneyToCoins(cash, cur)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Printf("%s%.2f could buy %.2f coins\n", cur, cash, coins)
 	},
 }
 

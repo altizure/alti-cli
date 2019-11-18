@@ -77,3 +77,17 @@ func SuggestBucket(method, bucket, kind string) (string, error) {
 	}
 	return b, nil
 }
+
+// SuggestCurrency suggests the best match currency.
+func SuggestCurrency(currency string) (string, error) {
+	if currency == "" {
+		return "USD", nil
+	}
+
+	c, validList, err := gql.QueryCurrency(currency)
+	if err != nil {
+		e := fmt.Sprintf("Valid currency are: %q. Your input: %q", validList, currency)
+		return "", errors.New(e)
+	}
+	return c, nil
+}
