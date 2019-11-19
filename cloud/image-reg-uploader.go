@@ -121,12 +121,23 @@ func (iru *ImageRegUploader) smUpload(kind string, img db.Image, retry int) db.I
 	img.State = gqlImg.State
 
 	// b. signal the start of upload
-	state, err := gql.StartImageUpload(img.IID)
+	trial := retry
+	for i := 0; i < trial; i++ {
+		state, e := gql.StartImageUpload(img.IID)
+		err = e
+		if e == nil {
+			img.State = state
+			break
+		}
+		if iru.Verbose {
+			log.Printf("Retrying (x %d) mutating state for %q\n", i+1, img.Filename)
+		}
+		time.Sleep(time.Second)
+	}
 	if err != nil {
 		img.Error = err.Error()
 		return img
 	}
-	img.State = state
 
 	// c. upload to s3/minio with retry
 	// helper func to put to s3/minio
@@ -150,7 +161,6 @@ func (iru *ImageRegUploader) smUpload(kind string, img db.Image, retry int) db.I
 		return nil
 	}
 
-	trial := retry
 	for i := 0; i < trial; i++ {
 		err = upload()
 		if err == nil {
@@ -184,15 +194,25 @@ func (iru *ImageRegUploader) ossUpload(img db.Image) db.Image {
 	img.State = gqlImg.State
 
 	// b. signal the start of upload
-	state, err := gql.StartImageUpload(img.IID)
+	trial := 5
+	for i := 0; i < trial; i++ {
+		state, e := gql.StartImageUpload(img.IID)
+		err = e
+		if e == nil {
+			img.State = state
+			break
+		}
+		if iru.Verbose {
+			log.Printf("Retrying (x %d) mutating state for %q\n", i+1, img.Filename)
+		}
+		time.Sleep(time.Second)
+	}
 	if err != nil {
 		img.Error = err.Error()
 		return img
 	}
-	img.State = state
 
 	// c. upload to oss with retry
-	trial := 5
 	for i := 0; i < trial; i++ {
 		if iru.Verbose {
 			log.Printf("Uploading %q\n", img.Filename)
@@ -211,7 +231,7 @@ func (iru *ImageRegUploader) ossUpload(img db.Image) db.Image {
 	}
 
 	// d. signal the end of upload
-	state, err = gql.DoneImageUpload(img.IID)
+	state, err := gql.DoneImageUpload(img.IID)
 	if err != nil {
 		img.Error = err.Error()
 		return img
