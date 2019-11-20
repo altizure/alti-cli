@@ -70,6 +70,12 @@ func (mru *ModelRegUploader) directUpload() (string, error) {
 	}
 	log.Printf("Registered model with state: %q\n", im.State)
 
+	// c. signal completing upload
+	state, err := gql.DoneModelUpload(mru.PID, true)
+	if err != nil {
+		return state, err
+	}
+
 	return mru.checkState()
 }
 

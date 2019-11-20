@@ -83,6 +83,7 @@ var quickCmd = &cobra.Command{
 			newModelCmd.Run(cmd, args)
 
 			// 3b. import model
+			timeout = 0
 			id = newPID
 			model = inputPath
 			importModelCmd.Run(cmd, args)
@@ -95,7 +96,8 @@ func init() {
 	quickCmd.Flags().StringVarP(&inputPath, "input", "i", inputPath, "Directory path or model zip file")
 	quickCmd.Flags().StringVarP(&name, "name", "n", name, "Project name")
 	quickCmd.Flags().StringVarP(&projType, "projectType", "p", projType, "free, pro")
-	quickCmd.Flags().StringVarP(&modelType, "modelType", "m", modelType, "CAD, PHOTOGRAMMETRY, PTCLOUD")
+	quickCmd.Flags().StringVarP(&method, "method", "m", method, "Desired method of upload: 'direct', 's3' or 'oss'")
+	quickCmd.Flags().StringVarP(&modelType, "modelType", "t", modelType, "CAD, PHOTOGRAMMETRY, PTCLOUD")
 	quickCmd.Flags().StringVarP(&skip, "skip", "s", skip, "Regular expression to skip paths")
 	quickCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display more info of operation")
 }
