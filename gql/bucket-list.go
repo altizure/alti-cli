@@ -21,7 +21,8 @@ var bucketType = map[string]map[string]string{
 		"minio": "BucketMinioModel",
 	},
 	"meta": {
-		"s3": "BucketS3",
+		"s3":    "BucketS3",
+		"minio": "BucketMinioMeta",
 	},
 }
 
