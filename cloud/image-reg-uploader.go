@@ -1,6 +1,7 @@
 package cloud
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"runtime"
@@ -89,7 +90,8 @@ func (iru *ImageRegUploader) regUpload(img db.Image) db.Image {
 }
 
 func (iru *ImageRegUploader) directUpload(img db.Image) db.Image {
-	gqlImg, err := gql.RegisterImageURL(img.PID, iru.BaseURL+img.URL, img.Filename, img.Hash)
+	u := fmt.Sprintf("%s/%s", iru.BaseURL, img.URL)
+	gqlImg, err := gql.RegisterImageURL(img.PID, u, img.Filename, img.Hash)
 	if err != nil {
 		img.Error = err.Error()
 		return img
