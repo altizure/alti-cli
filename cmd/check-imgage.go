@@ -9,6 +9,7 @@ import (
 	"github.com/c2h5oh/datasize"
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/file"
+	"github.com/jackytck/alti-cli/gql"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -93,14 +94,18 @@ of all images of a given directory.`,
 			panic(err)
 		}
 
+		usd, err := gql.CoinsToMoney(totalGP, "USD")
+		if err != nil {
+			panic(err)
+		}
 		if totalImg > 0 {
-			log.Printf("Found %d images, total %.2f GP, %s", totalImg, totalGP, totalByte.HumanReadable())
+			log.Printf("Found %d images, total %.2f GP, %s, USD $%.2f", totalImg, totalGP, totalByte.HumanReadable(), usd)
 		} else {
 			log.Println("No image is found!")
 		}
 
 		if printTable {
-			table.SetFooter([]string{fmt.Sprintf("%d image(s)", totalImg), "Total", fmt.Sprintf("%.2f GP", totalGP), totalByte.HumanReadable(), `\ (•◡•) /`})
+			table.SetFooter([]string{fmt.Sprintf("%d image(s)", totalImg), fmt.Sprintf("USD $%.2f", usd), fmt.Sprintf("%.2f GP", totalGP), totalByte.HumanReadable(), `\ (•◡•) /`})
 			table.Render()
 		}
 	},

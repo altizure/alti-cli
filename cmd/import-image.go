@@ -200,7 +200,11 @@ var importImageCmd = &cobra.Command{
 		if totalImg > 1 {
 			plural = "s"
 		}
-		fmt.Printf("After importing (if no duplicate):\nImages #: %d -> %d\tGP: %.2f -> %.2f\n", p.NumImage, p.NumImage+totalImg, p.GigaPixel, p.GigaPixel+totalGP)
+		usd, err := gql.CoinsToMoney(totalGP, "USD")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("After importing (if no duplicate):\nImages #: %d -> %d\tGP: %.2f -> %.2f\tPRO: USD $%.2f\n", p.NumImage, p.NumImage+totalImg, p.GigaPixel, p.GigaPixel+totalGP, usd)
 		fmt.Printf("Continue to import %d image%s or not? (Y/N): ", totalImg, plural)
 		if assumeYes {
 			fmt.Println("Yes")
