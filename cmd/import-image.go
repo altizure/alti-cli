@@ -132,7 +132,9 @@ var importImageCmd = &cobra.Command{
 		go func() {
 			<-cc
 			cleanupDB()
-			serDone()
+			if serDone != nil {
+				serDone()
+			}
 			fmt.Println()
 			log.Println("Bye!")
 			os.Exit(1)
