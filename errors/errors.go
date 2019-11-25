@@ -88,7 +88,9 @@ const (
 	// ErrClientVarInvalid is returned when the input gql variable file is not valid.
 	ErrClientVarInvalid ClientError = "client: variable file invalid"
 	// ErrCurrencyInvalid is returned when the provided currency is invalid.
-	ErrCurrencyInvalid ToolsError = "tools: invalid currency"
+	ErrCurrencyInvalid BankError = "bank: invalid currency"
+	// ErrTransferCoins is returned when the p2p coins give error.
+	ErrTransferCoins BankError = "bank: transfer coins failed"
 )
 
 // AppError is the application specific error.
@@ -133,10 +135,10 @@ func (e UploadError) Error() string {
 	return string(e)
 }
 
-// ToolsError is the ultitliy related error.
-type ToolsError string
+// BankError is the ultitliy related error.
+type BankError string
 
-func (e ToolsError) Error() string {
+func (e BankError) Error() string {
 	return string(e)
 }
 
