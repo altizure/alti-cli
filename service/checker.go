@@ -164,6 +164,33 @@ func CheckPID(kind, pid string) CheckFn {
 	}
 }
 
+// CheckNonNegative checks if the number is non negative.
+func CheckNonNegative(i float64) CheckFn {
+	return func(logger LogFn) error {
+		if i < 0 {
+			logger("Cloud not be negative: %.2f", i)
+			return errors.ErrInvalidInput
+		}
+		return nil
+	}
+
+}
+
+// CheckBalance checks if the current user has at least min number of coins.
+func CheckBalance(min float64) CheckFn {
+	return func(logger LogFn) error {
+		_, myself, err := gql.MySelf()
+		if err != nil {
+			return err
+		}
+		if myself.Balance < min {
+			logger("Current balance: %.2f is not enough to pay %.2f coins.", myself.Balance, min)
+			return errors.ErrInsufficientCoins
+		}
+		return nil
+	}
+}
+
 // CheckFile checks if the file exists.
 func CheckFile(f string) CheckFn {
 	return func(logger LogFn) error {

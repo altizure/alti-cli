@@ -9,6 +9,8 @@ const (
 	ErrNotLogin AppError = "app: not login"
 	// ErrErrorCodeInvalid is returned when the input altizure error code is invalid.
 	ErrErrorCodeInvalid AppError = "app: invalid error code"
+	// ErrInvalidInput is returned when the input value is invalid.
+	ErrInvalidInput AppError = "app: invalid input"
 	// ErrProfileNotFound is returned when the queried profile is not found.
 	ErrProfileNotFound ConfigError = "config: profile not found"
 	// ErrProfileNotRemovable is returned when the default profile is chosen to be removed.
@@ -91,6 +93,8 @@ const (
 	ErrCurrencyInvalid BankError = "bank: invalid currency"
 	// ErrTransferCoins is returned when the p2p coins give error.
 	ErrTransferCoins BankError = "bank: transfer coins failed"
+	// ErrInsufficientCoins is returned when the required coins is not enough.
+	ErrInsufficientCoins BankError = "bank: insufficient coins"
 )
 
 // AppError is the application specific error.

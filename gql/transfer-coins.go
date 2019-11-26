@@ -17,7 +17,7 @@ func TransferCoins(coins float64, email, message string) (string, error) {
 	client := graphql.NewClient(active.Endpoint + "/graphql")
 
 	req := graphql.NewRequest(`
-		mutation ($amount: float!, $email: String!, $message: String){
+		mutation ($amount: Float!, $email: String!, $message: String){
 			transferCoins(amount: $amount, options: {email: $email, message: $message}) {
 				error {
 					message
