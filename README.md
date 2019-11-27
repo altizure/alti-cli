@@ -203,6 +203,15 @@ alti-cli bank tocash -c 3
 3.00 coins could be bought by USD35.40
 ```
 
+P2P coins
+```bash
+$ alti-cli bank transfer -c 0.1 -e nat@nat.com -m 'Test transferring coins'
+
+You have 105.42 coins. Are you sure to transfer 0.10 coins to "nat@nat.com"? (Y/N): y
+Successfully transferred 0.10 coins to "nat@nat.com"
+Current balnce: 105.32 coins
+```
+
 ### Arbitrary GQL (query + mutation)
 ```bash
 $ cat q.txt
