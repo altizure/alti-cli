@@ -279,3 +279,9 @@ alti-cli super token -e 'nat@altizure.com'
 alti-cli super sync -p 5d7b6b
 ```
 * -p: (partial) project id
+
+#### Sync images from cloud to gfs
+```bash
+alti-cli super toGFS -p 5d7b6b
+```
+* -p: (partial) project id

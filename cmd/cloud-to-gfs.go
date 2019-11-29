@@ -9,11 +9,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// syncProjCmd represents the syncProj command
-var syncProjCmd = &cobra.Command{
-	Use:   "sync",
-	Short: "Cloud sync a project",
-	Long:  "Cloud sync a project.",
+// cloudToGFSCmd represents the cloudToGFS command
+var cloudToGFSCmd = &cobra.Command{
+	Use:   "toGFS",
+	Short: "Download image from cloud to gfs",
+	Long:  "Download image from cloud to gfs.",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !IsSuperuser() {
 			fmt.Println("Not authorized.")
@@ -27,8 +27,8 @@ var syncProjCmd = &cobra.Command{
 			return
 		}
 
-		state, err := supergql.SyncProject(p.ID)
-		// gql + sync error
+		state, err := supergql.TriggerCloudToGFS(p.ID)
+		// gql + trigger error
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -39,7 +39,7 @@ var syncProjCmd = &cobra.Command{
 }
 
 func init() {
-	superCmd.AddCommand(syncProjCmd)
-	syncProjCmd.Flags().StringVarP(&id, "id", "p", id, "(Partial) Project id")
-	errors.Must(syncProjCmd.MarkFlagRequired("id"))
+	superCmd.AddCommand(cloudToGFSCmd)
+	cloudToGFSCmd.Flags().StringVarP(&id, "id", "p", id, "(Partial) Project id")
+	errors.Must(cloudToGFSCmd.MarkFlagRequired("id"))
 }
