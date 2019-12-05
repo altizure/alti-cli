@@ -9,6 +9,7 @@ import (
 
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/service"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -19,11 +20,12 @@ var bucketCmd = &cobra.Command{
 	Short: "List all available buckets",
 	Long:  `'alti-cli list bucket' to list all available buckets of different types.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// check api server
-		mode := gql.ActiveSystemMode()
-		if mode != "Normal" {
-			log.Printf("API server is in %q mode.\n", mode)
-			log.Println("Nothing could be uploaded at the moment!")
+		// pre-checks
+		if err := service.Check(
+			nil,
+			service.CheckAPIServer(),
+		); err != nil {
+			log.Println(err)
 			return
 		}
 
