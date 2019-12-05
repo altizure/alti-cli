@@ -83,6 +83,8 @@ const (
 	ErrMetaExisted UploadError = "upload: meta file alreay existed"
 	// ErrTaskStop is returned when a task could not be stopped
 	ErrTaskStop TaskError = "task: task could not be stopped"
+	// ErrTaskTypeInvalid is returned when the provided task type is invalid.
+	ErrTaskTypeInvalid TaskError = "task: invalid task type"
 	// ErrClientQuery is returned when the input gql query file is not found.
 	ErrClientQuery ClientError = "client: query file not found"
 	// ErrClientVar is returned when the input gql variable file is not found.
