@@ -2,22 +2,22 @@
 
 ### Install or Update
 ```bash
-go get -u github.com/jackytck/alti-cli
+$ go get -u github.com/jackytck/alti-cli
 
 # bash auto-complete
-alti-cli help completion
+$ alti-cli help completion
 ```
 
 ### Login
 ```bash
 # email login
-alti-cli login
+$ alti-cli login
 
 # phone login (public api only)
-alti-cli login -p
+$ alti-cli login -p
 
 # login with specific key (e.g. your paid developer key)
-alti-cli login -k
+$ alti-cli login -k
 ```
 * Support public api-server, Altizure One and private api-server.
 * e.g. endpoint for private server: http://1.2.3.4:1234
@@ -27,23 +27,23 @@ alti-cli login -k
 2. Call
 ```bash
 # create project + upload (images/metafiles/model) + start task
-alti-cli quick -i /tmp/ust-test
+$ alti-cli quick -i /tmp/ust-test
 
 # Or a zip file of CAD obj
-alti-cli quick -i /tmp/bunny.zip
+$ alti-cli quick -i /tmp/bunny.zip
 ```
 3. Done
 
 ### Network Test
 Check if direct upload is supported.
 ```bash
-alti-cli network
+$ alti-cli network
 ```
 
 ### Site Test
 Check if main browsing site is up.
 ```bash
-alti-cli check site -v
+$ alti-cli check site -v
 
 2019/11/06 14:56:45 Checking https://www.altizure.com...
 2019/11/06 14:56:45 Success with status code: 200
@@ -52,18 +52,18 @@ alti-cli check site -v
 
 ### List Account
 ```bash
-alti-cli account
+$ alti-cli account
 ```
 
 ### Switch Account
 ```bash
-alti-cli account use XXXXXX
+$ alti-cli account use XXXXXX
 ```
 * XXXXXX is the account ID
 
 ### Current active user
 ```bash
-alti-cli whoami
+$ alti-cli whoami
 
 +--------------------------+----------------+--------+----------+------------+---------------+------+---------+--------+------+-----------+---------------------+---------------+
 |         ENDPOINT         | USERNAME/EMAIL | COINS  | GP QUOTA | MEMBERSHIP | DEVELOPERSHIP | STAR | PROJECT | PLANET | FANS | FOLLOWING |       JOINED        |    COUNTRY    |
@@ -75,7 +75,7 @@ alti-cli whoami
 
 ### Mmebership info
 ```bash
-alti-cli my membership
+$ alti-cli my membership
 
 +--------+-------+--------+---------------------+---------------------+----------+---------+---------+------------+-----------+---------------+--------------+-----------+
 | STATE  | PLAN  | MONTHS |        START        |         END         | GP QUOTA | COIN/GP | STORAGE | VISIBILITY |  COUPON   | MODEL/PROJECT | COLLABORATOR | WATERMARK |
@@ -88,7 +88,7 @@ alti-cli my membership
 
 ### New Project (reconstruction)
 ```bash
-alti-cli project new recon -n 'test new proj'
+$ alti-cli project new recon -n 'test new proj'
 
 +--------------------------+---------------+--------------+------------+
 |            ID            |     NAME      | PROJECT TYPE | VISIBILITY |
@@ -102,18 +102,18 @@ alti-cli project new recon -n 'test new proj'
 
 ### New Project (imported model)
 ```bash
-alti-cli project new model -n 'my obj model'
+$ alti-cli project new model -n 'my obj model'
 ```
 
 ### Remove Project (any kind)
 ```bash
-alti-cli project remove -p '5d37e018bb7c6a0e17ffe9d1'
+$ alti-cli project remove -p '5d37e018bb7c6a0e17ffe9d1'
 ```
 
 ### Check local images (without uploading)
 Check all images of a given directory locally. Get stats of number of GP, dimensions and invalid images, etc.
 ```bash
-alti-cli check image -d ~/myimg -v -t -s .small -n 10
+$ alti-cli check image -d ~/myimg -v -t -s .small -n 10
 ```
 * -d: image directory, e.g. ~/myimg
 * -v: verbose
@@ -124,12 +124,12 @@ alti-cli check image -d ~/myimg -v -t -s .small -n 10
 ### List buckets
 Buckets are used in the `import` command for specifying different geo endpoints for the upload process. Would be auto selected if not provided.
 ```bash
-alti-cli list bucket
+$ alti-cli list bucket
 ```
 
 ### Import Image (reconstruction project)
 ```bash
-alti-cli import image -d ~/myimg -s .small -p 5d37e -r upload.csv -v -m s3 -y
+$ alti-cli import image -d ~/myimg -s .small -p 5d37e -r upload.csv -v -m s3 -y
 ```
 * -d: image directory, e.g. ~/myimg
 * -s: directory to skip, e.g. .small
@@ -142,7 +142,7 @@ alti-cli import image -d ~/myimg -s .small -p 5d37e -r upload.csv -v -m s3 -y
 
 ### Import Meta file (reconstruction project)
 ```bash
-alti-cli import meta -p 5d008 -v -f ~/test/pose.txt
+$ alti-cli import meta -p 5d008 -v -f ~/test/pose.txt
 ```
 * -b: desired bucket to upload (auto select if empty)
 * -f: path of meta file
@@ -155,7 +155,7 @@ alti-cli import meta -p 5d008 -v -f ~/test/pose.txt
 
 ### Import Model file (imported model project)
 ```bash
-alti-cli import model -p 5d7b6b -v -f ~/test/bunny.obj
+$ alti-cli import model -p 5d7b6b -v -f ~/test/bunny.obj
 ```
 * -b: desired bucket to upload
 * -f: path of model zip file or directory of multiparts zip
@@ -166,39 +166,44 @@ alti-cli import model -p 5d7b6b -v -f ~/test/bunny.obj
 
 ### Inspect Project
 ```bash
-alti-cli myproj inspect -p 5d37e0
+$ alti-cli myproj inspect -p 5d37e0
 
-alti-cli myproj
+$ alti-cli myproj
 ```
 
 ### Start Reconstruction
 ```bash
-alti-cli project start -p 5d37e0
+$ alti-cli project start -p 5d37e0
 ```
 
-* -t: task type: `Native` (default), `GCP`, `DMT`, `SFM`, `Dense`, `GCPValidate`, `RetextureLOD`, `ConvertCAD`, `ConvertPG`, `ConvertPTCLOUD`
+* -t: task type: One of `alti-cli list task-type`, default is `Native`
+
+### List task types
+```bash
+$ alti-cli list task-type
+```
 
 ### Stop Reconstruction
 ```bash
-alti-cli project stop -p 5d37e0
+$ alti-cli project stop -p 5d37e0
 ```
 
 ### Download Results (pro project only)
 ```bash
-alti-cli project download -p 5d37e -y
+$ alti-cli project download -p 5d37e -y
 ```
 
 ### Bank
 Cash to coins
 ```bash
-alti-cli bank tocoins -c 12
+$ alti-cli bank tocoins -c 12
 
 USD12.00 could buy 1.02 coins
 ```
 
 Coins to cash
 ```bash
-alti-cli bank tocash -c 3
+$ alti-cli bank tocash -c 3
 
 3.00 coins could be bought by USD35.40
 ```
@@ -270,18 +275,24 @@ $ alti-cli gql -q q.txt -k var.txt
 
 #### Get user token
 ```bash
-alti-cli super token -e 'nat@altizure.com'
+$ alti-cli super token -e 'nat@altizure.com'
 ```
 * -e: user email
 
 #### Sync project to cloud
 ```bash
-alti-cli super sync -p 5d7b6b
+$ alti-cli super sync -p 5d7b6b
 ```
 * -p: (partial) project id
 
 #### Sync images from cloud to gfs
 ```bash
-alti-cli super toGFS -p 5d7b6b
+$ alti-cli super toGFS -p 5d7b6b
+```
+* -p: (partial) project id
+
+#### Force start project task
+```bash
+$ alti-cli super force-start -p 5d7b6b
 ```
 * -p: (partial) project id
