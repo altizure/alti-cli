@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 
 	"github.com/TylerBrock/colorjson"
 	"github.com/jackytck/alti-cli/config"
@@ -75,6 +76,7 @@ func EnumValues(typeName string) ([]string, error) {
 	for _, t := range res.Type.EnumValues {
 		ret = append(ret, t.Name)
 	}
+	sort.Strings(ret)
 
 	return ret, nil
 }

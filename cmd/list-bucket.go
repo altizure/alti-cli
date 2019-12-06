@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sort"
 	"strings"
 
 	"github.com/jackytck/alti-cli/errors"
@@ -46,7 +45,6 @@ var bucketCmd = &cobra.Command{
 				if err != nil {
 					panic(err)
 				}
-				sort.Strings(buks)
 				buckets = append(buckets, []string{k, strings.ToLower(c), strings.Join(buks, ", "), suggested, fmt.Sprintf("%d", len(buks))})
 			}
 		}

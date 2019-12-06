@@ -25,7 +25,7 @@ var taskTypeCmd = &cobra.Command{
 			return
 		}
 
-		tts, err := gql.TaskTypeList()
+		tts, err := gql.EnumValues("TASK_TYPE")
 		if err != nil {
 			panic(err)
 		}

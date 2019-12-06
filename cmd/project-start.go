@@ -7,7 +7,6 @@ import (
 
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
-	"github.com/jackytck/alti-cli/text"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -26,12 +25,8 @@ var startReconCmd = &cobra.Command{
 			return
 		}
 
-		validTypes, err := gql.EnumValues("TASK_TYPE")
+		tt, validTypes, err := gql.QueryTaskType(taskType)
 		if err != nil {
-			panic(err)
-		}
-		tt := text.BestMatch(validTypes, taskType, "")
-		if tt == "" {
 			fmt.Printf("Unknown task type: %q\n", taskType)
 			fmt.Printf("Valid task types are: %q.\n", strings.Join(validTypes, ", "))
 			return
