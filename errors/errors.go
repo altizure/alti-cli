@@ -33,6 +33,8 @@ const (
 	ErrMetaMisc ProjectError = "project: meta file is invalid or duplicated"
 	// ErrReportProj is returned when a project could not be reported.
 	ErrReportProj ProjectError = "project: report error"
+	// ErrTransferProject is returned when transferring a project gives error.
+	ErrTransferProject ProjectError = "project: transfer project failed"
 	// ErrFileNotImage is returned when a file is not a supported image.
 	ErrFileNotImage FileError = "file: not image"
 	// ErrFileNotZip is returned when a file is not a zip file.
