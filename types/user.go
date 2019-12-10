@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	humanize "github.com/dustin/go-humanize"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -25,6 +26,7 @@ type User struct {
 	}
 	MembershipState string // NA, ACTIVE, SUSPENDED, TRIAL, EXPIRED, STOPPED
 	Membership      MembershipInfo
+	ModelUsage      float64
 	Developer       struct {
 		Status string // NA, UNDER_REVIEW, TRIAL, ACTIVE, INACTIVE, EXPIRED
 	}
@@ -48,6 +50,7 @@ func UserHeaderString() []string {
 		"GP Quota",
 		"Membership",
 		"Developership",
+		"Free storage",
 		"Star",
 		"Project",
 		"Planet",
@@ -66,6 +69,7 @@ func (u *User) RowString() []string {
 		fmt.Sprintf("%.2f", u.FreeGPQuota),
 		u.MembershipState,
 		u.Developer.Status,
+		humanize.IBytes(uint64((u.Membership.AssetStorage - u.ModelUsage) * 1048576)),
 		strconv.Itoa(u.Stats.Star),
 		strconv.Itoa(u.Stats.Project),
 		strconv.Itoa(u.Stats.Planet),

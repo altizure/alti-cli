@@ -48,6 +48,7 @@ func MySelf() (string, *types.User, error) {
 						collaboratorQuota
 						forceWatermark
 					}
+					modelUsage
 					developer {
 						status
 					}

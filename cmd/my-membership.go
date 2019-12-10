@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	humanize "github.com/dustin/go-humanize"
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/olekukonko/tablewriter"
@@ -50,6 +51,7 @@ var membershipCmd = &cobra.Command{
 			"GP Quota",
 			"Coin/GP",
 			"Storage",
+			"Usage",
 			"Visibility",
 			"Coupon",
 			"Model/Project",
@@ -64,7 +66,8 @@ var membershipCmd = &cobra.Command{
 			m.EndDate.Format("2006-01-02 15:04:05"),
 			fmt.Sprintf("%.2f", m.MemberGPQuota),
 			fmt.Sprintf("%.2f", m.CoinPerGP),
-			fmt.Sprintf("%.2f", m.AssetStorage),
+			humanize.IBytes(uint64(m.AssetStorage * 1048576)),
+			humanize.IBytes(uint64(user.ModelUsage * 1048576)),
 			strings.Join(m.Visibility, ", "),
 			m.Coupon.String(),
 			strconv.Itoa(m.ModelPerProject),
