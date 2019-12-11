@@ -12,6 +12,7 @@ import (
 
 var desc string
 
+// reportCmd represents the report project command
 var reportCmd = &cobra.Command{
 	Use:   "report",
 	Short: "Report issue of a project.",

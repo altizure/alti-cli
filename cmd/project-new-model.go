@@ -12,7 +12,7 @@ import (
 
 var modelType = "CAD"
 
-// newCmd represents the new command
+// newModelCmd represents the new command
 var newModelCmd = &cobra.Command{
 	Use:   "model",
 	Short: "Create an empty model project",

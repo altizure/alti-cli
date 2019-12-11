@@ -50,7 +50,7 @@ func SuggestedBucket(kind, cloud string) (string, error) {
 	}
 
 	for _, b := range buks {
-		if strings.ToLower(b.Cloud) == strings.ToLower(cloud) {
+		if strings.EqualFold(b.Cloud, cloud) {
 			return b.Bucket, nil
 		}
 	}

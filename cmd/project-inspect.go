@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// inspectCmd represents the inspect command
+// projInspectCmd represents the inspect command
 var projInspectCmd = &cobra.Command{
 	Use:   "inspect",
 	Short: "Inspect any individual project by partial id.",

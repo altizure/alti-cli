@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// projectNewCmd represents the project new sub-command
+// projNewCmd represents the project new sub-command
 var projNewCmd = &cobra.Command{
 	Use:   "new",
 	Short: "Root command for all project creation related commands",

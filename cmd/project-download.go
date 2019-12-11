@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// downloadCmd represents the download command
+// projDownloadCmd represents the download command
 var projDownloadCmd = &cobra.Command{
 	Use:   "download",
 	Short: "Download reconstruction results if any.",
