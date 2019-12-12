@@ -192,6 +192,11 @@ $ alti-cli project stop -p 5d37e0
 $ alti-cli project download -p 5d37e -y
 ```
 
+### Transfer project
+```bash
+$ alti-cli project transfer -p 5d37e -e nat@nat.com
+```
+
 ### Bank
 Cash to coins
 ```bash
