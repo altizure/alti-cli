@@ -34,6 +34,14 @@ $ alti-cli quick -i /tmp/bunny.zip
 ```
 3. Done
 
+* -i: input path of image directory with meta file or single obj zip, e.g. /tmp/ust-test or /tmp/bunny.zip
+* -n: project name, e.g. 'Ust test', 'Bunny obj'
+* -p: project type, 'free' or 'pro'
+* -m: upload method, 'direct' or 's3' or 'oss'
+* -m: model type, 'CAD' or 'PHOTOGRAMMETRY' or 'PTCLOUD'
+* -s: directory to skip, e.g. .small
+* -v: verbose
+
 ### Network Test
 Check if direct upload is supported.
 ```bash
@@ -97,12 +105,18 @@ $ alti-cli project new recon -n 'test new proj'
 ```
 * recon: reconstruction project
 * -n: project name, e.g. 'test new proj'
-* -s: output project id only
+* -p: project type, 'free' or 'pro'
+* -v: visibility, 'public', 'unlisted' or 'private'
+* -s: silent mode, output project id only
 
 ### New Project (imported model)
 ```bash
 $ alti-cli project new model -n 'my obj model'
 ```
+* -n: project name, e.g. 'test obj model'
+* -p: project type, 'free' or 'pro'
+* -m: model type, 'CAD' or 'PHOTOGRAMMETRY' or 'PTCLOUD'
+* -v: visibility, 'public', 'unlisted' or 'private'
 
 ### Remove Project (any kind)
 ```bash

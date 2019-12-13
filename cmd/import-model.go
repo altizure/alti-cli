@@ -130,6 +130,7 @@ var importModelCmd = &cobra.Command{
 		}
 
 		log.Printf("Successfully registered and uplaoded in state: %q!\n", state)
+		log.Printf("PID: %q\n", proj.ID)
 	},
 }
 

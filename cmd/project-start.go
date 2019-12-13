@@ -46,6 +46,7 @@ var startReconCmd = &cobra.Command{
 		table.Render()
 
 		fmt.Printf("Successfully started a %q task with state: %q\n", t.TaskType, t.State)
+		fmt.Printf("PID: %q\n", p.ID)
 	},
 }
 
