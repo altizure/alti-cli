@@ -36,9 +36,9 @@ $ alti-cli quick -i /tmp/bunny.zip
 
 * -i: input path of image directory with meta file or single obj zip, e.g. /tmp/ust-test or /tmp/bunny.zip
 * -n: project name, e.g. 'Ust test', 'Bunny obj'
-* -p: project type, 'free' or 'pro'
-* -m: upload method, 'direct' or 's3' or 'oss'
-* -m: model type, 'CAD' or 'PHOTOGRAMMETRY' or 'PTCLOUD'
+* -p: project type, `free` or `pro`
+* -m: upload method, `direct` or `s3` or `oss`
+* -m: model type, `CAD` or `PHOTOGRAMMETRY` or `PTCLOUD`
 * -s: directory to skip, e.g. .small
 * -v: verbose
 
@@ -105,8 +105,8 @@ $ alti-cli project new recon -n 'test new proj'
 ```
 * recon: reconstruction project
 * -n: project name, e.g. 'test new proj'
-* -p: project type, 'free' or 'pro'
-* -v: visibility, 'public', 'unlisted' or 'private'
+* -p: project type, `free` or `pro`
+* -v: visibility, `public`, `unlisted` or `private`
 * -s: silent mode, output project id only
 
 ### New Project (imported model)
@@ -114,9 +114,9 @@ $ alti-cli project new recon -n 'test new proj'
 $ alti-cli project new model -n 'my obj model'
 ```
 * -n: project name, e.g. 'test obj model'
-* -p: project type, 'free' or 'pro'
-* -m: model type, 'CAD' or 'PHOTOGRAMMETRY' or 'PTCLOUD'
-* -v: visibility, 'public', 'unlisted' or 'private'
+* -p: project type, `free` or `pro`
+* -m: model type, `CAD` or `PHOTOGRAMMETRY` or `PTCLOUD`
+* -v: visibility, `public`, `unlisted` or `private`
 
 ### Remove Project (any kind)
 ```bash
@@ -160,7 +160,7 @@ $ alti-cli import meta -p 5d008 -v -f ~/test/pose.txt
 * -b: desired bucket to upload (auto select if empty)
 * -f: path of meta file
 * -p: (partial) project id from aboved, e.g. 5d37e
-* -m: method of upload: 'direct' or 's3' or 'minio' (based on supported cloud shown in `alti-cli account`)
+* -m: method of upload: `direct` or `s3` or `minio` (based on supported cloud shown in `alti-cli account`)
 * -t: timeout in second(s)
 * -ip: ip address of ad-hoc local server for direct upload
 * -port: port of ad-hoc local server for direct upload
@@ -173,7 +173,7 @@ $ alti-cli import model -p 5d7b6b -v -f ~/test/bunny.obj
 * -b: desired bucket to upload
 * -f: path of model zip file or directory of multiparts zip
 * -p: (partial) project id from aboved, e.g. 5d37e
-* -m: method of upload: 'direct' or 's3' or 'minio'
+* -m: method of upload: `direct` or `s3` or `minio`
 * -t: timeout in second(s)
 * -v: verbose
 
@@ -289,7 +289,13 @@ $ alti-cli gql -q q.txt -k var.txt
 * -q: path of query or mutation file
 * -k: path of query variables file
 
+----
+
 ### Super tools
+Only for superuser, login with your superuser key and account:
+```bash
+$ alti-cli login -k
+```
 
 #### Get user token
 ```bash
