@@ -280,3 +280,15 @@ func MergeFile(parts []string, output string) (int, error) {
 
 	return n, nil
 }
+
+// EnsureDir ensures a dir exists.
+func EnsureDir(p string, perm os.FileMode) error {
+	if perm == 0 {
+		perm = 0755
+	}
+	// ensure output dir
+	if _, err := os.Stat(p); os.IsNotExist(err) {
+		return os.MkdirAll(p, perm)
+	}
+	return nil
+}

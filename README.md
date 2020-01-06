@@ -1,8 +1,8 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/jackytck/alti-cli)](https://goreportcard.com/report/github.com/jackytck/alti-cli)
+[![Go Report Card](https://goreportcard.com/badge/github.com/altizure/alti-cli)](https://goreportcard.com/report/github.com/altizure/alti-cli)
 
 ### Install or Update
 ```bash
-$ go get -u github.com/jackytck/alti-cli
+$ go get -u github.com/altizure/alti-cli
 
 # bash auto-complete
 $ alti-cli help completion
@@ -205,6 +205,19 @@ $ alti-cli project stop -p 5d37e0
 ```bash
 $ alti-cli project download -p 5d37e -y
 ```
+
+### Export all images
+```bash
+# export as list of images as csv only
+$ alti-cli project image -p 5d37e
+
+# download to local dir
+$ alti-cli project image -p 5d37e -d /tmp/nat
+```
+* -p: (partial) project id from aboved, e.g. 5d37e
+* -o, path of output csv, default to `$pid-images.csv`
+* -d, path of download directory (absolute or relative)
+* -v: verbose
 
 ### Transfer project
 ```bash

@@ -5,15 +5,18 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
+	"github.com/jackytck/alti-cli/cloud"
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/gql"
 	"github.com/jackytck/alti-cli/service"
 	"github.com/jackytck/alti-cli/types"
+	"github.com/jackytck/jcconv/file"
 	"github.com/spf13/cobra"
 )
 
-var out string
+var out, download string
 
 // exportImageCmd represents the image command
 var exportImageCmd = &cobra.Command{
@@ -50,7 +53,14 @@ var exportImageCmd = &cobra.Command{
 		err = writer.Write([]string{"Filename", "State", "URL"})
 		errors.Must(err)
 
-		// c. export
+		// c. setup download directory
+		if download != "" {
+			err := file.EnsureDir(download, 0755)
+			errors.Must(err)
+			log.Printf("Downloading to %q\n", download)
+		}
+
+		// d. export
 		var cnt int
 		log.Printf("Exporting %d images...\n", total)
 		printProgress(cnt, total)
@@ -60,11 +70,17 @@ var exportImageCmd = &cobra.Command{
 			if err != nil {
 				panic(err)
 			}
+			if download != "" {
+				err = downloadImages(imgs)
+				if err != nil {
+					panic(err)
+				}
+			}
 			cnt += c
 			printProgress(cnt, total)
 		}
 
-		// d. loop all images in batch, fetch `first` images at a time
+		// e. loop all images in batch, fetch `first` images at a time
 		work()
 		for page.HasNextPage {
 			imgs, page, _, err = allImages(first, page.EndCursor)
@@ -101,6 +117,17 @@ func writeCSV(w *csv.Writer, imgs []types.ProjectImage) (int, error) {
 	return len(imgs), nil
 }
 
+func downloadImages(imgs []types.ProjectImage) error {
+	for _, img := range imgs {
+		p := filepath.Join(download, img.Name)
+		err := cloud.GetFile(p, img.URL)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func allImages(first int, after string) ([]types.ProjectImage, *types.PageInfo, int, error) {
 	imgs, page, total, err := gql.AllProjectImages(id, first, 0, "", after)
 	if msg := errors.MustGQL(err, ""); msg != "" {
@@ -114,5 +141,6 @@ func init() {
 	projectCmd.AddCommand(exportImageCmd)
 	exportImageCmd.Flags().StringVarP(&id, "id", "p", id, "Project id")
 	exportImageCmd.Flags().StringVarP(&out, "out", "o", out, "Path of output csv")
+	exportImageCmd.Flags().StringVarP(&download, "download", "d", out, "Directory to download all images")
 	exportImageCmd.Flags().BoolVarP(&verbose, "verbose", "v", verbose, "Display individual image info")
 }
