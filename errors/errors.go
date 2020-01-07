@@ -1,5 +1,7 @@
 package errors
 
+import "fmt"
+
 const (
 	// ErrNotImplemented is returned when the desired feature is not yet implemented.
 	ErrNotImplemented AppError = "app: feature not implemented"
@@ -162,4 +164,14 @@ type ClientError string
 
 func (e ClientError) Error() string {
 	return string(e)
+}
+
+// NetworkError is the network related error.
+type NetworkError struct {
+	Code    int
+	Message string
+}
+
+func (e NetworkError) Error() string {
+	return fmt.Sprintf("%s (%d)", e.Message, e.Code)
 }

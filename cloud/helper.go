@@ -1,7 +1,6 @@
 package cloud
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -73,7 +72,7 @@ func GetFile(filepath string, url string) error {
 
 	// Check server response
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad status: %s", resp.Status)
+		return errors.NetworkError{Code: resp.StatusCode, Message: "bad status"}
 	}
 
 	// Writer the body to file

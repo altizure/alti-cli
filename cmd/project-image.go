@@ -119,10 +119,20 @@ func writeCSV(w *csv.Writer, imgs []types.ProjectImage) (int, error) {
 
 func downloadImages(imgs []types.ProjectImage) error {
 	for _, img := range imgs {
+		if img.State != "Ready" {
+			continue
+		}
 		p := filepath.Join(download, img.Name)
 		err := cloud.GetFile(p, img.URL)
 		if err != nil {
-			return err
+			netErr, ok := err.(errors.NetworkError)
+			if ok {
+				// ignore
+				log.Printf("[Error] %s failed with status code: %d\n", img.URL, netErr.Code)
+				continue
+			} else {
+				return err
+			}
 		}
 	}
 	return nil
