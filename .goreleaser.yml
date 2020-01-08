@@ -1,7 +1,10 @@
 project_name: alti-cli
 before:
   hooks:
-  - make dep
+  - go get ./...
+  - go get github.com/inconshreveable/mousetrap
+  - mkdir -p /go/src/github.com/altizure/
+  - ln -s /github/workspace /go/src/github.com/altizure/alti-cli
 builds:
   -
     env:
@@ -35,3 +38,20 @@ changelog:
     exclude:
     - '^docs:'
     - '^test:'
+dockers:
+  -
+    goos: linux
+    goarch: amd64
+    binaries:
+    - alti-cli
+    image_templates:
+    - "jackytck/alti-cli:{{ .Tag }}"
+    dockerfile: Dockerfile
+brews:
+- github:
+    owner: jackytck
+    name: homebrew-alti-cli
+  description: Command line interface for altizure.com, with fast and robust uploads.
+  homepage: https://github.com/altizure/alti-cli
+  test: |
+    system "#{bin}/alti-cli version"
