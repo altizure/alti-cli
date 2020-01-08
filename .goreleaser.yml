@@ -1,10 +1,10 @@
 project_name: alti-cli
 before:
   hooks:
-  - go get ./...
-  - go get github.com/inconshreveable/mousetrap
   - mkdir -p /go/src/github.com/altizure/
   - ln -s /github/workspace /go/src/github.com/altizure/alti-cli
+  - go get /go/src/github.com/altizure/alti-cli/...
+  - go get github.com/inconshreveable/mousetrap
 builds:
   -
     env:
