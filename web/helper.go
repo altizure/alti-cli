@@ -104,7 +104,7 @@ func CheckVisibility(verbose bool) (map[string]bool, error) {
 	ret := make(map[string]bool)
 
 	// tmp dir for server
-	tmpDir, err := ioutil.TempDir("", "alti-cli-")
+	tmpDir, err := ioutil.TempDir(".", "alti-cli-")
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +207,7 @@ func CheckVisibilityIPPort(ip, port string, verbose bool) (bool, error) {
 	}
 
 	// tmp dir for server
-	tmpDir, err := ioutil.TempDir("", "alti-cli-")
+	tmpDir, err := ioutil.TempDir(".", "alti-cli-")
 	if err != nil {
 		return false, err
 	}

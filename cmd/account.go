@@ -83,7 +83,7 @@ func getActRow(s config.Scope, p config.Profile, activeID string, timeout time.D
 	}
 
 	nameOrEmail := p.Name
-	if bson.IsObjectIdHex(p.Name) {
+	if p.Name == "" || bson.IsObjectIdHex(p.Name) {
 		nameOrEmail = p.Email
 	}
 
