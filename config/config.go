@@ -13,11 +13,18 @@ import (
 )
 
 // FromEnv loads config from env vars, and return if the config is valid.
+// Otherwise, return the default config.
 func FromEnv() (Config, bool) {
 	c := DefaultConfig()
-	s := c.Scopes[DefaultScope]
-	p := s.Profiles[0]
-	if s.Endpoint == "" || p.Key == "" || p.Token == "" {
+	ap := APoint{
+		Endpoint: os.Getenv(AltiEndpoint),
+		Key:      os.Getenv(AltiKey),
+		Token:    os.Getenv(AltiToken),
+	}
+	if ap.Endpoint == "" || ap.Key == "" || ap.Token == "" {
+		return c, false
+	}
+	if c.AddProfile(ap) != nil {
 		return c, false
 	}
 	return c, true
@@ -27,14 +34,14 @@ func FromEnv() (Config, bool) {
 func DefaultConfig() Config {
 	m := map[string]Scope{}
 	m[DefaultScope] = Scope{
-		Endpoint: EnvOrDefault(AltiEndpoint, DefaultEndpoint),
+		Endpoint: DefaultEndpoint,
 		Profiles: []Profile{
 			{
 				ID:    DefaultProfileID,
-				Name:  EnvOrDefault(AltiName, ""),
-				Email: EnvOrDefault(AltiEmail, ""),
-				Key:   EnvOrDefault(AltiKey, DefaultAppKey),
-				Token: EnvOrDefault(AltiToken, ""),
+				Name:  "",
+				Email: "",
+				Key:   DefaultAppKey,
+				Token: "",
 			},
 		},
 	}

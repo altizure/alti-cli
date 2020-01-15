@@ -14,7 +14,12 @@ import (
 func MySelf() (string, *types.User, error) {
 	config := config.Load()
 	active := config.GetActive()
-	client := graphql.NewClient(active.Endpoint + "/graphql")
+	return MySelfByKeyToken(active.Endpoint, active.Key, active.Token)
+}
+
+// MySelfByKeyToken queries simple info of a specific user.
+func MySelfByKeyToken(endpoint, key, token string) (string, *types.User, error) {
+	client := graphql.NewClient(endpoint + "/graphql")
 
 	// make a request
 	req := graphql.NewRequest(`
@@ -64,8 +69,8 @@ func MySelf() (string, *types.User, error) {
 			}
 		}
 	`)
-	req.Header.Set("key", active.Key)
-	req.Header.Set("altitoken", active.Token)
+	req.Header.Set("key", key)
+	req.Header.Set("altitoken", token)
 
 	// define a Context for the request
 	ctx := context.Background()
@@ -75,9 +80,9 @@ func MySelf() (string, *types.User, error) {
 	if err := client.Run(ctx, req, &res); err != nil {
 		switch err.(type) {
 		case *url.Error:
-			return active.Endpoint, nil, errors.ErrOffline
+			return endpoint, nil, errors.ErrOffline
 		default:
-			return active.Endpoint, nil, err
+			return endpoint, nil, err
 		}
 	}
 
@@ -85,7 +90,7 @@ func MySelf() (string, *types.User, error) {
 		return "", nil, errors.ErrNotLogin
 	}
 
-	return active.Endpoint, &res.My.Self, nil
+	return endpoint, &res.My.Self, nil
 }
 
 type mySelfRes struct {

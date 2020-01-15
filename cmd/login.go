@@ -103,7 +103,7 @@ var loginCmd = &cobra.Command{
 		errors.Must(err)
 
 		// get username
-		endpoint, user, err := gql.MySelf()
+		endpoint, user, err := gql.MySelfByKeyToken(endpoint, appKey, token)
 		errors.Must(err)
 
 		// store username
