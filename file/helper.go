@@ -292,3 +292,24 @@ func EnsureDir(p string, perm os.FileMode) error {
 	}
 	return nil
 }
+
+// ReadFile reads a text file from path.
+func ReadFile(path string) ([]string, error) {
+	var ret []string
+	file, err := os.Open(path)
+	if err != nil {
+		return ret, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		ret = append(ret, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		return ret, err
+	}
+
+	return ret, nil
+}

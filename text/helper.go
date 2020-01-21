@@ -32,3 +32,12 @@ func BestMatch(a []string, s, def string) string {
 	}
 	return def
 }
+
+// SliceToMap turns a slice of string into a map, with given default value.
+func SliceToMap(s []string, d bool) map[string]bool {
+	ret := make(map[string]bool)
+	for _, v := range s {
+		ret[v] = d
+	}
+	return ret
+}
