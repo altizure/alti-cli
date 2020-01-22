@@ -26,13 +26,15 @@ type ImageDigest struct {
 	Error    error
 }
 
-// ImageDigester reads path names from paths...
+// ImageDigester reads path names from paths.
+// If light work is set, only set `IsImage`, `Path`, `URL` and `Filename`.
 type ImageDigester struct {
-	Root   string
-	PID    string
-	Done   <-chan struct{}
-	Paths  <-chan string
-	Result chan<- ImageDigest
+	Root      string
+	PID       string
+	LightWork bool
+	Done      <-chan struct{}
+	Paths     <-chan string
+	Result    chan<- ImageDigest
 }
 
 // Digest reads path names from Paths and sends digests of the corresponding
@@ -40,7 +42,7 @@ type ImageDigester struct {
 func (id *ImageDigester) Digest() {
 	for path := range id.Paths {
 		select {
-		case id.Result <- work(id.PID, id.Root, path):
+		case id.Result <- work(id.PID, id.Root, path, id.LightWork):
 		case <-id.Done:
 			return
 		}
@@ -74,7 +76,7 @@ func (id *ImageDigester) Run(n int) int {
 
 // work checks the specified image file
 // and get its name, size, width, height, gp and sha1.
-func work(pid, r, p string) ImageDigest {
+func work(pid, r, p string, light bool) ImageDigest {
 	ret := ImageDigest{
 		Path: p,
 		URL:  strings.Replace(p[len(r):], " ", "%20", -1),
@@ -95,6 +97,10 @@ func work(pid, r, p string) ImageDigest {
 
 	// b. filename
 	ret.Filename = filepath.Base(p)
+
+	if light {
+		return ret
+	}
 
 	// c. filetype
 	t, err := GuessFileType(p)

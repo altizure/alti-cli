@@ -134,6 +134,18 @@ $ alti-cli check image -d ~/myimg -v -t -s .small -n 10
 * -s: directory to skip, e.g. .small
 * -n: number of threads, default is number of cores
 
+### Remove local images not defined in group.txt
+Locally check each image of a given directory, see if it is defined in the group.txt (if found). Remove it if it is not.
+```bash
+$ alti-cli check image-group -d ~/myimg -v -t -s .small -n 10
+```
+* -d: image directory, e.g. ~/myimg
+* -v: verbose
+* -t: table format
+* -s: directory to skip, e.g. .small
+* -n: number of threads, default is number of cores
+* -y: auto accept to remove all undefined images
+
 ### List buckets
 Buckets are used in the `import` command for specifying different geo endpoints for the upload process. Would be auto selected if not provided.
 ```bash
