@@ -1,6 +1,17 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/altizure/alti-cli)](https://goreportcard.com/report/github.com/altizure/alti-cli)
 
-### Install or Update
+### Homebrew (for mac user)
+```bash
+$ brew install jackytck/alti-cli/alti-cli
+```
+
+### Docker
+```bash
+$ docker run -it --rm -v /tmp:/.altizure jackytck/alti-cli:v1.0.0
+```
+* `/.altizure` is the path for storing config in container, mount to it to preserve config
+
+### Install or Update from source (for developer)
 ```bash
 $ go get -u github.com/altizure/alti-cli
 
@@ -21,6 +32,9 @@ $ alti-cli login -k
 ```
 * Support public api-server, Altizure One and private api-server.
 * e.g. endpoint for private server: http://1.2.3.4:1234
+
+### Environment variables
+* Active user profile could be set by environment variables: `ALTI_ENDPOINT`, `ALTI_EMAIL`, `ALTI_KEY` and `ALTI_TOKEN`. They are respected for all commands.
 
 ### Quick start
 1. Put all images and meta files in a directory (e.g. /tmp/ust-test), or zipped obj (e.g. /tmp/bunny.zip)
