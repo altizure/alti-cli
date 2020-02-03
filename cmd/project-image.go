@@ -50,7 +50,7 @@ var exportImageCmd = &cobra.Command{
 
 		defer o.Close()
 		writer := csv.NewWriter(o)
-		err = writer.Write([]string{"Filename", "State", "URL"})
+		err = writer.Write([]string{"Filename", "Hashed Name", "State", "URL"})
 		errors.Must(err)
 
 		// c. setup download directory
@@ -102,6 +102,7 @@ func writeCSV(w *csv.Writer, imgs []types.ProjectImage) (int, error) {
 	for _, img := range imgs {
 		fields := []string{
 			img.Name,
+			img.Filename,
 			img.State,
 			img.URL,
 		}

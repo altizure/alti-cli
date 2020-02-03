@@ -32,6 +32,7 @@ func AllProjectImages(pid string, first, last int, before, after string) ([]type
 						node {
 							id
 							name
+							filename
 							state
 							grounded
 							url
