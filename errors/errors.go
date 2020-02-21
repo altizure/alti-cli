@@ -21,6 +21,8 @@ const (
 	ErrClientInvisible ConfigError = "client: invisible"
 	// ErrOffline is returned when the server is offline.
 	ErrOffline ServerError = "server: offline"
+	// ErrReadOnly is returned when the server is read-only.
+	ErrReadOnly ServerError = "server: read-only"
 	// ErrProjCreate is returned when a new project could not be created.
 	ErrProjCreate ProjectError = "project: create"
 	// ErrProjRemove is returned when a project could not be removed.

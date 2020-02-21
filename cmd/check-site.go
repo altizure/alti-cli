@@ -29,7 +29,7 @@ var checkSiteCmd = &cobra.Command{
 
 		if err := service.Check(
 			nil,
-			service.CheckAPIServer(),
+			service.CheckAPIServerLite(),
 		); err != nil {
 			log.Println(err)
 			return

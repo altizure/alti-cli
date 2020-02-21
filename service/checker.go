@@ -46,6 +46,21 @@ func CheckAPIServer() CheckFn {
 		if mode != NormalMode {
 			logger("API server is in %q mode.\n", mode)
 			logger("Nothing could be uploaded at the moment!\n")
+			switch mode {
+			case ReadOnlyMode:
+				return errors.ErrReadOnly
+			}
+			return errors.ErrOffline
+		}
+		return nil
+	}
+}
+
+// CheckAPIServerLite checks if API server is online, possibly in ReadOnly mode.
+func CheckAPIServerLite() CheckFn {
+	return func(logger LogFn) error {
+		mode := gql.ActiveSystemMode()
+		if mode != NormalMode && mode != ReadOnlyMode {
 			return errors.ErrOffline
 		}
 		return nil
