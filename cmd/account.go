@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/gql"
+	"github.com/jackytck/alti-cli/service"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"gopkg.in/mgo.v2/bson"
@@ -75,7 +76,7 @@ func getActRow(s config.Scope, p config.Profile, activeID string, timeout time.D
 	var info gql.AccountInfo
 	var err error
 
-	if mode == "Normal" {
+	if mode == service.NormalMode || mode == service.ReadOnlyMode {
 		info, err = gql.GetAccountInfoTimeout(s.Endpoint, p.Key, p.Token, timeout)
 	}
 	if err != nil {
