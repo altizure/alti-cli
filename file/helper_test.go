@@ -23,6 +23,8 @@ import (
 const testImgDir = "test/data/imgs/"
 const testImgWidth = 1000
 const testImgHeight = 1000
+const testImgWidthSmall = 10
+const testImgHeightSmall = 10
 
 // TestMain creates and removes nat.jpg and nat.png.
 func TestMain(m *testing.M) {
@@ -33,11 +35,13 @@ func TestMain(m *testing.M) {
 func run(m *testing.M) int {
 	// create test dirs
 	errors.Must(os.MkdirAll("test/data/imgs", os.ModePerm))
-	errors.Must(os.Mkdir("test/data/other", os.ModePerm))
+	errors.Must(os.MkdirAll("test/data/other", os.ModePerm))
 
 	// create test imgs
 	var im draw.Image = image.NewRGBA(image.Rectangle{Max: image.Point{X: testImgWidth, Y: testImgHeight}})
 	im = fibGradient(im)
+
+	// nat.jpg
 	f, err := os.Create(testImgDir + "nat.jpg")
 	if err != nil {
 		panic(err)
@@ -47,11 +51,26 @@ func run(m *testing.M) int {
 		panic(err)
 	}
 	f.Close()
+
+	// nat.png
 	f, err = os.Create(testImgDir + "nat.png")
 	if err != nil {
 		panic(err)
 	}
 	err = png.Encode(f, im)
+	if err != nil {
+		panic(err)
+	}
+	f.Close()
+
+	// nat-small.jpg
+	var imSmall draw.Image = image.NewRGBA(image.Rectangle{Max: image.Point{X: testImgWidthSmall, Y: testImgHeightSmall}})
+	imSmall = fibGradient(imSmall)
+	f, err = os.Create(testImgDir + "nat-small.jpg")
+	if err != nil {
+		panic(err)
+	}
+	err = jpeg.Encode(f, imSmall, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -198,7 +217,7 @@ func TestWalkFiles(t *testing.T) {
 	if err := <-errc; err != nil {
 		t.Errorf("WalkFiles() error: %v", err)
 	}
-	want := []string{testImgDir + "nat.jpg", testImgDir + "nat.png"}
+	want := []string{testImgDir + "nat-small.jpg", testImgDir + "nat.jpg", testImgDir + "nat.png"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("WalkFiles() = %v, want %v", got, want)
 	}
@@ -214,7 +233,7 @@ func TestWalkFilesSkip(t *testing.T) {
 	if err := <-errc; err != nil {
 		t.Errorf("WalkFiles() error: %v", err)
 	}
-	want := []string{testImgDir + "nat.jpg"}
+	want := []string{testImgDir + "nat-small.jpg", testImgDir + "nat.jpg"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("WalkFiles() = %v, want %v", got, want)
 	}
@@ -403,4 +422,32 @@ func TestSplitMerge(t *testing.T) {
 			t.Errorf("Bytes are not equal\nGot %v\nWant %v", bs, original)
 		}
 	})
+}
+
+func TestGetBase64String(t *testing.T) {
+	type args struct {
+		f string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{"non-existing", args{"nat"}, "", true},
+		{"jpg", args{testImgDir + "nat-small.jpg"}, "/9j/2wCEAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDIBCQkJDAsMGA0NGDIhHCEyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMv/AABEIAAoACgMBIgACEQEDEQH/xAGiAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgsQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+gEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoLEQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2gAMAwEAAhEDEQA/APB4YGdgAK0ltV2j5XPHULVi3Vdg+UcsAeKTGTXtp0cFRhOcOZy/Azo1nJs//9k=", false},
+		{"non-image", args{"test/data/other/log.txt"}, "Mi43MTgyODE4Mjg0NTkwNDUyMzUzNjAyODc0NzEzNTI2NjI0OTc3NTcyNDcwOTM2OTk5NTk1NzQ5NjY5Ng==", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetBase64String(tt.args.f)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetBase64String() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("GetBase64String() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

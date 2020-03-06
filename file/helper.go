@@ -3,6 +3,7 @@ package file
 import (
 	"bufio"
 	"crypto/sha1"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -53,6 +54,29 @@ func GetImageSize(img string) (int, int, error) {
 		return 0, 0, err
 	}
 	return i.Width, i.Height, nil
+}
+
+// GetBase64String reads the file and return its bytes as base64 string.
+func GetBase64String(f string) (string, error) {
+	ff, err := os.Open(f)
+	if err != nil {
+		return "", err
+	}
+	defer ff.Close()
+
+	info, err := ff.Stat()
+	if err != nil {
+		return "", err
+	}
+
+	buf := make([]byte, int64(info.Size()))
+	reader := bufio.NewReader(ff)
+	_, err = reader.Read(buf)
+	if err != nil {
+		return "", err
+	}
+	ret := base64.StdEncoding.EncodeToString(buf)
+	return ret, nil
 }
 
 // IsFileExist checks if file exists.
