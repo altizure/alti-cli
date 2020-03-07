@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/jackytck/alti-cli/config"
 	"github.com/jackytck/alti-cli/errors"
 	"github.com/jackytck/alti-cli/file"
 	"github.com/jackytck/alti-cli/gql"
@@ -304,4 +305,17 @@ func GetMetafilePaths(dir string) ([]string, error) {
 	}
 
 	return ret, nil
+}
+
+// CheckIsLogin check if user has logged in.
+func CheckIsLogin() CheckFn {
+	return func(logger LogFn) error {
+		config := config.Load()
+		active := config.GetActive()
+		logged := active.Token != ""
+		if !logged {
+			return errors.ErrNotLogin
+		}
+		return nil
+	}
 }
