@@ -4,6 +4,9 @@ alti-cli: *.go */*.go
 linux: *.go */*.go
 	env GOOS=linux GOARCH=amd64 go build -o alti-cli-linux
 
+windows: *.go */*.go
+	env GOOS=windows GOARCH=amd64 go build -o alti-cli.exe
+
 dev: *.go */*.go
 	go build -race -o alti-cli
 
