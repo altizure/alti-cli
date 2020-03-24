@@ -119,7 +119,11 @@ var importImageCmd = &cobra.Command{
 			panic(err)
 		}
 		cleanupDB := func() {
-			err2 := os.Remove(dbPath)
+			err2 := localDB.Close()
+			if err2 != nil {
+				panic(err2)
+			}
+			err2 = os.Remove(dbPath)
 			if err2 != nil {
 				panic(err2)
 			}
