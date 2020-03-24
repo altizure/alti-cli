@@ -274,6 +274,11 @@ Successfully transferred 0.10 coins to "nat@nat.com"
 Current balnce: 105.32 coins
 ```
 
+### Set profile picture
+```bash
+$ alti-cli set-face -f /tmp/face_128.jpg
+```
+
 ### Arbitrary GQL (query + mutation)
 ```bash
 $ cat q.txt
